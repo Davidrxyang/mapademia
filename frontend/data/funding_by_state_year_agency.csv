@@ -89,8 +89,8 @@ state_fips,state_code,state_name,fiscal_year,agency,total_obligations,award_coun
 05,AR,ARKANSAS,2026,National Science Foundation,8327912.0,40
 06,CA,CALIFORNIA,2016,National Institutes of Health,3634755220.0,7451
 06,CA,ILLINOIS,2016,National Science Foundation,2187000.0,0
-06,CA,MASSACHUSETTS,2016,National Science Foundation,4347716.0,0
 06,CA,CALIFORNIA,2016,National Science Foundation,895599883.0,2562
+06,CA,MASSACHUSETTS,2016,National Science Foundation,4347716.0,0
 06,CA,CALIFORNIA,2017,National Institutes of Health,3837211047.0,10530
 06,CA,CALIFORNIA,2017,National Science Foundation,837774670.0,2623
 06,CA,CALIFORNIA,2018,National Institutes of Health,4148609592.0,10121
@@ -817,11 +817,11 @@ state_fips,state_code,state_name,fiscal_year,agency,total_obligations,award_coun
 40,OK,OKLAHOMA,2026,National Institutes of Health,130384523.35,327
 40,OK,OKLAHOMA,2026,National Science Foundation,20120561.0,85
 41,OR,OREGON,2016,National Institutes of Health,272118438.0,588
-41,OR,PUERTO RICO,2016,National Science Foundation,12355892.0,30
 41,OR,OREGON,2016,National Science Foundation,89966007.0,332
+41,OR,PUERTO RICO,2016,National Science Foundation,12355892.0,30
 41,OR,OREGON,2017,National Institutes of Health,310386837.0,892
-41,OR,PUERTO RICO,2017,National Science Foundation,-121191.0,2
 41,OR,OREGON,2017,National Science Foundation,204346945.0,332
+41,OR,PUERTO RICO,2017,National Science Foundation,-121191.0,2
 41,OR,OREGON,2018,National Institutes of Health,341875539.0,842
 41,OR,OREGON,2018,National Science Foundation,155030886.0,319
 41,OR,OREGON,2019,National Institutes of Health,398281043.0,910

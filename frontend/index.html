@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Mapademia — Federal Research Funding by State</title>
+<title>Mapademia — Federal Research Funding by State &amp; Institution</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root {
@@ -54,7 +54,53 @@
     font-size: 13px;
   }
   #year-label { font-variant-numeric: tabular-nums; min-width: 4ch; font-size: 13px; }
-  #map-wrap { padding: 12px 28px 28px; max-width: 1100px; margin: 0 auto; }
+  #content-wrap {
+    display: flex;
+    gap: 24px;
+    padding: 12px 28px 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: flex-start;
+  }
+  #map-wrap { flex: 1 1 640px; min-width: 0; }
+  #institutions-panel {
+    flex: 0 0 340px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    max-height: 636px;
+    overflow-y: auto;
+  }
+  #institutions-panel h2 {
+    font-size: 14px;
+    margin: 0 0 2px;
+    font-weight: 600;
+  }
+  #institutions-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  #institutions-subtitle button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    margin-left: 6px;
+  }
+  .inst-row {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .inst-row:last-child { border-bottom: none; }
+  .inst-rank { color: var(--muted); min-width: 1.6em; }
+  .inst-name-wrap { flex: 1; min-width: 0; }
+  .inst-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inst-loc { color: var(--muted); font-size: 11px; }
+  .inst-amount { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .inst-awards { color: var(--muted); font-size: 11px; text-align: right; }
   #tooltip {
     position: fixed;
     pointer-events: none;
@@ -68,8 +114,9 @@
     z-index: 10;
   }
   #tooltip .amount { font-weight: 600; color: var(--accent); }
-  .state { stroke: var(--bg); stroke-width: 0.75px; cursor: default; }
+  .state { stroke: var(--bg); stroke-width: 0.75px; cursor: pointer; }
   .state:hover { stroke: var(--text); stroke-width: 1.5px; }
+  .state.selected { stroke: var(--accent); stroke-width: 2px; }
   #legend { font-size: 12px; color: var(--muted); }
   footer {
     text-align: center;
@@ -81,8 +128,8 @@
 </head>
 <body>
 <header>
-  <h1>Federal Research Funding by State</h1>
-  <div class="subtitle">Phase 0 — grant obligations to recipients, by state · USAspending.gov bulk data</div>
+  <h1>Federal Research Funding by State &amp; Institution</h1>
+  <div class="subtitle">Phase 1 — grant obligations to recipients · USAspending.gov bulk data · click a state to drill in</div>
 </header>
 
 <div class="controls">
@@ -100,8 +147,15 @@
   <div class="control-group" id="legend"></div>
 </div>
 
-<div id="map-wrap">
-  <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
+<div id="content-wrap">
+  <div id="map-wrap">
+    <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
+  </div>
+  <div id="institutions-panel">
+    <h2>Top Institutions</h2>
+    <div id="institutions-subtitle"></div>
+    <div id="institutions-list"></div>
+  </div>
 </div>
 
 <div id="tooltip"></div>
@@ -112,13 +166,20 @@
 <script src="https://unpkg.com/topojson-client@3"></script>
 <script>
 (async function () {
-  const [us, rows] = await Promise.all([
+  const [us, rows, institutionRows] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
+    d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
   ]);
 
   const states = topojson.feature(us, us.objects.states).features;
   const pad2 = (id) => String(id).padStart(2, "0");
+
+  // institution rows carry postal state codes, not FIPS - derive the
+  // crosswalk from the state aggregate rather than hardcoding one.
+  const postalByFips = new Map(rows.map(d => [pad2(d.state_fips), d.state_code]));
+  let selectedFips = null;
+  const TOP_N_INSTITUTIONS = 500; // must match aggregate.py's TOP_N_INSTITUTIONS
 
   const agencies = Array.from(new Set(rows.map(d => d.agency))).sort();
   const agencySelect = d3.select("#agency-select");
@@ -160,7 +221,12 @@
                <span class="amount">$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</span><br>
                ${awards.toLocaleString()} awards`);
     })
-    .on("mouseleave", () => tooltip.style("opacity", 0));
+    .on("mouseleave", () => tooltip.style("opacity", 0))
+    .on("click", (event, d) => {
+      const fips = pad2(d.id);
+      selectedFips = selectedFips === fips ? null : fips;
+      render();
+    });
 
   let current = new Map();
 
@@ -188,8 +254,67 @@
       const rec = current.get(pad2(d.id));
       return rec ? color(rec.total_obligations) : "#1a1d26";
     });
+    paths.classed("selected", d => pad2(d.id) === selectedFips);
 
     d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
+
+    renderInstitutions(year, agency);
+  }
+
+  function renderInstitutions(year, agency) {
+    const selectedPostal = selectedFips ? postalByFips.get(selectedFips) : null;
+    const stateLabel = selectedFips
+      ? states.find(s => pad2(s.id) === selectedFips)?.properties.name
+      : null;
+
+    const filtered = institutionRows.filter(d =>
+      d.fiscal_year === year &&
+      (agency === "__all__" || d.agency === agency) &&
+      (!selectedPostal || d.state_code === selectedPostal)
+    );
+
+    const byUei = new Map();
+    for (const d of filtered) {
+      const prev = byUei.get(d.uei);
+      if (prev) {
+        prev.total_obligations += d.total_obligations;
+        prev.award_count += d.award_count;
+      } else {
+        byUei.set(d.uei, { ...d });
+      }
+    }
+
+    const ranked = Array.from(byUei.values()).sort((a, b) => b.total_obligations - a.total_obligations).slice(0, 50);
+
+    const subtitle = d3.select("#institutions-subtitle");
+    if (stateLabel) {
+      subtitle.html("");
+      subtitle.append("span").text(`${stateLabel}, FY${year}`);
+      subtitle.append("button").text("clear").on("click", () => { selectedFips = null; render(); });
+    } else {
+      subtitle.text(`Nationwide, FY${year} · top 50 of ${TOP_N_INSTITUTIONS} tracked`);
+    }
+
+    const list = d3.select("#institutions-list");
+    list.html("");
+
+    if (ranked.length === 0) {
+      list.append("div").attr("class", "inst-loc").text("No tracked institutions for this selection.");
+      return;
+    }
+
+    const row = list.selectAll(".inst-row").data(ranked, d => d.uei).join("div").attr("class", "inst-row");
+    row.append("div").attr("class", "inst-rank").text((d, i) => i + 1);
+    const nameWrap = row.append("div").attr("class", "inst-name-wrap");
+    nameWrap.append("div").attr("class", "inst-name").attr("title", d => d.name).text(d => titleCase(d.name));
+    nameWrap.append("div").attr("class", "inst-loc").text(d => `${titleCase(d.city)}, ${d.state_code}`);
+    const amountWrap = row.append("div");
+    amountWrap.append("div").attr("class", "inst-amount").text(d => `$${d.total_obligations.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
+    amountWrap.append("div").attr("class", "inst-awards").text(d => `${d.award_count.toLocaleString()} awards`);
+  }
+
+  function titleCase(s) {
+    return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
   agencySelect.on("change", render);
