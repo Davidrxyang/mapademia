@@ -355,6 +355,8 @@
     <svg id="sankey-svg" viewBox="0 0 1000 600" style="width: 100%; height: auto;"></svg>
     <h2 id="sankey-bar-title" style="font-size: 14px; margin: 20px 0 8px;">Top middle-layer entities by funding</h2>
     <svg id="sankey-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
+    <h2 id="sankey-bar2-title" style="font-size: 14px; margin: 20px 0 8px;">Top research fields by funding</h2>
+    <svg id="sankey-bar2-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
   </div>
 </div>
 
@@ -946,6 +948,7 @@
     const noteEl = document.getElementById("sankey-note");
     let barTitle = "";
     let barData = [];
+    let fieldBarData = null;
 
     if (postal) {
       noteEl.textContent = "Agency -> top-funded institutions -> research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.";
@@ -1011,6 +1014,15 @@
       barTitle = "Top institutions by funding";
       barData = topInst.map(([, e]) => ({ label: titleCase(e.name), value: e.total }));
       if (otherTotal > 0) barData.push({ label: "Other institutions", value: otherTotal });
+
+      const TOP_FIELDS_OVERALL = 10;
+      const fieldAllocPostal = computeFieldAllocation(start, end, agency, postal);
+      const fieldsArrPostal = Array.from(fieldAllocPostal, ([key, funding]) => ({ field_name: key.split("|")[1], funding }))
+        .sort((a, b) => b.funding - a.funding);
+      const topFieldsPostal = fieldsArrPostal.slice(0, TOP_FIELDS_OVERALL);
+      const restFieldsPostal = d3.sum(fieldsArrPostal, d => d.funding) - d3.sum(topFieldsPostal, d => d.funding);
+      fieldBarData = topFieldsPostal.map(f => ({ label: f.field_name, value: f.funding }));
+      if (restFieldsPostal > 0) fieldBarData.push({ label: "Other fields", value: restFieldsPostal });
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
       noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_FIELDS = 8, TOP_STATES_PER_FIELD = 3;
@@ -1124,10 +1136,31 @@
       barTitle = "Top states by funding";
       barData = topStates.map(([stCode, e]) => ({ label: titleCase(stateNameByPostal.get(stCode) || stCode), value: e.total }));
       if (otherTotal > 0) barData.push({ label: "Other states", value: otherTotal });
+
+      const TOP_FIELDS_OVERALL = 10;
+      const flatAll = computeAgencyStateFieldRows(start, end, agency);
+      const fieldTotalsAll = new Map();
+      for (const r of flatAll) fieldTotalsAll.set(r.field_name, (fieldTotalsAll.get(r.field_name) || 0) + r.amount);
+      const topFieldsAll = Array.from(fieldTotalsAll.entries()).sort((a, b) => b[1] - a[1]).slice(0, TOP_FIELDS_OVERALL);
+      const topFieldsAllSum = d3.sum(topFieldsAll, ([, v]) => v);
+      const totalFieldsAll = d3.sum(Array.from(fieldTotalsAll.values()));
+      fieldBarData = topFieldsAll.map(([name, v]) => ({ label: name, value: v }));
+      if (totalFieldsAll - topFieldsAllSum > 0) fieldBarData.push({ label: "Other fields", value: totalFieldsAll - topFieldsAllSum });
     }
 
     document.getElementById("sankey-bar-title").textContent = barTitle;
     renderBarList("#sankey-bar-svg", barData, formatMoneyShort);
+
+    const bar2Title = document.getElementById("sankey-bar2-title");
+    const bar2Svg = document.getElementById("sankey-bar2-svg");
+    if (fieldBarData) {
+      bar2Title.style.display = "";
+      bar2Svg.style.display = "";
+      renderBarList("#sankey-bar2-svg", fieldBarData, formatMoneyShort);
+    } else {
+      bar2Title.style.display = "none";
+      bar2Svg.style.display = "none";
+    }
 
     const svg = d3.select("#sankey-svg");
     svg.selectAll("*").remove();
