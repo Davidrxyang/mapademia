@@ -375,7 +375,7 @@
 
 <div class="tab-panel" data-tab="treemap">
   <div class="chart-wrap">
-    <div class="chart-note">Estimated funding by research field, for the selected year/agency - allocated proportionally to each institution's OpenAlex field mix, not from award-level field tags.</div>
+    <div class="chart-note">Estimated funding by research field, for the selected year/agency - allocated proportionally to each institution's OpenAlex field mix, not from award-level field tags. The "Other / Untracked institutions" slice is funding to institutions outside the 500 tracked nationally, shown separately since it can't be allocated to any field.</div>
     <svg id="treemap-svg" viewBox="0 0 960 560" style="width: 100%; height: auto;"></svg>
     <h2 style="font-size: 14px; margin: 20px 0 8px;">Top fields by estimated funding</h2>
     <svg id="treemap-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
@@ -964,7 +964,7 @@
     let fieldBarData = null;
 
     if (postal) {
-      noteEl.textContent = "Agency -> top-funded institutions -> research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.";
+      noteEl.textContent = "Agency -> top-funded institutions -> research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting. \"Other institutions\"/\"Other field\" include funding to institutions outside the 500 tracked nationally, so totals match the true state total.";
       const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
 
       const instTotals = new Map();
@@ -1002,6 +1002,27 @@
         links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: Math.max(0, e.total * (restShare / shareSum)) });
       }
 
+      // True full totals for this state, from the uncapped state-level
+      // dataset - institutionRows only covers the top 500 institutions
+      // nationally by all-time funding, which can miss a meaningful share
+      // for states with many small/untracked recipients (e.g. DC is only
+      // ~58% covered). The gap has no institution identity at all, so it
+      // can't be broken out by field - it's folded into "Other
+      // institutions"/"Other field" below rather than silently vanishing.
+      let fullStateTotal = 0;
+      const fullByAgencyForState = new Map();
+      for (const d of rows) {
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (d.state_code !== postal) continue;
+        fullStateTotal += d.total_obligations;
+        fullByAgencyForState.set(d.agency, (fullByAgencyForState.get(d.agency) || 0) + d.total_obligations);
+      }
+      const trackedByAgencyForState = new Map();
+      for (const [, e] of instTotals) {
+        for (const [ag, amt] of e.byAgency) trackedByAgencyForState.set(ag, (trackedByAgencyForState.get(ag) || 0) + amt);
+      }
+
       const otherFunding = new Map();
       const otherByAgency = new Map();
       let otherTotal = 0;
@@ -1010,6 +1031,13 @@
         otherFunding.set(uei, e.total);
         otherTotal += e.total;
         for (const [ag, amt] of e.byAgency) otherByAgency.set(ag, (otherByAgency.get(ag) || 0) + amt);
+      }
+      for (const [ag, fullAmt] of fullByAgencyForState) {
+        const untracked = fullAmt - (trackedByAgencyForState.get(ag) || 0);
+        if (untracked > 0) {
+          otherByAgency.set(ag, (otherByAgency.get(ag) || 0) + untracked);
+          otherTotal += untracked;
+        }
       }
       const otherInstNodeName = "inst:Other institutions";
       for (const [ag, amt] of otherByAgency) {
@@ -1033,15 +1061,15 @@
       const fieldsArrPostal = Array.from(fieldAllocPostal, ([key, funding]) => ({ field_name: key.split("|")[1], funding }))
         .sort((a, b) => b.funding - a.funding);
       const topFieldsPostal = fieldsArrPostal.slice(0, TOP_FIELDS_OVERALL);
-      const restFieldsPostal = d3.sum(fieldsArrPostal, d => d.funding) - d3.sum(topFieldsPostal, d => d.funding);
+      const restFieldsPostal = fullStateTotal - d3.sum(topFieldsPostal, d => d.funding);
       fieldBarData = topFieldsPostal.map(f => ({ label: f.field_name, value: f.funding }));
       if (restFieldsPostal > 0) fieldBarData.push({ label: "Other fields", value: restFieldsPostal });
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
-      noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
+      noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award. \"Other fields\" includes funding to institutions outside the 500 tracked nationally, so agency totals match the true national total.";
       const TOP_FIELDS = 8, TOP_STATES_PER_FIELD = 3;
       const stateNameByPostal = new Map(stateOptions);
 
-      const flat = computeAgencyStateFieldRows(start, end, agency);
+      const { rows: flat, residualByAgency, residualByState, residualTotal } = computeAgencyStateFieldRows(start, end, agency);
       const fieldTotals = new Map();
       for (const r of flat) fieldTotals.set(r.field_name, (fieldTotals.get(r.field_name) || 0) + r.amount);
       const topFields = Array.from(fieldTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, TOP_FIELDS).map(([name]) => name);
@@ -1079,11 +1107,18 @@
         otherFieldByState.set(r.state_code, (otherFieldByState.get(r.state_code) || 0) + r.amount);
         otherFieldTotal += r.amount;
       }
+      // Fold in the untracked long-tail (institutions outside the
+      // nationwide top-500 cutoff) so this bucket - and the agency/state
+      // totals flowing through it - reflect the true full amounts, not just
+      // the tracked-institution remainder.
+      for (const [ag, amt] of residualByAgency) otherFieldByAgency.set(ag, (otherFieldByAgency.get(ag) || 0) + amt);
+      for (const [st, amt] of residualByState) otherFieldByState.set(st, (otherFieldByState.get(st) || 0) + amt);
+      otherFieldTotal += residualTotal;
       const otherFieldNodeName = "field:Other fields";
       for (const [ag, amt] of otherFieldByAgency) {
         if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherFieldNodeName), value: amt });
       }
-      const otherStatesArr = Array.from(otherFieldByState, ([stCode, amt]) => ({ stCode, amt })).sort((a, b) => b.amt - a.amt);
+      const otherStatesArr = Array.from(otherFieldByState, ([stCode, amt]) => ({ stCode, amt })).filter(d => d.amt > 0).sort((a, b) => b.amt - a.amt);
       const otherTopStates = otherStatesArr.slice(0, TOP_STATES_PER_FIELD);
       for (const s of otherTopStates) {
         links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex(titleCase(stateNameByPostal.get(s.stCode) || s.stCode)), value: s.amt });
@@ -1094,12 +1129,21 @@
       barData = topFields.map(f => ({ label: f, value: fieldTotals.get(f) }));
       if (otherFieldTotal > 0) barData.push({ label: "Other fields", value: otherFieldTotal });
     } else {
-      noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
+      noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award. State totals are the true totals; \"Other field\" absorbs whatever isn't tracked institution-by-institution.";
       const TOP_STATES = 8, TOP_FIELDS_PER_STATE = 3;
       const stateNameByPostal = new Map(stateOptions);
 
+      // Sourced from the full state-level dataset (not institutionRows, which
+      // is capped to the top 500 institutions nationally by all-time
+      // funding - ~93% of the true total, but far less for states with many
+      // small recipients, e.g. DC is only ~58% covered). Using the full
+      // total here means the per-state field split below (which can only
+      // ever be institution-level, since field data only exists for tracked
+      // institutions) correctly nets its "Other field" residual against the
+      // TRUE state total, rather than silently matching a smaller,
+      // already-capped one and hiding the gap entirely.
       const stateTotals = new Map();
-      for (const d of institutionRows) {
+      for (const d of rows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
         let e = stateTotals.get(d.state_code);
@@ -1151,12 +1195,12 @@
       if (otherTotal > 0) barData.push({ label: "Other states", value: otherTotal });
 
       const TOP_FIELDS_OVERALL = 10;
-      const flatAll = computeAgencyStateFieldRows(start, end, agency);
+      const { rows: flatAll, residualTotal: fieldResidualTotal } = computeAgencyStateFieldRows(start, end, agency);
       const fieldTotalsAll = new Map();
       for (const r of flatAll) fieldTotalsAll.set(r.field_name, (fieldTotalsAll.get(r.field_name) || 0) + r.amount);
       const topFieldsAll = Array.from(fieldTotalsAll.entries()).sort((a, b) => b[1] - a[1]).slice(0, TOP_FIELDS_OVERALL);
       const topFieldsAllSum = d3.sum(topFieldsAll, ([, v]) => v);
-      const totalFieldsAll = d3.sum(Array.from(fieldTotalsAll.values()));
+      const totalFieldsAll = d3.sum(Array.from(fieldTotalsAll.values())) + fieldResidualTotal;
       fieldBarData = topFieldsAll.map(([name, v]) => ({ label: name, value: v }));
       if (totalFieldsAll - topFieldsAllSum > 0) fieldBarData.push({ label: "Other fields", value: totalFieldsAll - topFieldsAllSum });
     }
@@ -1289,22 +1333,53 @@
       shareSumByUei.set(d.uei, (shareSumByUei.get(d.uei) || 0) + d.share);
     }
 
-    const rows = [];
+    const fieldRows = [];
+    const explainedByStateAgency = new Map();
     for (const [key, e] of fundingByUeiAgency) {
       const uei = key.split("|")[0];
       const fields = fieldsByUei.get(uei);
       if (!fields) continue;
       const shareSum = shareSumByUei.get(uei) || 1;
+      const saKey = e.state_code + "|" + e.agency;
       for (const f of fields) {
-        rows.push({
-          agency: e.agency,
-          state_code: e.state_code,
-          field_name: f.field_name,
-          amount: e.funding * (f.share / shareSum),
-        });
+        const amount = e.funding * (f.share / shareSum);
+        fieldRows.push({ agency: e.agency, state_code: e.state_code, field_name: f.field_name, amount });
+        explainedByStateAgency.set(saKey, (explainedByStateAgency.get(saKey) || 0) + amount);
       }
     }
-    return rows;
+
+    // Untracked residual: the true full total (from the uncapped state-level
+    // dataset) minus whatever fieldRows above actually explained - covers
+    // both institutions outside the nationwide top-500 cutoff AND the rare
+    // top-500 institution with no OpenAlex topic_share data at all (a
+    // handful of low-confidence crosswalk matches land on an entity with no
+    // topic data of its own). Computed against what was *actually*
+    // explained rather than institutionRows' own total, so a tracked-but-
+    // field-less institution's money doesn't just vanish uncounted. Not
+    // clamped to >= 0 per pair: some (state,agency) slices can show
+    // explained > full (a non-tracked institution had a net de-obligation/
+    // correction in that slice), and discarding those as "0" instead of
+    // letting them net against positive slices elsewhere would inflate the
+    // grand total. Only the final rendered link value gets clamped.
+    const fullByStateAgency = new Map();
+    for (const d of rows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      const saKey = d.state_code + "|" + d.agency;
+      fullByStateAgency.set(saKey, (fullByStateAgency.get(saKey) || 0) + d.total_obligations);
+    }
+    const residualByState = new Map();
+    const residualByAgency = new Map();
+    let residualTotal = 0;
+    for (const [saKey, fullAmt] of fullByStateAgency) {
+      const residual = fullAmt - (explainedByStateAgency.get(saKey) || 0);
+      const [stateCode, ag] = saKey.split("|");
+      residualByState.set(stateCode, (residualByState.get(stateCode) || 0) + residual);
+      residualByAgency.set(ag, (residualByAgency.get(ag) || 0) + residual);
+      residualTotal += residual;
+    }
+
+    return { rows: fieldRows, residualByState, residualByAgency, residualTotal };
   }
 
   function renderTreemap() {
@@ -1314,11 +1389,29 @@
 
     const byDomain = new Map();
     const allFields = [];
-    for (const [key, val] of computeFieldAllocation(start, end, agency, postal)) {
+    const fieldAlloc = computeFieldAllocation(start, end, agency, postal);
+    for (const [key, val] of fieldAlloc) {
       const [domain, field] = key.split("|");
       if (!byDomain.has(domain)) byDomain.set(domain, []);
       byDomain.get(domain).push({ name: field, value: val });
       allFields.push({ label: field, value: val });
+    }
+
+    // Untracked residual - fieldAlloc only covers the top 500 institutions
+    // nationally by all-time funding (~93% of the true total, far less for
+    // some states); shown as its own slice from the true full total (the
+    // uncapped state-level dataset) rather than silently missing.
+    let fullTotal = 0;
+    for (const d of rows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (postal && d.state_code !== postal) continue;
+      fullTotal += d.total_obligations;
+    }
+    const untracked = fullTotal - d3.sum(Array.from(fieldAlloc.values()));
+    if (untracked > 0) {
+      byDomain.set("Other", [{ name: "Untracked institutions", value: untracked }]);
+      allFields.push({ label: "Untracked institutions", value: untracked });
     }
 
     renderBarList("#treemap-bar-svg", allFields.sort((a, b) => b.value - a.value).slice(0, 15),
@@ -1548,11 +1641,24 @@
     }
 
     const byField = new Map();
-    for (const [key, funding] of computeFieldAllocation(start, end, agency, postal)) {
+    const fieldAlloc = computeFieldAllocation(start, end, agency, postal);
+    for (const [key, funding] of fieldAlloc) {
       const [domain, field] = key.split("|");
       let e = byField.get(key);
       if (!e) { e = { domain, name: field, funding: 0 }; byField.set(key, e); }
       e.funding += funding;
+    }
+    // Untracked residual - see renderTreemap for why this exists.
+    let fieldsFullTotal = 0;
+    for (const d of rows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (postal && d.state_code !== postal) continue;
+      fieldsFullTotal += d.total_obligations;
+    }
+    const fieldsUntracked = fieldsFullTotal - d3.sum(Array.from(fieldAlloc.values()));
+    if (fieldsUntracked > 0) {
+      byField.set("Other|Untracked institutions", { domain: "Other", name: "Untracked institutions", funding: fieldsUntracked });
     }
     const columns = [
       { key: "domain", label: "Domain", type: "text" },
