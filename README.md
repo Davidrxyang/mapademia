@@ -34,3 +34,5 @@ Correlation strategy: join funding and output data at the **institution + agency
 - `data-pipeline/aggregate.py` — DuckDB aggregation of the raw transaction CSVs into `state x fiscal_year x agency` totals, joined on recipient state FIPS. Writes straight to `frontend/data/` — that aggregate *is* the published artifact, no separate copy step.
 - `frontend/index.html` — static D3 choropleth (US states, `us-atlas` TopoJSON) with a fiscal-year slider and agency filter, reading the aggregate CSV directly. No backend; deployable as-is to GitHub Pages / Cloudflare Pages.
 - Everything in `data-pipeline/` runs in its own `.venv` (duckdb, pandas, requests).
+
+**Current data coverage:** NSF grants only, FY2016-2022. The fetch was stopped early (intentionally, cleanly, between fiscal-year requests) to ship a working prototype rather than wait out the full pull - NIH hasn't been fetched yet, and NSF FY2023-2026 are missing. `fetch_usaspending.py` doesn't currently skip fiscal years it's already pulled, so re-running it re-fetches everything in `FISCAL_YEARS`/`AGENCIES`; narrow those before re-running to pick up just what's missing.
