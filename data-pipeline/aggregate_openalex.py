@@ -34,7 +34,7 @@ def main():
     con.execute(f"""
         create table insts as
         select * from read_ndjson_auto('{RAW_DIR / "openalex_institutions" / "*" / "*.gz"}', ignore_errors=true)
-        where country_code = 'US'
+        where country_code in ('US', 'PR', 'VI', 'GU', 'AS', 'MP')
     """)
 
     con.execute(f"""

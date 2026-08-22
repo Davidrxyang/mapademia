@@ -97,10 +97,16 @@ def depth_penalty(lineage_len: int) -> float:
 def load_openalex_candidates() -> list:
     """Returns [(id, ror, display_name, [alt_names], region, lineage_len, works_count), ...]"""
     con = duckdb.connect()
+    # OpenAlex tags US territories with their own ISO country codes, not
+    # 'US' - Puerto Rico ('PR'), the US Virgin Islands ('VI'), and Guam
+    # ('GU') institutions were previously invisible to this candidate pool
+    # entirely, so a USAspending recipient there could never match
+    # correctly (confirmed: University of Guam and University of the
+    # Virgin Islands both fell through to wrong mainland-US matches).
     con.execute(f"""
         create table insts as
         select * from read_ndjson_auto('{RAW_DIR / "openalex_institutions" / "*" / "*.gz"}', ignore_errors=true)
-        where country_code = 'US'
+        where country_code in ('US', 'PR', 'VI', 'GU', 'AS', 'MP')
     """)
     rows = con.execute("""
         select id, ror, display_name, display_name_alternatives, geo.region as region,
@@ -183,6 +189,31 @@ MANUAL_OVERRIDES = {
     # under the actual campus entity, not the administrative shell.
     "YRXVL4JYCEF5": ("https://openalex.org/I219193219", "", "Purdue University West Lafayette"),
     "SN7KD2UK7GC5": ("https://openalex.org/I47251452", "", "Wake Forest University"),
+    # Found via a full-dataset audit pass (funding-vs-output outlier scan,
+    # same technique as above): all four matched a real but functionally
+    # empty administrative/legal entity (a management LLC, a foundation, a
+    # "research institute" shell) instead of the actual research-producing
+    # entity that a human would recognize as "the same place."
+    "G6VVMPNK4Y48": ("https://openalex.org/I77920804", "", "Albany Medical Center Hospital"),
+    "K4FYB2EJVL32": ("https://openalex.org/I1301864278", "", "Arkansas Children's Hospital"),
+    "SB35ENJFKK14": ("https://openalex.org/I2802412784", "", "Banner Health"),
+    "R85KZ9JP3NM3": ("https://openalex.org/I200870766", "", "Brookhaven National Laboratory"),
+    "EJ3UF7TK8RT5": ("https://openalex.org/I23732399", "", "Montana State University"),
+    # Recipient city is Washington, DC, not Wisconsin - the auto-matcher
+    # picked a same-named-pattern entity in the wrong state entirely.
+    # "Children's Research Institute" here is Children's National Hospital's
+    # research arm.
+    "M3KHEEYRM1S6": ("https://openalex.org/I1336742384", "", "Children's National"),
+    "NUNHAKQ7MS86": ("https://openalex.org/I4210135492", "", "Cognition Therapeutics (United States)"),
+    # "Villanova University in the State of Pennsylvania" is Villanova's own
+    # legal name (it's a real, separate university, not a UPenn campus) -
+    # the auto-matcher's shared "university"/"Pennsylvania" tokens overrode
+    # the one distinctive word.
+    "EYNYSU6L8ZX6": ("https://openalex.org/I7863295", "", "Villanova University"),
+    # Ponce Medical School was renamed Ponce Health Sciences University -
+    # a real-world rename, not a data artifact, but the auto-matcher had no
+    # way to know that and fell back to an unrelated Massachusetts school.
+    "LMF5HEYNM148": ("https://openalex.org/I163086451", "", "Ponce Health Sciences University"),
 }
 
 
