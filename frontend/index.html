@@ -14,6 +14,7 @@
     --accent: #5b8cff;
   }
   * { box-sizing: border-box; }
+  html, body { max-width: 100%; overflow-x: hidden; }
   body {
     margin: 0;
     background: var(--bg);
@@ -42,7 +43,7 @@
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
-  .control-group { display: flex; align-items: center; gap: 10px; }
+  .control-group { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; }
   .control-group label { font-size: 13px; color: var(--muted); }
   select, input[type=range] { accent-color: var(--accent); }
   select {
@@ -57,6 +58,7 @@
   #year-range-slider {
     position: relative;
     width: 320px;
+    max-width: 100%;
     height: 28px;
   }
   #year-range-track, #year-range-fill {
@@ -117,6 +119,8 @@
     padding: 10px 28px 0;
     max-width: 1400px;
     margin: 0 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .tab-btn {
     background: none;
@@ -126,6 +130,8 @@
     font-size: 13px;
     padding: 8px 14px;
     cursor: pointer;
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
   .tab-btn:hover { color: var(--text); }
   .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
@@ -142,15 +148,18 @@
   .axis text { fill: var(--muted); font-size: 10px; }
   #content-wrap {
     display: flex;
+    flex-wrap: wrap;
     gap: 24px;
     padding: 12px 28px 28px;
     max-width: 1400px;
     margin: 0 auto;
     align-items: flex-start;
   }
-  #map-wrap { flex: 1 1 640px; min-width: 0; }
+  #map-wrap { flex: 3 1 480px; min-width: 260px; }
   #institutions-panel {
-    flex: 0 0 340px;
+    flex: 1 1 300px;
+    min-width: 260px;
+    max-width: 420px;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -232,7 +241,8 @@
   #legend { font-size: 12px; color: var(--muted); }
   #rankings-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 13px;
   }
   #rankings-table th {
@@ -258,12 +268,15 @@
   #rankings-table td.num, #rankings-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
   #rankings-table tr:hover td { background: rgba(255,255,255,0.03); }
   #rankings-table .rank-name { max-width: 340px; overflow: hidden; text-overflow: ellipsis; }
-  #rankings-wrap { max-height: 700px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+  #rankings-wrap { max-height: 700px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
   footer {
     text-align: center;
     color: var(--muted);
     font-size: 12px;
     padding: 12px;
+  }
+  @media (max-width: 700px) {
+    header, .controls, #tabs, .chart-wrap, #content-wrap { padding-left: 14px; padding-right: 14px; }
   }
 </style>
 </head>
@@ -373,13 +386,13 @@
   <div class="chart-wrap">
     <div class="chart-note">The funding-over-time chart always shows all tracked fiscal years, regardless of the Fiscal Year range above.</div>
     <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
-      <div style="flex: 1 1 500px; min-width: 0;">
+      <div style="flex: 2 1 480px; min-width: 260px;">
         <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
         <svg id="stacked-area-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;"></svg>
         <h2 style="font-size: 14px; margin: 16px 0 8px;">Total funding by year</h2>
         <svg id="year-bar-svg" viewBox="0 0 560 260" style="width: 100%; height: auto;"></svg>
       </div>
-      <div style="flex: 0 0 320px;">
+      <div style="flex: 1 1 300px; min-width: 260px; max-width: 380px;">
         <h2 id="state-pie-title" style="font-size: 14px; margin: 0 0 8px;">Funding share by state (selected year/agency)</h2>
         <svg id="state-pie-svg" viewBox="0 0 320 320" style="width: 100%; height: auto; max-width: 320px;"></svg>
         <div id="state-pie-legend" style="font-size: 11px; margin-top: 8px;"></div>
