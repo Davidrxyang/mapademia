@@ -50,17 +50,49 @@ def main():
           and recipient_state_code is not null
     """)
 
+    # award_count (below) counts each distinct award only in the fiscal year
+    # it FIRST appears, not every year it has a transaction/modification.
+    # Multi-year awards (the norm for e.g. NIH R01s, which run ~4-5 years
+    # with an annual modification/transaction each year) would otherwise get
+    # counted once per year they touch - and every dashboard view sums
+    # award_count across whatever [start, end] range the Fiscal Year slider
+    # selects, so that inflates "award count" by 3-4x for institutions with
+    # many multi-year grants (confirmed: Johns Hopkins showed 20,735 "awards"
+    # over FY2016-2026 before this fix: the true distinct-award count is
+    # 5,861). Attributing each award to its first fiscal year only makes the
+    # count exactly summable across any range with no double-counting.
+    # Scoped per (state, award) rather than just per award: ~6.7% of NIH
+    # award numbers show up under more than one recipient_uei over their
+    # life (grants that transferred institutions when a PI moved, mostly -
+    # confirmed by checking a sample: K23/K24/F30 career-development and
+    # fellowship awards transfer often). A single global first-seen-year
+    # per award would never count that award for whichever state/institution
+    # it transferred TO, since its true first year belongs to whoever had it
+    # first - undercounting the receiving side. Scoping "first seen" to each
+    # state (and separately, each institution, below) means each side
+    # correctly counts the award once, in the first year *it* reported that
+    # award, regardless of who had it before.
+    con.execute("""
+        create table state_first_seen as
+        select recipient_state_code, award_id_fain, min(fiscal_year) as first_fiscal_year
+        from transactions
+        where award_id_fain is not null
+        group by recipient_state_code, award_id_fain
+    """)
+
     con.execute("""
         copy (
             select
-                recipient_state_fips as state_fips,
-                recipient_state_code as state_code,
-                recipient_state_name as state_name,
-                fiscal_year,
+                t.recipient_state_fips as state_fips,
+                t.recipient_state_code as state_code,
+                t.recipient_state_name as state_name,
+                t.fiscal_year,
                 coalesce(awarding_sub_agency_name, awarding_agency_name) as agency,
                 sum(federal_action_obligation) as total_obligations,
-                count(distinct award_id_fain) as award_count
-            from transactions
+                count(distinct case when fs.first_fiscal_year = t.fiscal_year then t.award_id_fain end) as award_count
+            from transactions t
+            left join state_first_seen fs
+                on fs.recipient_state_code = t.recipient_state_code and fs.award_id_fain = t.award_id_fain
             group by 1, 2, 3, 4, 5
             order by 1, 4, 5
         ) to '{}' (header, delimiter ',')
@@ -76,20 +108,49 @@ def main():
         limit {TOP_N_INSTITUTIONS}
     """)
 
+    # Canonical display name/city/state per institution, computed once across
+    # its FULL history rather than scoped to one fiscal year - arg_max can't
+    # meaningfully break ties on fiscal_year when fiscal_year is already a
+    # group-by key (every row in the group shares the same value), so the
+    # previous per-year version just picked an arbitrary same-year
+    # transaction's name/address rather than the institution's most recent.
+    con.execute("""
+        create table institution_identity as
+        select
+            recipient_uei as uei,
+            arg_max(recipient_name, fiscal_year) as name,
+            arg_max(recipient_city_name, fiscal_year) as city,
+            arg_max(recipient_state_code, fiscal_year) as state_code
+        from transactions
+        where recipient_uei is not null
+        group by recipient_uei
+    """)
+
+    con.execute("""
+        create table institution_first_seen as
+        select recipient_uei, award_id_fain, min(fiscal_year) as first_fiscal_year
+        from transactions
+        where award_id_fain is not null and recipient_uei is not null
+        group by recipient_uei, award_id_fain
+    """)
+
     con.execute("""
         copy (
             select
                 t.recipient_uei as uei,
-                arg_max(t.recipient_name, t.fiscal_year) as name,
-                arg_max(t.recipient_city_name, t.fiscal_year) as city,
-                arg_max(t.recipient_state_code, t.fiscal_year) as state_code,
+                ii.name,
+                ii.city,
+                ii.state_code,
                 t.fiscal_year,
                 coalesce(t.awarding_sub_agency_name, t.awarding_agency_name) as agency,
                 sum(t.federal_action_obligation) as total_obligations,
-                count(distinct t.award_id_fain) as award_count
+                count(distinct case when fs.first_fiscal_year = t.fiscal_year then t.award_id_fain end) as award_count
             from transactions t
             join top_institutions ti using (recipient_uei)
-            group by t.recipient_uei, t.fiscal_year, agency
+            join institution_identity ii on ii.uei = t.recipient_uei
+            left join institution_first_seen fs
+                on fs.recipient_uei = t.recipient_uei and fs.award_id_fain = t.award_id_fain
+            group by t.recipient_uei, ii.name, ii.city, ii.state_code, t.fiscal_year, agency
             order by uei, fiscal_year, agency
         ) to '{}' (header, delimiter ',')
     """.format(PROCESSED_DIR / "funding_by_institution_year_agency.csv"))
