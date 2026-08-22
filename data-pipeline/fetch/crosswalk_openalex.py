@@ -214,6 +214,43 @@ MANUAL_OVERRIDES = {
     # a real-world rename, not a data artifact, but the auto-matcher had no
     # way to know that and fell back to an unrelated Massachusetts school.
     "LMF5HEYNM148": ("https://openalex.org/I163086451", "", "Ponce Health Sciences University"),
+    # Second audit pass over the 36 remaining sub-0.55-similarity matches:
+    # checked each against the OpenAlex snapshot for a better candidate.
+    # These had matched an unrelated or defunct entity purely on shared
+    # generic tokens ("institute", "foundation", "research").
+    "ETGMYV7CKAJ7": ("https://openalex.org/I4210108049", "", "Nemours Children's Health System"),
+    "ELVQARY4EJZ4": ("https://openalex.org/I114073160", "", "Sutter Health"),
+    "WUWGNMBAHKG2": ("https://openalex.org/I4210151810", "", "Vignet (United States)"),
+    "MNMJWSC5Z4H1": ("https://openalex.org/I40036882", "", "Institute for Advanced Study"),
+    # HMH = Hackensack Meridian Health, not Jefferson (different NJ/PA
+    # hospital systems entirely).
+    "LV8GL8MLU9A3": ("https://openalex.org/I4210148589", "", "Hackensack Meridian Health"),
+    "LNGXAKMH8J26": ("https://openalex.org/I4210152391", "", "Avera McKennan Hospital & University Health Center"),
+    "UWNWSADJYYZ3": ("https://openalex.org/I4210112451", "", "EpiCypher (United States)"),
+    "WQNERYY3BK94": ("https://openalex.org/I4210151493", "", "Lieber Institute for Brain Development"),
+    "NVUWAFWQ57S5": ("https://openalex.org/I1333523220", "", "Westat (United States)"),
+    "C37HLWKKAH69": ("https://openalex.org/I4210095552", "", "HelixBind (United States)"),
+    "C9MRZK4B7K39": ("https://openalex.org/I4210108346", "", "BioSensics (United States)"),
+    "SKG7TLUN8JH6": ("https://openalex.org/I4210097235", "", "ECOG-ACRIN Cancer Research Group"),
+    # Was matched to the parent university instead of the specific medical
+    # school entity that OpenAlex tracks separately.
+    "YNT8TCJH8FQ8": ("https://openalex.org/I4387153466", "", "Weill Cornell Medicine"),
+    # Was matched to Cal State Fullerton's auxiliary (wrong campus) instead
+    # of Cal State LA itself.
+    "C1ABLRAQTB48": ("https://openalex.org/I27825529", "", "California State University Los Angeles"),
+    # "University Enterprises, Inc." is Sacramento State's auxiliary
+    # corporation; "University Enterprises Corporation at CSUSB" is the
+    # same kind of entity for Cal State San Bernardino - both were matched
+    # to unrelated University of the Pacific.
+    "N58JMBDDUGU7": ("https://openalex.org/I43522216", "", "California State University, Sacramento"),
+    "QJZ1F3UMLEJ4": ("https://openalex.org/I43369023", "", "California State University, San Bernardino"),
+    "EQH8NQ4AXFT7": ("https://openalex.org/I91045830", "", "Texas A&M University"),
+    # Schepens Eye Research Institute merged into Mass Eye and Ear in 2011;
+    # the auto-matcher instead found an unrelated, much smaller private
+    # "Massachusetts Eye Research and Surgery Institute".
+    "XQQJEDK7JC21": ("https://openalex.org/I1287163989", "", "Massachusetts Eye and Ear Infirmary"),
+    "NPH1VN32EWN5": ("https://openalex.org/I4210110459", "", "City of Hope"),
+    "XJUCJAYJWYV1": ("https://openalex.org/I1295876152", "", "Houston Methodist"),
 }
 
 
