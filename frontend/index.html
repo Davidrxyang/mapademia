@@ -173,6 +173,35 @@
   .state:hover { stroke: var(--text); stroke-width: 1.5px; }
   .state.selected { stroke: var(--accent); stroke-width: 2px; }
   #legend { font-size: 12px; color: var(--muted); }
+  #rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  #rankings-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  #rankings-table th:hover { color: var(--text); }
+  #rankings-table th.sorted { color: var(--accent); }
+  #rankings-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  #rankings-table td.num, #rankings-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  #rankings-table tr:hover td { background: rgba(255,255,255,0.03); }
+  #rankings-table .rank-name { max-width: 340px; overflow: hidden; text-overflow: ellipsis; }
+  #rankings-wrap { max-height: 700px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
   footer {
     text-align: center;
     color: var(--muted);
@@ -208,6 +237,7 @@
   <button class="tab-btn" data-tab="sankey">Money Flow</button>
   <button class="tab-btn" data-tab="treemap">Research Fields</button>
   <button class="tab-btn" data-tab="trends">Trends</button>
+  <button class="tab-btn" data-tab="rankings">Rankings</button>
 </div>
 
 <div class="tab-panel active" data-tab="map">
@@ -264,6 +294,26 @@
         <svg id="state-pie-svg" viewBox="0 0 320 320" style="width: 100%; height: auto; max-width: 320px;"></svg>
         <div id="state-pie-legend" style="font-size: 11px; margin-top: 8px;"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" data-tab="rankings">
+  <div class="chart-wrap">
+    <div class="control-group" style="margin-bottom: 12px;">
+      <label for="rankings-select">Rank</label>
+      <select id="rankings-select">
+        <option value="institutions">Institutions</option>
+        <option value="states">States</option>
+        <option value="fields">Research fields</option>
+      </select>
+      <span class="chart-note" id="rankings-note" style="margin: 0 0 0 12px;"></span>
+    </div>
+    <div id="rankings-wrap">
+      <table id="rankings-table">
+        <thead><tr id="rankings-head"></tr></thead>
+        <tbody id="rankings-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -797,6 +847,124 @@
     });
   }
 
+  let rankingsSort = { key: "funding", dir: "desc" };
+
+  function getRankingsData(dimension, year, agency) {
+    if (dimension === "institutions") {
+      const byUei = new Map();
+      for (const d of institutionRows) {
+        if (d.fiscal_year !== year) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        let e = byUei.get(d.uei);
+        if (!e) { e = { name: d.name, city: d.city, state_code: d.state_code, funding: 0, awards: 0 }; byUei.set(d.uei, e); }
+        e.funding += d.total_obligations;
+        e.awards += d.award_count;
+      }
+      for (const d of outputRows) {
+        if (d.fiscal_year !== year) continue;
+        const e = byUei.get(d.uei);
+        if (e) { e.papers = d.works_count; e.citations = d.cited_by_count; }
+      }
+      const columns = [
+        { key: "name", label: "Institution", type: "text", render: d => titleCase(d.name) },
+        { key: "loc", label: "Location", type: "text", sortable: false, render: d => `${titleCase(d.city)}, ${d.state_code}` },
+        { key: "funding", label: "Funding", type: "money" },
+        { key: "awards", label: "Awards", type: "int" },
+        { key: "papers", label: "Papers (OpenAlex)", type: "int" },
+        { key: "citations", label: "Citations (OpenAlex)", type: "int" },
+      ];
+      return { columns, rows: Array.from(byUei.values()) };
+    }
+
+    if (dimension === "states") {
+      const byState = new Map();
+      for (const d of rows) {
+        if (d.fiscal_year !== year) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        let e = byState.get(d.state_name);
+        if (!e) { e = { name: d.state_name, funding: 0, awards: 0 }; byState.set(d.state_name, e); }
+        e.funding += d.total_obligations;
+        e.awards += d.award_count;
+      }
+      const columns = [
+        { key: "name", label: "State", type: "text", render: d => titleCase(d.name) },
+        { key: "funding", label: "Funding", type: "money" },
+        { key: "awards", label: "Awards", type: "int" },
+      ];
+      return { columns, rows: Array.from(byState.values()) };
+    }
+
+    const byField = new Map();
+    for (const d of fieldAllocationRows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      const key = d.domain_name + "|" + d.field_name;
+      let e = byField.get(key);
+      if (!e) { e = { domain: d.domain_name, name: d.field_name, funding: 0 }; byField.set(key, e); }
+      e.funding += d.allocated_funding;
+    }
+    const columns = [
+      { key: "domain", label: "Domain", type: "text" },
+      { key: "name", label: "Field", type: "text" },
+      { key: "funding", label: "Est. funding", type: "money" },
+    ];
+    return { columns, rows: Array.from(byField.values()) };
+  }
+
+  function renderRankings() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    const dimension = document.getElementById("rankings-select").value;
+    const { columns, rows } = getRankingsData(dimension, year, agency);
+
+    if (!columns.some(c => c.key === rankingsSort.key)) {
+      rankingsSort = { key: "funding", dir: "desc" };
+    }
+    const sortCol = rankingsSort.key;
+    const dir = rankingsSort.dir === "asc" ? 1 : -1;
+    rows.sort((a, b) => {
+      const av = a[sortCol], bv = b[sortCol];
+      if (typeof av === "string" || typeof bv === "string") return dir * String(av || "").localeCompare(String(bv || ""));
+      return dir * ((av || 0) - (bv || 0));
+    });
+
+    const head = d3.select("#rankings-head");
+    head.html("");
+    head.append("th").attr("class", "num").text("#");
+    columns.forEach(col => {
+      const isNum = col.type === "money" || col.type === "int";
+      const th = head.append("th")
+        .attr("class", (isNum ? "num " : "") + (col.key === sortCol ? "sorted" : ""))
+        .text(col.label + (col.key === sortCol ? (dir === 1 ? " ▲" : " ▼") : ""));
+      if (col.sortable !== false) {
+        th.on("click", () => {
+          if (rankingsSort.key === col.key) rankingsSort.dir = rankingsSort.dir === "asc" ? "desc" : "asc";
+          else rankingsSort = { key: col.key, dir: col.type === "text" ? "asc" : "desc" };
+          renderRankings();
+        });
+      }
+    });
+
+    const body = d3.select("#rankings-body");
+    body.html("");
+    const tr = body.selectAll("tr").data(rows).join("tr");
+    tr.append("td").attr("class", "num").text((d, i) => i + 1);
+    columns.forEach(col => {
+      const isNum = col.type === "money" || col.type === "int";
+      tr.append("td")
+        .attr("class", (isNum ? "num" : "") + (col.key === "name" ? " rank-name" : ""))
+        .text(d => {
+          const raw = col.render ? col.render(d) : d[col.key];
+          if (col.type === "money") return raw != null ? `$${raw.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—";
+          if (col.type === "int") return raw != null ? raw.toLocaleString() : "—";
+          return raw != null ? raw : "—";
+        });
+    });
+
+    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · FY${year} · ${agencyLabel}`;
+  }
+
   let activeTab = "map";
 
   function renderActiveTab() {
@@ -805,6 +973,7 @@
     else if (activeTab === "sankey") renderSankey();
     else if (activeTab === "treemap") renderTreemap();
     else if (activeTab === "trends") renderTrends();
+    else if (activeTab === "rankings") renderRankings();
   }
 
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -819,6 +988,7 @@
   agencySelect.on("change", renderActiveTab);
   yearRange.addEventListener("input", renderActiveTab);
   document.getElementById("scatter-y-select").addEventListener("change", () => { if (activeTab === "scatter") renderScatter(); });
+  document.getElementById("rankings-select").addEventListener("change", () => { rankingsSort = { key: "funding", dir: "desc" }; renderRankings(); });
   render();
 })();
 </script>
