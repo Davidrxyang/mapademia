@@ -1,0 +1,5 @@
+data-pipeline/raw/
+data-pipeline/processed/*.duckdb
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mapademia — Federal Research Funding by State</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --text: #e6e8ec;
+    --muted: #8b93a1;
+    --border: #232733;
+    --accent: #5b8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 20px 28px 8px;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    padding: 16px 28px;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .control-group { display: flex; align-items: center; gap: 10px; }
+  .control-group label { font-size: 13px; color: var(--muted); }
+  select, input[type=range] { accent-color: var(--accent); }
+  select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+  #year-label { font-variant-numeric: tabular-nums; min-width: 4ch; font-size: 13px; }
+  #map-wrap { padding: 12px 28px 28px; max-width: 1100px; margin: 0 auto; }
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 10;
+  }
+  #tooltip .amount { font-weight: 600; color: var(--accent); }
+  .state { stroke: var(--bg); stroke-width: 0.75px; cursor: default; }
+  .state:hover { stroke: var(--text); stroke-width: 1.5px; }
+  #legend { font-size: 12px; color: var(--muted); }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 12px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Federal Research Funding by State</h1>
+  <div class="subtitle">Phase 0 — grant obligations to recipients, by state · USAspending.gov bulk data</div>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label for="agency-select">Agency</label>
+    <select id="agency-select">
+      <option value="__all__">All</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label for="year-range">Fiscal Year</label>
+    <input type="range" id="year-range" min="2016" max="2026" value="2026" step="1">
+    <span id="year-label">2026</span>
+  </div>
+  <div class="control-group" id="legend"></div>
+</div>
+
+<div id="map-wrap">
+  <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
+</div>
+
+<div id="tooltip"></div>
+
+<footer>Source: USAspending.gov Award Data Archive (grant-type prime awards, recipient state). Not adjusted for inflation.</footer>
+
+<script src="https://unpkg.com/d3@7"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<script>
+(async function () {
+  const [us, rows] = await Promise.all([
+    d3.json("data/us-states-10m.json"),
+    d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
+  ]);
+
+  const states = topojson.feature(us, us.objects.states).features;
+  const pad2 = (id) => String(id).padStart(2, "0");
+
+  const agencies = Array.from(new Set(rows.map(d => d.agency))).sort();
+  const agencySelect = d3.select("#agency-select");
+  agencySelect.selectAll("option.agency")
+    .data(agencies)
+    .join("option")
+    .attr("class", "agency")
+    .attr("value", d => d)
+    .text(d => d);
+
+  const years = Array.from(new Set(rows.map(d => d.fiscal_year))).sort((a, b) => a - b);
+  const yearRange = document.getElementById("year-range");
+  yearRange.min = years[0];
+  yearRange.max = years[years.length - 1];
+  yearRange.value = years[years.length - 1];
+  document.getElementById("year-label").textContent = yearRange.value;
+
+  const svg = d3.select("#map");
+  const projection = d3.geoAlbersUsa().fitSize([960, 600], { type: "FeatureCollection", features: states });
+  const path = d3.geoPath(projection);
+  const tooltip = d3.select("#tooltip");
+
+  const color = d3.scaleSequential(d3.interpolateBlues);
+
+  const paths = svg.selectAll("path.state")
+    .data(states)
+    .join("path")
+    .attr("class", "state")
+    .attr("d", path)
+    .on("mousemove", (event, d) => {
+      const rec = current.get(pad2(d.id));
+      const amount = rec ? rec.total_obligations : 0;
+      const awards = rec ? rec.award_count : 0;
+      tooltip
+        .style("opacity", 1)
+        .style("left", event.clientX + 14 + "px")
+        .style("top", event.clientY + 14 + "px")
+        .html(`<strong>${d.properties.name}</strong><br>
+               <span class="amount">$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</span><br>
+               ${awards.toLocaleString()} awards`);
+    })
+    .on("mouseleave", () => tooltip.style("opacity", 0));
+
+  let current = new Map();
+
+  function render() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    document.getElementById("year-label").textContent = year;
+
+    const filtered = rows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
+
+    current = new Map();
+    for (const d of filtered) {
+      const key = pad2(d.state_fips);
+      const prev = current.get(key) || { total_obligations: 0, award_count: 0 };
+      current.set(key, {
+        total_obligations: prev.total_obligations + d.total_obligations,
+        award_count: prev.award_count + d.award_count,
+      });
+    }
+
+    const max = d3.max(Array.from(current.values(), d => d.total_obligations)) || 1;
+    color.domain([0, max]);
+
+    paths.attr("fill", d => {
+      const rec = current.get(pad2(d.id));
+      return rec ? color(rec.total_obligations) : "#1a1d26";
+    });
+
+    d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
+  }
+
+  agencySelect.on("change", render);
+  yearRange.on("input", render);
+  render();
+})();
+</script>
+</body>
+</html>
