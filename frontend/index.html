@@ -320,6 +320,10 @@
       <div id="institutions-list"></div>
     </div>
   </div>
+  <div class="chart-wrap">
+    <h2 id="map-bar-title" style="font-size: 14px; margin: 0 0 8px;">Top states by funding</h2>
+    <svg id="map-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
+  </div>
 </div>
 
 <div class="tab-panel" data-tab="scatter">
@@ -333,6 +337,8 @@
       </select>
     </div>
     <svg id="scatter-svg" viewBox="0 0 900 560" style="width: 100%; height: auto; max-width: 900px;"></svg>
+    <h2 style="font-size: 14px; margin: 20px 0 8px;">Top institutions by funding</h2>
+    <svg id="scatter-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
   </div>
 </div>
 
@@ -347,6 +353,8 @@
     </div>
     <div class="chart-note" id="sankey-note">Agency -&gt; top-funded institutions -&gt; research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.</div>
     <svg id="sankey-svg" viewBox="0 0 1000 600" style="width: 100%; height: auto;"></svg>
+    <h2 id="sankey-bar-title" style="font-size: 14px; margin: 20px 0 8px;">Top middle-layer entities by funding</h2>
+    <svg id="sankey-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
   </div>
 </div>
 
@@ -354,6 +362,8 @@
   <div class="chart-wrap">
     <div class="chart-note">Estimated funding by research field, for the selected year/agency - allocated proportionally to each institution's OpenAlex field mix, not from award-level field tags.</div>
     <svg id="treemap-svg" viewBox="0 0 960 560" style="width: 100%; height: auto;"></svg>
+    <h2 style="font-size: 14px; margin: 20px 0 8px;">Top fields by estimated funding</h2>
+    <svg id="treemap-bar-svg" viewBox="0 0 900 400" style="width: 100%; height: auto; max-width: 700px;"></svg>
   </div>
 </div>
 
@@ -364,11 +374,15 @@
       <div style="flex: 1 1 500px; min-width: 0;">
         <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
         <svg id="stacked-area-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;"></svg>
+        <h2 style="font-size: 14px; margin: 16px 0 8px;">Total funding by year (simple bar chart)</h2>
+        <svg id="year-bar-svg" viewBox="0 0 560 260" style="width: 100%; height: auto;"></svg>
       </div>
       <div style="flex: 0 0 320px;">
         <h2 id="state-pie-title" style="font-size: 14px; margin: 0 0 8px;">Funding share by state (selected year/agency)</h2>
         <svg id="state-pie-svg" viewBox="0 0 320 320" style="width: 100%; height: auto; max-width: 320px;"></svg>
         <div id="state-pie-legend" style="font-size: 11px; margin-top: 8px;"></div>
+        <h2 id="state-bar-title" style="font-size: 14px; margin: 16px 0 8px;">Same data, as a bar chart</h2>
+        <svg id="state-bar-svg" viewBox="0 0 320 300" style="width: 100%; height: auto;"></svg>
       </div>
     </div>
   </div>
@@ -573,6 +587,14 @@
       });
 
     d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
+
+    document.getElementById("map-bar-title").textContent = "Top states by funding";
+    const barData = states
+      .map(s => ({ label: titleCase(s.properties.name), value: current.get(pad2(s.id))?.total_obligations || 0 }))
+      .filter(d => d.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 15);
+    renderBarList("#map-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
   }
 
   function renderStateMap(fips, start, end, agency) {
@@ -631,6 +653,10 @@
       `${stateFeature.properties.name} · circle size = funding · ${points.length} institutions shown` +
       (noGeoCount > 0 ? ` (${noGeoCount} untracked, no map coordinates)` : "")
     );
+
+    document.getElementById("map-bar-title").textContent = `Top institutions in ${stateFeature.properties.name} by funding`;
+    const barData = Array.from(fundingByUei.values(), d => ({ label: titleCase(d.name), value: d.funding })).slice(0, 15);
+    renderBarList("#map-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
   }
 
   function renderInstitutions(start, end, agency) {
@@ -777,6 +803,53 @@
       .text(d => `'${String(d.year).slice(2)}`);
   }
 
+  // Simple horizontal bar chart companion for the fancier visualizations -
+  // same "top N" data each chart already computes, just in the most
+  // universally-readable form there is. data: [{label, value}], any order
+  // (sorted descending here so callers don't have to).
+  function renderBarList(svgSelector, data, formatValue, width) {
+    const svg = d3.select(svgSelector);
+    svg.selectAll("*").remove();
+    const sorted = data.slice().sort((a, b) => b.value - a.value);
+
+    const w = width || 900;
+    const narrow = w < 500;
+    const barHeight = narrow ? 16 : 20, gap = narrow ? 4 : 6;
+    const labelWidth = narrow ? w * 0.42 : 190, valueWidth = narrow ? w * 0.22 : 90;
+    const barAreaWidth = w - labelWidth - valueWidth;
+    const h = Math.max(1, sorted.length) * (barHeight + gap);
+    svg.attr("viewBox", `0 0 ${w} ${h}`);
+
+    if (sorted.length === 0) {
+      svg.append("text").attr("x", w / 2).attr("y", 20).attr("text-anchor", "middle").attr("fill", "var(--muted)")
+        .text("No data for this selection.");
+      return;
+    }
+
+    const max = d3.max(sorted, d => d.value) || 1;
+    const x = d3.scaleLinear().domain([0, max]).range([0, barAreaWidth]);
+    const fmt = formatValue || (v => v.toLocaleString(undefined, { maximumFractionDigits: 0 }));
+
+    const row = svg.selectAll("g").data(sorted).join("g")
+      .attr("transform", (d, i) => `translate(0, ${i * (barHeight + gap)})`);
+
+    const maxChars = narrow ? 14 : 24;
+    row.append("text")
+      .attr("x", 0).attr("y", barHeight * 0.7).attr("font-size", narrow ? 9 : 11).attr("fill", "var(--text)")
+      .text(d => d.label.length > maxChars ? d.label.slice(0, maxChars - 2) + "…" : d.label)
+      .append("title").text(d => d.label);
+
+    row.append("rect")
+      .attr("x", labelWidth).attr("y", 1).attr("height", barHeight - 2)
+      .attr("width", d => Math.max(1, x(d.value))).attr("fill", "var(--accent)").attr("opacity", 0.85)
+      .append("title").text(d => `${d.label}: ${fmt(d.value)}`);
+
+    row.append("text")
+      .attr("x", d => labelWidth + Math.max(1, x(d.value)) + 6).attr("y", barHeight * 0.7)
+      .attr("font-size", narrow ? 8 : 10).attr("fill", "var(--muted)")
+      .text(d => fmt(d.value));
+  }
+
   function titleCase(s) {
     return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
@@ -807,6 +880,10 @@
       const yVal = outputByUei.get(uei);
       if (funding > 0 && yVal > 0) data.push({ uei, name: nameByUei.get(uei), funding, yVal });
     }
+
+    const barData = Array.from(fundingByUei, ([uei, funding]) => ({ label: titleCase(nameByUei.get(uei)), value: funding }))
+      .sort((a, b) => b.value - a.value).slice(0, 15);
+    renderBarList("#scatter-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
 
     const svg = d3.select("#scatter-svg");
     svg.selectAll("*").remove();
@@ -854,6 +931,8 @@
 
     const links = [];
     const noteEl = document.getElementById("sankey-note");
+    let barTitle = "";
+    let barData = [];
 
     if (postal) {
       noteEl.textContent = "Agency -> top-funded institutions -> research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.";
@@ -915,6 +994,10 @@
         links.push({ source: nodeIndex(otherInstNodeName), target: nodeIndex(f.field_name), value: f.funding });
       }
       links.push({ source: nodeIndex(otherInstNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTop, d => d.funding)) });
+
+      barTitle = "Top institutions by funding (Sankey middle layer)";
+      barData = topInst.map(([, e]) => ({ label: titleCase(e.name), value: e.total }));
+      if (otherTotal > 0) barData.push({ label: "Other institutions", value: otherTotal });
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
       noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_FIELDS = 8, TOP_STATES_PER_FIELD = 3;
@@ -968,6 +1051,10 @@
         links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex(titleCase(stateNameByPostal.get(s.stCode) || s.stCode)), value: s.amt });
       }
       links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex("Other state"), value: Math.max(0, otherFieldTotal - d3.sum(otherTopStates, d => d.amt)) });
+
+      barTitle = "Top research fields by funding (Sankey middle layer)";
+      barData = topFields.map(f => ({ label: f, value: fieldTotals.get(f) }));
+      if (otherFieldTotal > 0) barData.push({ label: "Other fields", value: otherFieldTotal });
     } else {
       noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_STATES = 8, TOP_FIELDS_PER_STATE = 3;
@@ -1020,7 +1107,14 @@
         links.push({ source: nodeIndex(otherStateNodeName), target: nodeIndex(f.field_name), value: f.funding });
       }
       links.push({ source: nodeIndex(otherStateNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTopFields, d => d.funding)) });
+
+      barTitle = "Top states by funding (Sankey middle layer)";
+      barData = topStates.map(([stCode, e]) => ({ label: titleCase(stateNameByPostal.get(stCode) || stCode), value: e.total }));
+      if (otherTotal > 0) barData.push({ label: "Other states", value: otherTotal });
     }
+
+    document.getElementById("sankey-bar-title").textContent = barTitle;
+    renderBarList("#sankey-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
 
     const svg = d3.select("#sankey-svg");
     svg.selectAll("*").remove();
@@ -1160,11 +1254,16 @@
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
 
     const byDomain = new Map();
+    const allFields = [];
     for (const [key, val] of computeFieldAllocation(start, end, agency, postal)) {
       const [domain, field] = key.split("|");
       if (!byDomain.has(domain)) byDomain.set(domain, []);
       byDomain.get(domain).push({ name: field, value: val });
+      allFields.push({ label: field, value: val });
     }
+
+    renderBarList("#treemap-bar-svg", allFields.sort((a, b) => b.value - a.value).slice(0, 15),
+      v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
 
     const svg = d3.select("#treemap-svg");
     svg.selectAll("*").remove();
@@ -1204,7 +1303,37 @@
 
   function renderTrends() {
     renderStackedArea();
+    renderYearBarChart();
     renderStatePie();
+  }
+
+  function renderYearBarChart() {
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
+    const svg = d3.select("#year-bar-svg");
+    svg.selectAll("*").remove();
+    const margin = { top: 10, right: 10, bottom: 24, left: 55 };
+    const w = 560 - margin.left - margin.right, h = 260 - margin.top - margin.bottom;
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const byYear = new Map();
+    for (const d of rows) {
+      if (postal && d.state_code !== postal) continue;
+      byYear.set(d.fiscal_year, (byYear.get(d.fiscal_year) || 0) + d.total_obligations);
+    }
+    const data = years.map(y => ({ year: y, value: byYear.get(y) || 0 }));
+
+    const x = d3.scaleBand().domain(years).range([0, w]).padding(0.15);
+    const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value) || 1]).nice().range([h, 0]);
+
+    g.selectAll("rect").data(data).join("rect")
+      .attr("x", d => x(d.year)).attr("y", d => y(d.value))
+      .attr("width", x.bandwidth()).attr("height", d => h - y(d.value))
+      .attr("fill", "var(--accent)").attr("opacity", 0.85)
+      .append("title").text(d => `FY${d.year}: $${d.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`)
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
   }
 
   function renderStackedArea() {
@@ -1282,6 +1411,10 @@
     const otherLabel = postal ? "Other institutions" : "Other states";
     const otherTotal = d3.sum(arr.slice(10), d => d.value);
     if (otherTotal > 0) top.push({ name: otherLabel, value: otherTotal });
+
+    document.getElementById("state-bar-title").textContent = postal ? "Same data, as a bar chart (institutions)" : "Same data, as a bar chart (states)";
+    renderBarList("#state-bar-svg", top.map(d => ({ label: titleCase(d.name), value: d.value })),
+      v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 320);
 
     const w = 320, h = 320, r = Math.min(w, h) / 2 - 10;
     const g = svg.append("g").attr("transform", `translate(${w / 2},${h / 2})`);
