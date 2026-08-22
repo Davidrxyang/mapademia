@@ -888,6 +888,28 @@
         }
         links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: Math.max(0, e.total * (restShare / shareSum)) });
       }
+
+      const otherFunding = new Map();
+      const otherByAgency = new Map();
+      let otherTotal = 0;
+      for (const [uei, e] of instTotals) {
+        if (topInstUeis.has(uei)) continue;
+        otherFunding.set(uei, e.total);
+        otherTotal += e.total;
+        for (const [ag, amt] of e.byAgency) otherByAgency.set(ag, (otherByAgency.get(ag) || 0) + amt);
+      }
+      const otherInstNodeName = "inst:Other institutions";
+      for (const [ag, amt] of otherByAgency) {
+        if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherInstNodeName), value: amt });
+      }
+      const otherFieldAlloc = fieldBreakdownForFunding(otherFunding);
+      const otherFieldsArr = Array.from(otherFieldAlloc, ([key, funding]) => ({ field_name: key.split("|")[1], funding }))
+        .sort((a, b) => b.funding - a.funding);
+      const otherTop = otherFieldsArr.slice(0, TOP_FIELDS_PER_INST);
+      for (const f of otherTop) {
+        links.push({ source: nodeIndex(otherInstNodeName), target: nodeIndex(f.field_name), value: f.funding });
+      }
+      links.push({ source: nodeIndex(otherInstNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTop, d => d.funding)) });
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
       noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_FIELDS = 8, TOP_STATES_PER_FIELD = 3;
@@ -922,6 +944,25 @@
         }
         links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex("Other state"), value: Math.max(0, restAmt) });
       }
+
+      const otherFieldByAgency = new Map(), otherFieldByState = new Map();
+      let otherFieldTotal = 0;
+      for (const r of flat) {
+        if (topFieldSet.has(r.field_name)) continue;
+        otherFieldByAgency.set(r.agency, (otherFieldByAgency.get(r.agency) || 0) + r.amount);
+        otherFieldByState.set(r.state_code, (otherFieldByState.get(r.state_code) || 0) + r.amount);
+        otherFieldTotal += r.amount;
+      }
+      const otherFieldNodeName = "field:Other fields";
+      for (const [ag, amt] of otherFieldByAgency) {
+        if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherFieldNodeName), value: amt });
+      }
+      const otherStatesArr = Array.from(otherFieldByState, ([stCode, amt]) => ({ stCode, amt })).sort((a, b) => b.amt - a.amt);
+      const otherTopStates = otherStatesArr.slice(0, TOP_STATES_PER_FIELD);
+      for (const s of otherTopStates) {
+        links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex(titleCase(stateNameByPostal.get(s.stCode) || s.stCode)), value: s.amt });
+      }
+      links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex("Other state"), value: Math.max(0, otherFieldTotal - d3.sum(otherTopStates, d => d.amt)) });
     } else {
       noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_STATES = 8, TOP_FIELDS_PER_STATE = 3;
@@ -953,6 +994,27 @@
         }
         links.push({ source: nodeIndex(stateNodeName), target: nodeIndex("Other field"), value: Math.max(0, restAmt) });
       }
+
+      const topStateCodes = new Set(topStates.map(([stCode]) => stCode));
+      const otherByAgency = new Map();
+      let otherTotal = 0;
+      for (const [stCode, e] of stateTotals) {
+        if (topStateCodes.has(stCode)) continue;
+        otherTotal += e.total;
+        for (const [ag, amt] of e.byAgency) otherByAgency.set(ag, (otherByAgency.get(ag) || 0) + amt);
+      }
+      const otherStateNodeName = "state:Other states";
+      for (const [ag, amt] of otherByAgency) {
+        if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherStateNodeName), value: amt });
+      }
+      const otherFieldAlloc = fieldAllocationForInstitutions(start, end, agency, sc => !topStateCodes.has(sc));
+      const otherFieldsArr = Array.from(otherFieldAlloc, ([key, funding]) => ({ field_name: key.split("|")[1], funding }))
+        .sort((a, b) => b.funding - a.funding);
+      const otherTopFields = otherFieldsArr.slice(0, TOP_FIELDS_PER_STATE);
+      for (const f of otherTopFields) {
+        links.push({ source: nodeIndex(otherStateNodeName), target: nodeIndex(f.field_name), value: f.funding });
+      }
+      links.push({ source: nodeIndex(otherStateNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTopFields, d => d.funding)) });
     }
 
     const svg = d3.select("#sankey-svg");
@@ -1004,26 +1066,16 @@
       .text(d => d.name.length > 28 ? d.name.slice(0, 26) + "…" : d.name);
   }
 
-  // Allocates each institution's funding (for a year/agency/optional state
-  // filter) across its OpenAlex fields, proportional to that institution's
-  // field_mix shares (renormalized to sum to 1 - see aggregate_openalex.py's
-  // note on why field_mix shares alone don't sum to 1). Computed client-side
-  // rather than pre-aggregated so it can respect the state filter for any
-  // of the 50 states without a combinatorial explosion of backend files.
-  function computeFieldAllocation(start, end, agency, postal) {
-    const fundingByUei = new Map();
-    for (const d of institutionRows) {
-      if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
-      if (postal && d.state_code !== postal) continue;
-      fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
-    }
-
+  // Allocates a uei->funding map across OpenAlex fields, proportional to
+  // each institution's field_mix shares (renormalized to sum to 1 - see
+  // aggregate_openalex.py's note on why field_mix shares alone don't sum to
+  // 1). Factored out so both a single entity's breakdown and an aggregate
+  // "everything else" breakdown can share the same allocation logic.
+  function fieldBreakdownForFunding(fundingByUei) {
     const shareSumByUei = new Map();
     for (const d of fieldMixRows) {
       shareSumByUei.set(d.uei, (shareSumByUei.get(d.uei) || 0) + d.share);
     }
-
     const byKey = new Map();
     for (const d of fieldMixRows) {
       const funding = fundingByUei.get(d.uei);
@@ -1033,6 +1085,26 @@
       byKey.set(key, (byKey.get(key) || 0) + funding * (d.share / shareSum));
     }
     return byKey;
+  }
+
+  // Field allocation for whichever institutions pass stateFilterFn (or all,
+  // if omitted) within a year/agency window. Computed client-side rather
+  // than pre-aggregated so it can respect any state filter, or any set of
+  // states (e.g. "every state not in the top 8"), without a combinatorial
+  // explosion of backend files.
+  function fieldAllocationForInstitutions(start, end, agency, stateFilterFn) {
+    const fundingByUei = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (stateFilterFn && !stateFilterFn(d.state_code)) continue;
+      fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
+    }
+    return fieldBreakdownForFunding(fundingByUei);
+  }
+
+  function computeFieldAllocation(start, end, agency, postal) {
+    return fieldAllocationForInstitutions(start, end, agency, postal ? (sc => sc === postal) : null);
   }
 
   // Finest-grained version of the same allocation, keeping agency and state
