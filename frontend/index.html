@@ -338,7 +338,7 @@
 
 <div class="tab-panel" data-tab="sankey">
   <div class="chart-wrap">
-    <div class="chart-note">Agency -&gt; top-funded institutions -&gt; research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.</div>
+    <div class="chart-note" id="sankey-note">Agency -&gt; top-funded institutions -&gt; research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.</div>
     <svg id="sankey-svg" viewBox="0 0 1000 600" style="width: 100%; height: auto;"></svg>
   </div>
 </div>
@@ -831,27 +831,6 @@
     const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
-    const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
-
-    const instTotals = new Map();
-    for (const d of institutionRows) {
-      if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
-      if (postal && d.state_code !== postal) continue;
-      let e = instTotals.get(d.uei);
-      if (!e) { e = { name: d.name, byAgency: new Map(), total: 0 }; instTotals.set(d.uei, e); }
-      e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
-      e.total += d.total_obligations;
-    }
-    const topInst = Array.from(instTotals.entries()).sort((a, b) => b[1].total - a[1].total).slice(0, TOP_INST);
-    const topInstUeis = new Set(topInst.map(([uei]) => uei));
-
-    const fieldByUei = new Map();
-    for (const d of fieldMixRows) {
-      if (!topInstUeis.has(d.uei)) continue;
-      if (!fieldByUei.has(d.uei)) fieldByUei.set(d.uei, []);
-      fieldByUei.get(d.uei).push(d);
-    }
 
     const nodesSet = new Map();
     const nodeNames = [];
@@ -861,20 +840,80 @@
     }
 
     const links = [];
-    for (const [uei, e] of topInst) {
-      const instNodeName = "inst:" + titleCase(e.name);
-      for (const [ag, amt] of e.byAgency) {
-        if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(instNodeName), value: amt });
+    const noteEl = document.getElementById("sankey-note");
+
+    if (postal) {
+      noteEl.textContent = "Agency -> top-funded institutions -> research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.";
+      const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
+
+      const instTotals = new Map();
+      for (const d of institutionRows) {
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (d.state_code !== postal) continue;
+        let e = instTotals.get(d.uei);
+        if (!e) { e = { name: d.name, byAgency: new Map(), total: 0 }; instTotals.set(d.uei, e); }
+        e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
+        e.total += d.total_obligations;
       }
-      const fields = (fieldByUei.get(uei) || []).slice().sort((a, b) => b.share - a.share);
-      const top = fields.slice(0, TOP_FIELDS_PER_INST);
-      const shareSum = d3.sum(fields, d => d.share) || 1;
-      const restShare = shareSum - d3.sum(top, d => d.share);
-      for (const f of top) {
-        links.push({ source: nodeIndex(instNodeName), target: nodeIndex(f.field_name), value: e.total * (f.share / shareSum) });
+      const topInst = Array.from(instTotals.entries()).sort((a, b) => b[1].total - a[1].total).slice(0, TOP_INST);
+      const topInstUeis = new Set(topInst.map(([uei]) => uei));
+
+      const fieldByUei = new Map();
+      for (const d of fieldMixRows) {
+        if (!topInstUeis.has(d.uei)) continue;
+        if (!fieldByUei.has(d.uei)) fieldByUei.set(d.uei, []);
+        fieldByUei.get(d.uei).push(d);
       }
-      if (restShare > 0) {
-        links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: e.total * (restShare / shareSum) });
+
+      for (const [uei, e] of topInst) {
+        const instNodeName = "inst:" + titleCase(e.name);
+        for (const [ag, amt] of e.byAgency) {
+          if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(instNodeName), value: amt });
+        }
+        const fields = (fieldByUei.get(uei) || []).slice().sort((a, b) => b.share - a.share);
+        const top = fields.slice(0, TOP_FIELDS_PER_INST);
+        const shareSum = d3.sum(fields, d => d.share) || 1;
+        const restShare = shareSum - d3.sum(top, d => d.share);
+        for (const f of top) {
+          links.push({ source: nodeIndex(instNodeName), target: nodeIndex(f.field_name), value: e.total * (f.share / shareSum) });
+        }
+        if (restShare > 0) {
+          links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: e.total * (restShare / shareSum) });
+        }
+      }
+    } else {
+      noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
+      const TOP_STATES = 8, TOP_FIELDS_PER_STATE = 3;
+      const stateNameByPostal = new Map(stateOptions);
+
+      const stateTotals = new Map();
+      for (const d of institutionRows) {
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        let e = stateTotals.get(d.state_code);
+        if (!e) { e = { byAgency: new Map(), total: 0 }; stateTotals.set(d.state_code, e); }
+        e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
+        e.total += d.total_obligations;
+      }
+      const topStates = Array.from(stateTotals.entries()).sort((a, b) => b[1].total - a[1].total).slice(0, TOP_STATES);
+
+      for (const [stCode, e] of topStates) {
+        const stateNodeName = "state:" + titleCase(stateNameByPostal.get(stCode) || stCode);
+        for (const [ag, amt] of e.byAgency) {
+          if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(stateNodeName), value: amt });
+        }
+        const fieldAlloc = computeFieldAllocation(start, end, agency, stCode);
+        const fieldsArr = Array.from(fieldAlloc, ([key, funding]) => ({ field_name: key.split("|")[1], funding }))
+          .sort((a, b) => b.funding - a.funding);
+        const top = fieldsArr.slice(0, TOP_FIELDS_PER_STATE);
+        const restAmt = e.total - d3.sum(top, d => d.funding);
+        for (const f of top) {
+          links.push({ source: nodeIndex(stateNodeName), target: nodeIndex(f.field_name), value: f.funding });
+        }
+        if (restAmt > 0) {
+          links.push({ source: nodeIndex(stateNodeName), target: nodeIndex("Other field"), value: restAmt });
+        }
       }
     }
 
@@ -887,7 +926,11 @@
       return;
     }
 
-    const nodes = nodeNames.map(name => ({ name: name.startsWith("inst:") ? name.slice(5) : name }));
+    const nodes = nodeNames.map(name => {
+      if (name.startsWith("inst:")) return { name: name.slice(5) };
+      if (name.startsWith("state:")) return { name: name.slice(6) };
+      return { name };
+    });
     const w = 1000, h = 600;
     const sankeyGen = d3.sankey().nodeWidth(14).nodePadding(10).extent([[10, 10], [w - 10, h - 10]]);
     const graph = sankeyGen({ nodes: nodes.map(d => ({ ...d })), links: links.map(d => ({ ...d })) });
