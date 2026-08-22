@@ -224,6 +224,12 @@
     </select>
   </div>
   <div class="control-group">
+    <label for="state-select">State</label>
+    <select id="state-select">
+      <option value="__all__">All states</option>
+    </select>
+  </div>
+  <div class="control-group">
     <label for="year-range">Fiscal Year</label>
     <input type="range" id="year-range" min="2016" max="2026" value="2026" step="1">
     <span id="year-label">2026</span>
@@ -286,11 +292,11 @@
     <div class="chart-note">Shows all tracked fiscal years regardless of the year slider above.</div>
     <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
       <div style="flex: 1 1 500px; min-width: 0;">
-        <h2 style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
+        <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
         <svg id="stacked-area-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;"></svg>
       </div>
       <div style="flex: 0 0 320px;">
-        <h2 style="font-size: 14px; margin: 0 0 8px;">Funding share by state (selected year/agency)</h2>
+        <h2 id="state-pie-title" style="font-size: 14px; margin: 0 0 8px;">Funding share by state (selected year/agency)</h2>
         <svg id="state-pie-svg" viewBox="0 0 320 320" style="width: 100%; height: auto; max-width: 320px;"></svg>
         <div id="state-pie-legend" style="font-size: 11px; margin-top: 8px;"></div>
       </div>
@@ -327,14 +333,14 @@
 <script src="https://unpkg.com/d3-sankey@0"></script>
 <script>
 (async function () {
-  const [us, rows, institutionRows, outputRows, fieldMixRows, fieldAllocationRows, nihLinkedRows] = await Promise.all([
+  const [us, rows, institutionRows, outputRows, fieldMixRows, nihLinkedRows, institutionGeoRows] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
     d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
     d3.csv("data/institution_output_by_year.csv", d3.autoType),
     d3.csv("data/institution_field_mix.csv", d3.autoType),
-    d3.csv("data/funding_allocated_by_field_year_agency.csv", d3.autoType),
     d3.csv("data/nih_linked_publications_by_institution_year.csv", d3.autoType),
+    d3.csv("data/institution_geo.csv", d3.autoType),
   ]);
 
   const states = topojson.feature(us, us.objects.states).features;
@@ -364,45 +370,57 @@
   document.getElementById("year-label").textContent = yearRange.value;
 
   const svg = d3.select("#map");
-  const projection = d3.geoAlbersUsa().fitSize([960, 600], { type: "FeatureCollection", features: states });
-  const path = d3.geoPath(projection);
+  const nationalProjection = d3.geoAlbersUsa().fitSize([960, 600], { type: "FeatureCollection", features: states });
+  const nationalPath = d3.geoPath(nationalProjection);
   const tooltip = d3.select("#tooltip");
 
   const color = d3.scaleSequential(d3.interpolateBlues);
-
-  const paths = svg.selectAll("path.state")
-    .data(states)
-    .join("path")
-    .attr("class", "state")
-    .attr("d", path)
-    .on("mousemove", (event, d) => {
-      const rec = current.get(pad2(d.id));
-      const amount = rec ? rec.total_obligations : 0;
-      const awards = rec ? rec.award_count : 0;
-      tooltip
-        .style("opacity", 1)
-        .style("left", event.clientX + 14 + "px")
-        .style("top", event.clientY + 14 + "px")
-        .html(`<strong>${d.properties.name}</strong><br>
-               <span class="amount">$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</span><br>
-               ${awards.toLocaleString()} awards`);
-    })
-    .on("mouseleave", () => tooltip.style("opacity", 0))
-    .on("click", (event, d) => {
-      const fips = pad2(d.id);
-      selectedFips = selectedFips === fips ? null : fips;
-      render();
-    });
-
   let current = new Map();
+
+  // state dropdown: a global filter, kept in sync with clicking a state on
+  // the national map (either interaction sets the same selectedFips).
+  const stateOptions = Array.from(new Map(rows.map(d => [d.state_code, d.state_name])).entries())
+    .sort((a, b) => a[1].localeCompare(b[1]));
+  const stateSelect = d3.select("#state-select");
+  stateSelect.selectAll("option.state")
+    .data(stateOptions)
+    .join("option")
+    .attr("class", "state")
+    .attr("value", d => d[0])
+    .text(d => titleCase(d[1]));
+
+  const fipsByPostal = new Map(rows.map(d => [d.state_code, pad2(d.state_fips)]));
+
+  function syncStateSelectUI() {
+    stateSelect.property("value", selectedFips ? postalByFips.get(selectedFips) : "__all__");
+  }
+
+  stateSelect.on("change", () => {
+    const v = stateSelect.property("value");
+    selectedFips = v === "__all__" ? null : fipsByPostal.get(v);
+    selectedUei = null;
+    renderActiveTab();
+  });
 
   function render() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
     document.getElementById("year-label").textContent = year;
+    syncStateSelectUI();
+
+    if (selectedFips) {
+      renderStateMap(selectedFips, year, agency);
+    } else {
+      renderNationalMap(year, agency);
+    }
+
+    renderInstitutions(year, agency);
+  }
+
+  function renderNationalMap(year, agency) {
+    svg.selectAll("*").remove();
 
     const filtered = rows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
-
     current = new Map();
     for (const d of filtered) {
       const key = pad2(d.state_fips);
@@ -416,15 +434,93 @@
     const max = d3.max(Array.from(current.values(), d => d.total_obligations)) || 1;
     color.domain([0, max]);
 
-    paths.attr("fill", d => {
-      const rec = current.get(pad2(d.id));
-      return rec ? color(rec.total_obligations) : "#1a1d26";
-    });
-    paths.classed("selected", d => pad2(d.id) === selectedFips);
+    svg.selectAll("path.state")
+      .data(states)
+      .join("path")
+      .attr("class", "state")
+      .attr("d", nationalPath)
+      .attr("fill", d => {
+        const rec = current.get(pad2(d.id));
+        return rec ? color(rec.total_obligations) : "#1a1d26";
+      })
+      .on("mousemove", (event, d) => {
+        const rec = current.get(pad2(d.id));
+        const amount = rec ? rec.total_obligations : 0;
+        const awards = rec ? rec.award_count : 0;
+        tooltip
+          .style("opacity", 1)
+          .style("left", event.clientX + 14 + "px")
+          .style("top", event.clientY + 14 + "px")
+          .html(`<strong>${d.properties.name}</strong><br>
+                 <span class="amount">$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</span><br>
+                 ${awards.toLocaleString()} awards`);
+      })
+      .on("mouseleave", () => tooltip.style("opacity", 0))
+      .on("click", (event, d) => {
+        selectedFips = pad2(d.id);
+        selectedUei = null;
+        render();
+      });
 
-    d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
+    d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
+  }
 
-    renderInstitutions(year, agency);
+  function renderStateMap(fips, year, agency) {
+    svg.selectAll("*").remove();
+
+    const stateFeature = states.find(s => pad2(s.id) === fips);
+    if (!stateFeature) return;
+    const postal = postalByFips.get(fips);
+
+    const projection = d3.geoMercator().fitSize([960, 560], stateFeature);
+    const pathGen = d3.geoPath(projection);
+
+    svg.append("path").datum(stateFeature).attr("d", pathGen)
+      .attr("fill", "#161a24").attr("stroke", "var(--border)").attr("stroke-width", 1.5);
+
+    const fundingByUei = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (d.state_code !== postal) continue;
+      const prev = fundingByUei.get(d.uei);
+      if (prev) { prev.funding += d.total_obligations; prev.awards += d.award_count; }
+      else fundingByUei.set(d.uei, { name: d.name, city: d.city, funding: d.total_obligations, awards: d.award_count });
+    }
+
+    const geoByUei = new Map(institutionGeoRows.map(d => [d.uei, d]));
+    const points = [];
+    for (const [uei, e] of fundingByUei) {
+      const geo = geoByUei.get(uei);
+      if (geo) points.push({ uei, ...e, lat: geo.lat, lon: geo.lon });
+    }
+
+    const maxFunding = d3.max(points, d => d.funding) || 1;
+    const radius = d3.scaleSqrt().domain([0, maxFunding]).range([2.5, 24]);
+
+    svg.selectAll("circle").data(points).join("circle")
+      .attr("cx", d => projection([d.lon, d.lat])[0])
+      .attr("cy", d => projection([d.lon, d.lat])[1])
+      .attr("r", d => radius(d.funding))
+      .attr("fill", "var(--accent)")
+      .attr("fill-opacity", 0.65)
+      .attr("stroke", "var(--bg)")
+      .attr("stroke-width", 1)
+      .style("cursor", "pointer")
+      .on("mousemove", (event, d) => {
+        tooltip.style("opacity", 1).style("left", event.clientX + 14 + "px").style("top", event.clientY + 14 + "px")
+          .html(`<strong>${titleCase(d.name)}</strong><br>${titleCase(d.city)}<br>
+                 <span class="amount">$${d.funding.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span><br>
+                 ${d.awards.toLocaleString()} awards`);
+      })
+      .on("mouseleave", () => tooltip.style("opacity", 0))
+      .on("click", (event, d) => { selectedUei = d.uei; renderInstitutions(year, agency); });
+
+    const noGeoCount = fundingByUei.size - points.length;
+    d3.select("#legend").text(
+      `${stateFeature.properties.name} · circle size = funding · ${points.length} institutions shown` +
+      (noGeoCount > 0 ? ` (${noGeoCount} untracked, no map coordinates)` : "")
+    );
   }
 
   function renderInstitutions(year, agency) {
@@ -578,6 +674,7 @@
   function renderScatter() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const yMetric = document.getElementById("scatter-y-select").value;
 
     const fundingByUei = new Map();
@@ -585,6 +682,7 @@
     for (const d of institutionRows) {
       if (d.fiscal_year !== year) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
+      if (postal && d.state_code !== postal) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
       nameByUei.set(d.uei, d.name);
     }
@@ -633,12 +731,14 @@
   function renderSankey() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
 
     const instTotals = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year !== year) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
+      if (postal && d.state_code !== postal) continue;
       let e = instTotals.get(d.uei);
       if (!e) { e = { name: d.name, byAgency: new Map(), total: 0 }; instTotals.set(d.uei, e); }
       e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
@@ -717,18 +817,44 @@
       .text(d => d.name.length > 28 ? d.name.slice(0, 26) + "…" : d.name);
   }
 
+  // Allocates each institution's funding (for a year/agency/optional state
+  // filter) across its OpenAlex fields, proportional to that institution's
+  // field_mix shares (renormalized to sum to 1 - see aggregate_openalex.py's
+  // note on why field_mix shares alone don't sum to 1). Computed client-side
+  // rather than pre-aggregated so it can respect the state filter for any
+  // of the 50 states without a combinatorial explosion of backend files.
+  function computeFieldAllocation(year, agency, postal) {
+    const fundingByUei = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (postal && d.state_code !== postal) continue;
+      fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
+    }
+
+    const shareSumByUei = new Map();
+    for (const d of fieldMixRows) {
+      shareSumByUei.set(d.uei, (shareSumByUei.get(d.uei) || 0) + d.share);
+    }
+
+    const byKey = new Map();
+    for (const d of fieldMixRows) {
+      const funding = fundingByUei.get(d.uei);
+      if (!funding) continue;
+      const shareSum = shareSumByUei.get(d.uei) || 1;
+      const key = d.domain_name + "|" + d.field_name;
+      byKey.set(key, (byKey.get(key) || 0) + funding * (d.share / shareSum));
+    }
+    return byKey;
+  }
+
   function renderTreemap() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
-    const filtered = fieldAllocationRows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
 
-    const byDomainField = new Map();
-    for (const d of filtered) {
-      const key = d.domain_name + "|" + d.field_name;
-      byDomainField.set(key, (byDomainField.get(key) || 0) + d.allocated_funding);
-    }
     const byDomain = new Map();
-    for (const [key, val] of byDomainField) {
+    for (const [key, val] of computeFieldAllocation(year, agency, postal)) {
       const [domain, field] = key.split("|");
       if (!byDomain.has(domain)) byDomain.set(domain, []);
       byDomain.get(domain).push({ name: field, value: val });
@@ -776,6 +902,10 @@
   }
 
   function renderStackedArea() {
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
+    const stateLabel = postal ? titleCase(stateOptions.find(s => s[0] === postal)[1]) : "national";
+    document.getElementById("stacked-area-title").textContent = `Total funding by agency, over time (${stateLabel})`;
+
     const svg = d3.select("#stacked-area-svg");
     svg.selectAll("*").remove();
     const margin = { top: 10, right: 10, bottom: 24, left: 55 };
@@ -784,6 +914,7 @@
 
     const byYearAgency = new Map();
     for (const d of rows) {
+      if (postal && d.state_code !== postal) continue;
       if (!byYearAgency.has(d.fiscal_year)) byYearAgency.set(d.fiscal_year, {});
       const rec = byYearAgency.get(d.fiscal_year);
       rec[d.agency] = (rec[d.agency] || 0) + d.total_obligations;
@@ -813,19 +944,38 @@
   function renderStatePie() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const svg = d3.select("#state-pie-svg");
     svg.selectAll("*").remove();
 
-    const byState = new Map();
-    for (const d of rows) {
-      if (d.fiscal_year !== year) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
-      byState.set(d.state_name, (byState.get(d.state_name) || 0) + d.total_obligations);
+    let arr;
+    if (postal) {
+      document.getElementById("state-pie-title").textContent = "Funding share by institution (selected state/year/agency)";
+      const byUei = new Map();
+      const nameByUei = new Map();
+      for (const d of institutionRows) {
+        if (d.fiscal_year !== year) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (d.state_code !== postal) continue;
+        byUei.set(d.uei, (byUei.get(d.uei) || 0) + d.total_obligations);
+        nameByUei.set(d.uei, d.name);
+      }
+      arr = Array.from(byUei, ([uei, value]) => ({ name: nameByUei.get(uei), value })).sort((a, b) => b.value - a.value);
+    } else {
+      document.getElementById("state-pie-title").textContent = "Funding share by state (selected year/agency)";
+      const byState = new Map();
+      for (const d of rows) {
+        if (d.fiscal_year !== year) continue;
+        if (agency !== "__all__" && d.agency !== agency) continue;
+        byState.set(d.state_name, (byState.get(d.state_name) || 0) + d.total_obligations);
+      }
+      arr = Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     }
-    let arr = Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+
     const top = arr.slice(0, 10);
+    const otherLabel = postal ? "Other institutions" : "Other states";
     const otherTotal = d3.sum(arr.slice(10), d => d.value);
-    if (otherTotal > 0) top.push({ name: "Other states", value: otherTotal });
+    if (otherTotal > 0) top.push({ name: otherLabel, value: otherTotal });
 
     const w = 320, h = 320, r = Math.min(w, h) / 2 - 10;
     const g = svg.append("g").attr("transform", `translate(${w / 2},${h / 2})`);
@@ -849,12 +999,13 @@
 
   let rankingsSort = { key: "funding", dir: "desc" };
 
-  function getRankingsData(dimension, year, agency) {
+  function getRankingsData(dimension, year, agency, postal) {
     if (dimension === "institutions") {
       const byUei = new Map();
       for (const d of institutionRows) {
         if (d.fiscal_year !== year) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
+        if (postal && d.state_code !== postal) continue;
         let e = byUei.get(d.uei);
         if (!e) { e = { name: d.name, city: d.city, state_code: d.state_code, funding: 0, awards: 0 }; byUei.set(d.uei, e); }
         e.funding += d.total_obligations;
@@ -881,6 +1032,7 @@
       for (const d of rows) {
         if (d.fiscal_year !== year) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
+        if (postal && d.state_code !== postal) continue;
         let e = byState.get(d.state_name);
         if (!e) { e = { name: d.state_name, funding: 0, awards: 0 }; byState.set(d.state_name, e); }
         e.funding += d.total_obligations;
@@ -895,13 +1047,11 @@
     }
 
     const byField = new Map();
-    for (const d of fieldAllocationRows) {
-      if (d.fiscal_year !== year) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
-      const key = d.domain_name + "|" + d.field_name;
+    for (const [key, funding] of computeFieldAllocation(year, agency, postal)) {
+      const [domain, field] = key.split("|");
       let e = byField.get(key);
-      if (!e) { e = { domain: d.domain_name, name: d.field_name, funding: 0 }; byField.set(key, e); }
-      e.funding += d.allocated_funding;
+      if (!e) { e = { domain, name: field, funding: 0 }; byField.set(key, e); }
+      e.funding += funding;
     }
     const columns = [
       { key: "domain", label: "Domain", type: "text" },
@@ -914,8 +1064,13 @@
   function renderRankings() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
-    const dimension = document.getElementById("rankings-select").value;
-    const { columns, rows } = getRankingsData(dimension, year, agency);
+    const postal = selectedFips ? postalByFips.get(selectedFips) : null;
+    let dimension = document.getElementById("rankings-select").value;
+    if (postal && dimension === "states") {
+      dimension = "institutions";
+      document.getElementById("rankings-select").value = "institutions";
+    }
+    const { columns, rows } = getRankingsData(dimension, year, agency, postal);
 
     if (!columns.some(c => c.key === rankingsSort.key)) {
       rankingsSort = { key: "funding", dir: "desc" };
@@ -962,7 +1117,8 @@
     });
 
     const agencyLabel = agency === "__all__" ? "all agencies" : agency;
-    document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · FY${year} · ${agencyLabel}`;
+    const stateLabel = postal ? ` · ${stateOptions.find(s => s[0] === postal)?.[1] ? titleCase(stateOptions.find(s => s[0] === postal)[1]) : postal}` : "";
+    document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · FY${year} · ${agencyLabel}${stateLabel}`;
   }
 
   let activeTab = "map";

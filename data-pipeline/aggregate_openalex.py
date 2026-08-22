@@ -67,10 +67,21 @@ def main():
         ) to '{PROCESSED_DIR / "institution_field_mix.csv"}' (header, delimiter ',')
     """)
 
+    con.execute(f"""
+        copy (
+            select c.uei, i.geo.latitude as lat, i.geo.longitude as lon
+            from crosswalk c
+            join insts i on i.id = c.openalex_id
+            where i.geo.latitude is not null
+        ) to '{PROCESSED_DIR / "institution_geo.csv"}' (header, delimiter ',')
+    """)
+
     n_years = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_output_by_year.csv'}')").fetchone()[0]
     n_fields = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_field_mix.csv'}')").fetchone()[0]
+    n_geo = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_geo.csv'}')").fetchone()[0]
     print(f"Wrote institution_output_by_year.csv ({n_years} rows)")
     print(f"Wrote institution_field_mix.csv ({n_fields} rows)")
+    print(f"Wrote institution_geo.csv ({n_geo} of 500 institutions have coordinates)")
 
 
 if __name__ == "__main__":
