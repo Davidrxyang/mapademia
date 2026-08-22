@@ -23,7 +23,7 @@ def main():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
 
-    csv_glob = str(RAW_DIR / "*" / "*.csv")
+    csv_glob = str(RAW_DIR / "*" / "*" / "*.csv")
     con.execute(f"""
         create table transactions as
         select
@@ -57,7 +57,10 @@ def main():
     """.format(PROCESSED_DIR / "funding_by_state_year_agency.csv"))
 
     summary = con.execute("""
-        select agency, fiscal_year, sum(federal_action_obligation) as total
+        select
+            coalesce(funding_sub_agency_name, funding_agency_name) as agency,
+            fiscal_year,
+            sum(federal_action_obligation) as total
         from transactions
         group by 1, 2
         order by 1, 2

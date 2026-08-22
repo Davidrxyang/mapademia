@@ -1,0 +1,377 @@
+state_fips,state_code,state_name,fiscal_year,agency,total_obligations,award_count
+01,AL,ALABAMA,2016,National Science Foundation,5993013.0,24
+01,AL,ALABAMA,2017,National Science Foundation,48667375.0,199
+01,AL,ALABAMA,2018,National Science Foundation,59598112.0,201
+01,AL,ALABAMA,2019,National Science Foundation,60043229.0,169
+01,AL,ALABAMA,2020,National Science Foundation,69856544.0,207
+01,AL,ALABAMA,2021,National Science Foundation,65917077.0,197
+01,AL,ALABAMA,2022,National Science Foundation,80804120.0,207
+02,AK,ALASKA,2016,National Science Foundation,1214915.0,11
+02,AK,ALASKA,2017,National Science Foundation,40703036.0,114
+02,AK,ALASKA,2018,National Science Foundation,45143606.0,121
+02,AK,ALASKA,2019,National Science Foundation,61118850.0,118
+02,AK,ALASKA,2020,National Science Foundation,61339009.0,104
+02,AK,ALASKA,2021,National Science Foundation,55857110.0,108
+02,AK,ALASKA,2022,National Science Foundation,52619178.0,89
+04,AZ,ARIZONA,2016,National Science Foundation,9640983.0,70
+04,AZ,ARIZONA,2017,National Science Foundation,236083938.0,476
+04,AZ,ARIZONA,2018,National Science Foundation,121967039.0,478
+04,AZ,ARIZONA,2019,National Science Foundation,178532929.0,448
+04,AZ,ARIZONA,2020,National Science Foundation,266277312.0,475
+04,AZ,ARIZONA,2021,National Science Foundation,162665569.0,453
+04,AZ,ARIZONA,2022,National Science Foundation,182002805.0,423
+05,AR,ARKANSAS,2016,National Science Foundation,637957.0,4
+05,AR,ARKANSAS,2017,National Science Foundation,15613199.0,78
+05,AR,ARKANSAS,2018,National Science Foundation,28435363.0,82
+05,AR,ARKANSAS,2019,National Science Foundation,19322021.0,77
+05,AR,ARKANSAS,2020,National Science Foundation,27563426.0,84
+05,AR,ARKANSAS,2021,National Science Foundation,34214482.0,76
+05,AR,ARKANSAS,2022,National Science Foundation,42815214.0,78
+06,CA,CALIFORNIA,2016,National Science Foundation,77588269.0,504
+06,CA,CALIFORNIA,2017,National Science Foundation,807955590.0,2451
+06,CA,CALIFORNIA,2018,National Science Foundation,950726814.0,2731
+06,CA,CALIFORNIA,2019,National Science Foundation,919025889.0,2365
+06,CA,CALIFORNIA,2020,National Science Foundation,990705879.0,2383
+06,CA,CALIFORNIA,2021,National Science Foundation,1058743642.0,2499
+06,CA,CALIFORNIA,2022,National Science Foundation,1062894968.0,2376
+08,CO,COLORADO,2016,National Science Foundation,13634956.0,91
+08,CO,COLORADO,2017,National Science Foundation,282816442.0,631
+08,CO,COLORADO,2018,National Science Foundation,347327488.0,660
+08,CO,COLORADO,2019,National Science Foundation,381235716.0,610
+08,CO,COLORADO,2020,National Science Foundation,367951122.0,610
+08,CO,COLORADO,2021,National Science Foundation,369204331.0,626
+08,CO,COLORADO,2022,National Science Foundation,386507572.0,607
+09,CT,CONNECTICUT,2016,National Science Foundation,6820062.0,54
+09,CT,CONNECTICUT,2017,National Science Foundation,66521261.0,303
+09,CT,CONNECTICUT,2018,National Science Foundation,69639851.0,290
+09,CT,CONNECTICUT,2019,National Science Foundation,79522710.0,262
+09,CT,CONNECTICUT,2020,National Science Foundation,75653007.0,290
+09,CT,CONNECTICUT,2021,National Science Foundation,102590433.0,279
+09,CT,CONNECTICUT,2022,National Science Foundation,91844681.0,257
+10,DE,DELAWARE,2016,National Science Foundation,2891023.0,20
+10,DE,DELAWARE,2017,National Science Foundation,25509216.0,107
+10,DE,DELAWARE,2018,National Science Foundation,35164373.0,148
+10,DE,DELAWARE,2019,National Science Foundation,41178485.0,110
+10,DE,DELAWARE,2020,National Science Foundation,47119338.0,113
+10,DE,DELAWARE,2021,National Science Foundation,46993898.0,113
+10,DE,DELAWARE,2022,National Science Foundation,47919259.0,95
+11,DC,DISTRICT OF COLUMBIA,2016,National Science Foundation,5138516.0,36
+11,DC,DISTRICT OF COLUMBIA,2017,National Science Foundation,199195543.0,336
+11,DC,DISTRICT OF COLUMBIA,2018,National Science Foundation,462289136.0,381
+11,DC,DISTRICT OF COLUMBIA,2019,National Science Foundation,349461742.0,304
+11,DC,DISTRICT OF COLUMBIA,2020,National Science Foundation,266626737.0,304
+11,DC,DISTRICT OF COLUMBIA,2021,National Science Foundation,462389070.0,296
+11,DC,DISTRICT OF COLUMBIA,2022,National Science Foundation,444836961.0,281
+12,FL,FLORIDA,2016,National Science Foundation,17646942.0,109
+12,FL,FLORIDA,2017,National Science Foundation,170899080.0,615
+12,FL,FLORIDA,2018,National Science Foundation,204677052.0,661
+12,FL,FLORIDA,2019,National Science Foundation,251709527.0,695
+12,FL,FLORIDA,2020,National Science Foundation,254698243.0,712
+12,FL,FLORIDA,2021,National Science Foundation,262289634.0,699
+12,FL,FLORIDA,2022,National Science Foundation,272420595.0,653
+13,GA,GEORGIA,2016,National Science Foundation,14827871.0,99
+13,GA,GEORGIA,2017,National Science Foundation,132843344.0,539
+13,GA,GEORGIA,2018,National Science Foundation,147333694.0,567
+13,GA,GEORGIA,2019,National Science Foundation,176673467.0,518
+13,GA,GEORGIA,2020,National Science Foundation,155087717.0,519
+13,GA,GEORGIA,2021,National Science Foundation,179162631.0,448
+13,GA,GEORGIA,2022,National Science Foundation,193095327.0,477
+15,HI,HAWAII,2016,National Science Foundation,2301140.0,14
+15,HI,HAWAII,2017,National Science Foundation,42754274.0,125
+15,HI,HAWAII,2018,National Science Foundation,43829765.0,123
+15,HI,HAWAII,2019,National Science Foundation,53996617.0,121
+15,HI,HAWAII,2020,National Science Foundation,48661472.0,111
+15,HI,HAWAII,2021,National Science Foundation,58018789.0,125
+15,HI,HAWAII,2022,National Science Foundation,49174844.0,102
+16,ID,IDAHO,2016,National Science Foundation,1957072.0,13
+16,ID,IDAHO,2017,National Science Foundation,24585975.0,75
+16,ID,IDAHO,2018,National Science Foundation,24828719.0,78
+16,ID,IDAHO,2019,National Science Foundation,31124724.0,66
+16,ID,IDAHO,2020,National Science Foundation,26034383.0,83
+16,ID,IDAHO,2021,National Science Foundation,34798625.0,83
+16,ID,IDAHO,2022,National Science Foundation,42645255.0,76
+17,IL,ILLINOIS,2016,National Science Foundation,30108983.0,187
+17,IL,ILLINOIS,2017,National Science Foundation,298469793.0,942
+17,IL,ILLINOIS,2018,National Science Foundation,289725823.0,998
+17,IL,ILLINOIS,2019,National Science Foundation,326777464.0,884
+17,IL,ILLINOIS,2020,National Science Foundation,334886295.0,877
+17,IL,ILLINOIS,2021,National Science Foundation,324338124.0,796
+17,IL,ILLINOIS,2022,National Science Foundation,353790492.0,765
+18,IN,INDIANA,2016,National Science Foundation,13054225.0,84
+18,IN,INDIANA,2017,National Science Foundation,151171407.0,550
+18,IN,INDIANA,2018,National Science Foundation,144703810.0,550
+18,IN,INDIANA,2019,National Science Foundation,173700300.0,551
+18,IN,INDIANA,2020,National Science Foundation,170796829.0,507
+18,IN,INDIANA,2021,National Science Foundation,185560126.0,514
+18,IN,INDIANA,2022,National Science Foundation,167255440.0,485
+19,IA,IOWA,2016,National Science Foundation,3797589.0,30
+19,IA,IOWA,2017,National Science Foundation,47512723.0,199
+19,IA,IOWA,2018,National Science Foundation,54243710.0,220
+19,IA,IOWA,2019,National Science Foundation,45994011.0,202
+19,IA,IOWA,2020,National Science Foundation,51647432.0,186
+19,IA,IOWA,2021,National Science Foundation,57671595.0,158
+19,IA,IOWA,2022,National Science Foundation,59904157.0,183
+20,KS,KANSAS,2016,National Science Foundation,4539682.0,26
+20,KS,KANSAS,2017,National Science Foundation,40140019.0,143
+20,KS,KANSAS,2018,National Science Foundation,38186702.0,157
+20,KS,KANSAS,2019,National Science Foundation,37800292.0,135
+20,KS,KANSAS,2020,National Science Foundation,44223436.0,134
+20,KS,KANSAS,2021,National Science Foundation,43235996.0,129
+20,KS,KANSAS,2022,National Science Foundation,48250397.0,111
+21,KY,KENTUCKY,2016,National Science Foundation,4039127.0,27
+21,KY,KENTUCKY,2017,National Science Foundation,28525270.0,119
+21,KY,KENTUCKY,2018,National Science Foundation,31727164.0,137
+21,KY,KENTUCKY,2019,National Science Foundation,32063001.0,100
+21,KY,KENTUCKY,2020,National Science Foundation,41578190.0,110
+21,KY,KENTUCKY,2021,National Science Foundation,38763825.0,100
+21,KY,KENTUCKY,2022,National Science Foundation,42909133.0,113
+22,LA,LOUISIANA,2016,National Science Foundation,4933081.0,32
+22,LA,LOUISIANA,2017,National Science Foundation,34079620.0,165
+22,LA,LOUISIANA,2018,National Science Foundation,41969396.0,189
+22,LA,LOUISIANA,2019,National Science Foundation,37533864.0,151
+22,LA,LOUISIANA,2020,National Science Foundation,47543023.0,163
+22,LA,LOUISIANA,2021,National Science Foundation,61740717.0,168
+22,LA,LOUISIANA,2022,National Science Foundation,67058468.0,175
+23,ME,MAINE,2016,National Science Foundation,672769.0,6
+23,ME,MAINE,2017,National Science Foundation,20496157.0,72
+23,ME,MAINE,2018,National Science Foundation,33707671.0,84
+23,ME,MAINE,2019,National Science Foundation,24290387.0,76
+23,ME,MAINE,2020,National Science Foundation,29078312.0,70
+23,ME,MAINE,2021,National Science Foundation,26185429.0,77
+23,ME,MAINE,2022,National Science Foundation,37515651.0,74
+24,MD,MARYLAND,2016,National Science Foundation,21757522.0,117
+24,MD,MARYLAND,2017,National Science Foundation,121416363.0,501
+24,MD,MARYLAND,2018,National Science Foundation,146474036.0,539
+24,MD,MARYLAND,2019,National Science Foundation,131290970.0,490
+24,MD,MARYLAND,2020,National Science Foundation,157553428.0,491
+24,MD,MARYLAND,2021,National Science Foundation,169376752.0,455
+24,MD,MARYLAND,2022,National Science Foundation,171558901.0,446
+25,MA,MASSACHUSETTS,2016,National Science Foundation,38919167.0,237
+25,MA,MASSACHUSETTS,2017,National Science Foundation,450735353.0,1415
+25,MA,MASSACHUSETTS,2018,National Science Foundation,501673598.0,1488
+25,MA,MASSACHUSETTS,2019,National Science Foundation,561310515.0,1436
+25,MA,MASSACHUSETTS,2020,National Science Foundation,570952384.0,1322
+25,MA,MASSACHUSETTS,2021,National Science Foundation,582731141.0,1316
+25,MA,MASSACHUSETTS,2022,National Science Foundation,567358174.0,1217
+26,MI,MICHIGAN,2016,National Science Foundation,20082078.0,128
+26,MI,MICHIGAN,2017,National Science Foundation,222862891.0,708
+26,MI,MICHIGAN,2018,National Science Foundation,219838401.0,702
+26,MI,MICHIGAN,2019,National Science Foundation,243298935.0,690
+26,MI,MICHIGAN,2020,National Science Foundation,247493936.0,654
+26,MI,MICHIGAN,2021,National Science Foundation,211549881.0,659
+26,MI,MICHIGAN,2022,National Science Foundation,230994743.0,648
+27,MN,MINNESOTA,2016,National Science Foundation,11290363.0,56
+27,MN,MINNESOTA,2017,National Science Foundation,106421592.0,328
+27,MN,MINNESOTA,2018,National Science Foundation,89012075.0,311
+27,MN,MINNESOTA,2019,National Science Foundation,101331025.0,278
+27,MN,MINNESOTA,2020,National Science Foundation,111944289.0,291
+27,MN,MINNESOTA,2021,National Science Foundation,86034926.0,249
+27,MN,MINNESOTA,2022,National Science Foundation,104158412.0,268
+28,MS,MISSISSIPPI,2016,National Science Foundation,2538971.0,9
+28,MS,MISSISSIPPI,2017,National Science Foundation,19462767.0,84
+28,MS,MISSISSIPPI,2018,National Science Foundation,21148623.0,96
+28,MS,MISSISSIPPI,2019,National Science Foundation,24276699.0,73
+28,MS,MISSISSIPPI,2020,National Science Foundation,19351360.0,72
+28,MS,MISSISSIPPI,2021,National Science Foundation,30730810.0,81
+28,MS,MISSISSIPPI,2022,National Science Foundation,26988822.0,92
+29,MO,MISSOURI,2016,National Science Foundation,5684516.0,39
+29,MO,MISSOURI,2017,National Science Foundation,62480868.0,253
+29,MO,MISSOURI,2018,National Science Foundation,64983430.0,271
+29,MO,MISSOURI,2019,National Science Foundation,61351064.0,252
+29,MO,MISSOURI,2020,National Science Foundation,65715026.0,242
+29,MO,MISSOURI,2021,National Science Foundation,64586220.0,222
+29,MO,MISSOURI,2022,National Science Foundation,92127107.0,231
+30,MT,MONTANA,2016,National Science Foundation,1233401.0,9
+30,MT,MONTANA,2017,National Science Foundation,29862572.0,101
+30,MT,MONTANA,2018,National Science Foundation,30093138.0,103
+30,MT,MONTANA,2019,National Science Foundation,32746718.0,95
+30,MT,MONTANA,2020,National Science Foundation,39697378.0,114
+30,MT,MONTANA,2021,National Science Foundation,39768929.0,98
+30,MT,MONTANA,2022,National Science Foundation,45673167.0,80
+31,NE,NEBRASKA,2016,National Science Foundation,1858805.0,13
+31,NE,NEBRASKA,2017,National Science Foundation,37148593.0,114
+31,NE,NEBRASKA,2018,National Science Foundation,34142149.0,132
+31,NE,NEBRASKA,2019,National Science Foundation,41262070.0,113
+31,NE,NEBRASKA,2020,National Science Foundation,25256565.0,92
+31,NE,NEBRASKA,2021,National Science Foundation,39592655.0,107
+31,NE,NEBRASKA,2022,National Science Foundation,56339105.0,116
+32,NV,NEVADA,2016,National Science Foundation,1117405.0,15
+32,NV,NEVADA,2017,National Science Foundation,17045532.0,71
+32,NV,NEVADA,2018,National Science Foundation,21693186.0,95
+32,NV,NEVADA,2019,National Science Foundation,26416075.0,101
+32,NV,NEVADA,2020,National Science Foundation,28222182.0,91
+32,NV,NEVADA,2021,National Science Foundation,31685031.0,104
+32,NV,NEVADA,2022,National Science Foundation,38237444.0,105
+33,NH,NEW HAMPSHIRE,2016,National Science Foundation,2047954.0,11
+33,NH,NEW HAMPSHIRE,2017,National Science Foundation,35571070.0,137
+33,NH,NEW HAMPSHIRE,2018,National Science Foundation,37957068.0,133
+33,NH,NEW HAMPSHIRE,2019,National Science Foundation,40628903.0,115
+33,NH,NEW HAMPSHIRE,2020,National Science Foundation,43672080.0,107
+33,NH,NEW HAMPSHIRE,2021,National Science Foundation,33943659.0,96
+33,NH,NEW HAMPSHIRE,2022,National Science Foundation,39498225.0,103
+34,NJ,NEW JERSEY,2016,National Science Foundation,20058031.0,121
+34,NJ,NEW JERSEY,2017,National Science Foundation,138341323.0,498
+34,NJ,NEW JERSEY,2018,National Science Foundation,166584682.0,622
+34,NJ,NEW JERSEY,2019,National Science Foundation,142074133.0,482
+34,NJ,NEW JERSEY,2020,National Science Foundation,174780799.0,513
+34,NJ,NEW JERSEY,2021,National Science Foundation,187983790.0,491
+34,NJ,NEW JERSEY,2022,National Science Foundation,165322172.0,469
+35,NM,NEW MEXICO,2016,National Science Foundation,3679003.0,22
+35,NM,NEW MEXICO,2017,National Science Foundation,49151093.0,163
+35,NM,NEW MEXICO,2018,National Science Foundation,43623509.0,164
+35,NM,NEW MEXICO,2019,National Science Foundation,45567399.0,151
+35,NM,NEW MEXICO,2020,National Science Foundation,59246598.0,139
+35,NM,NEW MEXICO,2021,National Science Foundation,56209688.0,149
+35,NM,NEW MEXICO,2022,National Science Foundation,53715213.0,131
+36,NY,NEW YORK,2016,National Science Foundation,49507031.0,290
+36,NY,NEW YORK,2017,National Science Foundation,470123809.0,1607
+36,NY,NEW YORK,2018,National Science Foundation,513332565.0,1703
+36,NY,NEW YORK,2019,National Science Foundation,489397931.0,1576
+36,NY,NEW YORK,2020,National Science Foundation,531361756.0,1565
+36,NY,NEW YORK,2021,National Science Foundation,553575713.0,1505
+36,NY,NEW YORK,2022,National Science Foundation,573905572.0,1422
+37,NC,NORTH CAROLINA,2016,National Science Foundation,18135953.0,113
+37,NC,NORTH CAROLINA,2017,National Science Foundation,185121924.0,685
+37,NC,NORTH CAROLINA,2018,National Science Foundation,204338483.0,695
+37,NC,NORTH CAROLINA,2019,National Science Foundation,207900943.0,630
+37,NC,NORTH CAROLINA,2020,National Science Foundation,198814143.0,625
+37,NC,NORTH CAROLINA,2021,National Science Foundation,224170103.0,653
+37,NC,NORTH CAROLINA,2022,National Science Foundation,209069347.0,604
+38,ND,NORTH DAKOTA,2016,National Science Foundation,692071.0,5
+38,ND,NORTH DAKOTA,2017,National Science Foundation,12762478.0,41
+38,ND,NORTH DAKOTA,2018,National Science Foundation,15943848.0,42
+38,ND,NORTH DAKOTA,2019,National Science Foundation,7895065.0,32
+38,ND,NORTH DAKOTA,2020,National Science Foundation,19826319.0,46
+38,ND,NORTH DAKOTA,2021,National Science Foundation,25020127.0,42
+38,ND,NORTH DAKOTA,2022,National Science Foundation,20350982.0,39
+39,OH,OHIO,2016,National Science Foundation,14951489.0,82
+39,OH,OHIO,2017,National Science Foundation,174327623.0,532
+39,OH,OHIO,2018,National Science Foundation,182289666.0,569
+39,OH,OHIO,2019,National Science Foundation,206006173.0,490
+39,OH,OHIO,2020,National Science Foundation,198164083.0,451
+39,OH,OHIO,2021,National Science Foundation,212136103.0,453
+39,OH,OHIO,2022,National Science Foundation,206790164.0,448
+40,OK,OKLAHOMA,2016,National Science Foundation,2119122.0,17
+40,OK,OKLAHOMA,2017,National Science Foundation,38207254.0,119
+40,OK,OKLAHOMA,2018,National Science Foundation,23243018.0,114
+40,OK,OKLAHOMA,2019,National Science Foundation,31979861.0,112
+40,OK,OKLAHOMA,2020,National Science Foundation,37660021.0,103
+40,OK,OKLAHOMA,2021,National Science Foundation,40305879.0,120
+40,OK,OKLAHOMA,2022,National Science Foundation,51102703.0,109
+41,OR,OREGON,2016,National Science Foundation,7689655.0,47
+41,OR,OREGON,2017,National Science Foundation,200320456.0,322
+41,OR,OREGON,2018,National Science Foundation,155030886.0,319
+41,OR,OREGON,2019,National Science Foundation,195101103.0,289
+41,OR,OREGON,2020,National Science Foundation,120127793.0,311
+41,OR,OREGON,2021,National Science Foundation,123317980.0,312
+41,OR,OREGON,2022,National Science Foundation,148032382.0,266
+42,PA,PENNSYLVANIA,2016,National Science Foundation,22417744.0,166
+42,PA,PENNSYLVANIA,2017,National Science Foundation,255087191.0,1105
+42,PA,PENNSYLVANIA,2018,National Science Foundation,261190364.0,1108
+42,PA,PENNSYLVANIA,2019,National Science Foundation,317620768.0,1027
+42,PA,PENNSYLVANIA,2020,National Science Foundation,306356319.0,1042
+42,PA,PENNSYLVANIA,2021,National Science Foundation,333709555.0,990
+42,PA,PENNSYLVANIA,2022,National Science Foundation,344965681.0,981
+44,RI,RHODE ISLAND,2016,National Science Foundation,3314784.0,21
+44,RI,RHODE ISLAND,2017,National Science Foundation,47242322.0,186
+44,RI,RHODE ISLAND,2018,National Science Foundation,43660260.0,210
+44,RI,RHODE ISLAND,2019,National Science Foundation,57603934.0,198
+44,RI,RHODE ISLAND,2020,National Science Foundation,51858421.0,155
+44,RI,RHODE ISLAND,2021,National Science Foundation,62016317.0,176
+44,RI,RHODE ISLAND,2022,National Science Foundation,44709266.0,161
+45,SC,SOUTH CAROLINA,2016,National Science Foundation,3978564.0,24
+45,SC,SOUTH CAROLINA,2017,National Science Foundation,59376800.0,192
+45,SC,SOUTH CAROLINA,2018,National Science Foundation,50193236.0,209
+45,SC,SOUTH CAROLINA,2019,National Science Foundation,47495606.0,188
+45,SC,SOUTH CAROLINA,2020,National Science Foundation,45276432.0,165
+45,SC,SOUTH CAROLINA,2021,National Science Foundation,48295196.0,171
+45,SC,SOUTH CAROLINA,2022,National Science Foundation,60586007.0,186
+46,SD,SOUTH DAKOTA,2016,National Science Foundation,573642.0,4
+46,SD,SOUTH DAKOTA,2017,National Science Foundation,14394835.0,48
+46,SD,SOUTH DAKOTA,2018,National Science Foundation,15081539.0,49
+46,SD,SOUTH DAKOTA,2019,National Science Foundation,20259685.0,47
+46,SD,SOUTH DAKOTA,2020,National Science Foundation,19778445.0,43
+46,SD,SOUTH DAKOTA,2021,National Science Foundation,16162266.0,39
+46,SD,SOUTH DAKOTA,2022,National Science Foundation,29116957.0,46
+47,TN,TENNESSEE,2016,National Science Foundation,3809349.0,29
+47,TN,TENNESSEE,2017,National Science Foundation,57133166.0,249
+47,TN,TENNESSEE,2018,National Science Foundation,74509599.0,268
+47,TN,TENNESSEE,2019,National Science Foundation,83626146.0,268
+47,TN,TENNESSEE,2020,National Science Foundation,89210659.0,246
+47,TN,TENNESSEE,2021,National Science Foundation,82551102.0,252
+47,TN,TENNESSEE,2022,National Science Foundation,97339879.0,267
+48,TX,TEXAS,2016,National Science Foundation,27867369.0,187
+48,TX,TEXAS,2017,National Science Foundation,352667197.0,1219
+48,TX,TEXAS,2018,National Science Foundation,431094876.0,1291
+48,TX,TEXAS,2019,National Science Foundation,450761998.0,1168
+48,TX,TEXAS,2020,National Science Foundation,423431290.0,1162
+48,TX,TEXAS,2021,National Science Foundation,469651419.0,1188
+48,TX,TEXAS,2022,National Science Foundation,526602485.0,1215
+49,UT,UTAH,2016,National Science Foundation,7734879.0,48
+49,UT,UTAH,2017,National Science Foundation,53461277.0,232
+49,UT,UTAH,2018,National Science Foundation,67066963.0,258
+49,UT,UTAH,2019,National Science Foundation,55980527.0,232
+49,UT,UTAH,2020,National Science Foundation,69119170.0,240
+49,UT,UTAH,2021,National Science Foundation,82377323.0,242
+49,UT,UTAH,2022,National Science Foundation,87935031.0,253
+50,VT,VERMONT,2016,National Science Foundation,563654.0,3
+50,VT,VERMONT,2017,National Science Foundation,15000415.0,41
+50,VT,VERMONT,2018,National Science Foundation,19576633.0,50
+50,VT,VERMONT,2019,National Science Foundation,6118064.0,25
+50,VT,VERMONT,2020,National Science Foundation,17359799.0,43
+50,VT,VERMONT,2021,National Science Foundation,12343345.0,48
+50,VT,VERMONT,2022,National Science Foundation,13452442.0,38
+51,VA,VIRGINIA,2016,National Science Foundation,14337223.0,79
+51,VA,VIRGINIA,2017,National Science Foundation,148944428.0,597
+51,VA,VIRGINIA,2018,National Science Foundation,150909405.0,634
+51,VA,VIRGINIA,2019,National Science Foundation,165203578.0,576
+51,VA,VIRGINIA,2020,National Science Foundation,187162210.0,564
+51,VA,VIRGINIA,2021,National Science Foundation,189228362.0,581
+51,VA,VIRGINIA,2022,National Science Foundation,208486609.0,563
+53,WA,WASHINGTON,2016,National Science Foundation,11954691.0,75
+53,WA,WASHINGTON,2017,National Science Foundation,151887120.0,524
+53,WA,WASHINGTON,2018,National Science Foundation,155210975.0,546
+53,WA,WASHINGTON,2019,National Science Foundation,156687836.0,490
+53,WA,WASHINGTON,2020,National Science Foundation,162352232.0,488
+53,WA,WASHINGTON,2021,National Science Foundation,185411030.0,490
+53,WA,WASHINGTON,2022,National Science Foundation,198139663.0,475
+54,WV,WEST VIRGINIA,2016,National Science Foundation,584284.0,5
+54,WV,WEST VIRGINIA,2017,National Science Foundation,15048526.0,50
+54,WV,WEST VIRGINIA,2018,National Science Foundation,15695989.0,54
+54,WV,WEST VIRGINIA,2019,National Science Foundation,16654323.0,48
+54,WV,WEST VIRGINIA,2020,National Science Foundation,17910973.0,50
+54,WV,WEST VIRGINIA,2021,National Science Foundation,20319561.0,51
+54,WV,WEST VIRGINIA,2022,National Science Foundation,17371923.0,59
+55,WI,WISCONSIN,2016,National Science Foundation,9255195.0,63
+55,WI,WISCONSIN,2017,National Science Foundation,117404959.0,346
+55,WI,WISCONSIN,2018,National Science Foundation,100496053.0,363
+55,WI,WISCONSIN,2019,National Science Foundation,131314025.0,326
+55,WI,WISCONSIN,2020,National Science Foundation,125839194.0,313
+55,WI,WISCONSIN,2021,National Science Foundation,119089331.0,303
+55,WI,WISCONSIN,2022,National Science Foundation,151285648.0,292
+56,WY,WYOMING,2016,National Science Foundation,1099119.0,5
+56,WY,WYOMING,2017,National Science Foundation,12724289.0,38
+56,WY,WYOMING,2018,National Science Foundation,16800956.0,43
+56,WY,WYOMING,2019,National Science Foundation,28525308.0,46
+56,WY,WYOMING,2020,National Science Foundation,26332511.0,45
+56,WY,WYOMING,2021,National Science Foundation,18390652.0,41
+56,WY,WYOMING,2022,National Science Foundation,20417303.0,32
+60,AS,AMERICAN SAMOA,2021,National Science Foundation,299791.0,1
+66,GU,GUAM,2017,National Science Foundation,2515941.0,4
+66,GU,GUAM,2019,National Science Foundation,1209530.0,3
+66,GU,GUAM,2020,National Science Foundation,4490015.0,2
+66,GU,GUAM,2021,National Science Foundation,5457115.0,2
+66,GU,GUAM,2022,National Science Foundation,4818465.0,2
+72,PR,PUERTO RICO,2016,National Science Foundation,1792333.0,4
+72,PR,PUERTO RICO,2017,National Science Foundation,9826929.0,30
+72,PR,PUERTO RICO,2018,National Science Foundation,18900071.0,58
+72,PR,PUERTO RICO,2019,National Science Foundation,17916059.0,40
+72,PR,PUERTO RICO,2020,National Science Foundation,23622813.0,40
+72,PR,PUERTO RICO,2021,National Science Foundation,18927300.0,36
+72,PR,PUERTO RICO,2022,National Science Foundation,19328525.0,43
+78,VI,VIRGIN ISLANDS,2017,National Science Foundation,5108544.0,5
+78,VI,VIRGIN ISLANDS,2018,National Science Foundation,6303647.0,8
+78,VI,VIRGIN ISLANDS,2019,National Science Foundation,2781846.0,7
+78,VI,VIRGIN ISLANDS,2020,National Science Foundation,8009931.0,7
+78,VI,VIRGIN ISLANDS,2021,National Science Foundation,8726001.0,4
+78,VI,VIRGIN ISLANDS,2022,National Science Foundation,9631284.0,6
