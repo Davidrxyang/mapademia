@@ -1,5 +1,6 @@
 data-pipeline/raw/
 data-pipeline/processed/*.duckdb
+data-pipeline/fetch_run.log
 __pycache__/
 *.pyc
 .venv/

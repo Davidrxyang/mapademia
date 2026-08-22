@@ -31,8 +31,8 @@ def main():
             recipient_state_name,
             prime_award_transaction_recipient_state_fips_code as recipient_state_fips,
             action_date_fiscal_year::int as fiscal_year,
-            funding_agency_name,
-            funding_sub_agency_name,
+            awarding_agency_name,
+            awarding_sub_agency_name,
             federal_action_obligation::double as federal_action_obligation,
             award_id_fain
         from read_csv_auto('{csv_glob}', union_by_name=true, ignore_errors=true)
@@ -47,7 +47,7 @@ def main():
                 recipient_state_code as state_code,
                 recipient_state_name as state_name,
                 fiscal_year,
-                coalesce(funding_sub_agency_name, funding_agency_name) as agency,
+                coalesce(awarding_sub_agency_name, awarding_agency_name) as agency,
                 sum(federal_action_obligation) as total_obligations,
                 count(distinct award_id_fain) as award_count
             from transactions
@@ -58,7 +58,7 @@ def main():
 
     summary = con.execute("""
         select
-            coalesce(funding_sub_agency_name, funding_agency_name) as agency,
+            coalesce(awarding_sub_agency_name, awarding_agency_name) as agency,
             fiscal_year,
             sum(federal_action_obligation) as total
         from transactions
