@@ -473,7 +473,12 @@
   const nationalPath = d3.geoPath(nationalProjection);
   const tooltip = d3.select("#tooltip");
 
-  const color = d3.scaleSequential(d3.interpolateBlues);
+  // Funding is heavily concentrated in a handful of states, so a linear
+  // scale leaves most of the map washed-out near white. A sqrt scale
+  // compresses the top end and pulls mid/low values further into the
+  // color ramp, and remapping into interpolateBlues' upper range (instead
+  // of starting at pure white) darkens the map overall.
+  const color = d3.scaleSequentialSqrt(t => d3.interpolateBlues(0.2 + 0.8 * t));
   let current = new Map();
 
   // state dropdown: a global filter, kept in sync with clicking a state on
