@@ -104,7 +104,7 @@ FFM7VPAG8P92,"UNIVERSITY OF CALIFORNIA, MERCED",MERCED,CA,https://openalex.org/I
 FFWJTXCKDLK5,NEW ENGLAND RESEARCH INSTITUTES INC,INDIANAPOLIS,IN,https://openalex.org/I4210098573,https://ror.org/01655nh08,New England Research Institutes,1.0
 FL6GV84CKN57,YALE UNIV,NEW HAVEN,CT,https://openalex.org/I32971472,https://ror.org/03v76x132,Yale University,0.5
 FL8UNYTG72D1,"J. CRAIG VENTER INSTITUTE, INC.",LA JOLLA,CA,https://openalex.org/I1301553790,https://ror.org/049r1ts75,J. Craig Venter Institute,0.844
-FLJ7DQKLL226,THE GENERAL HOSPITAL CORPORATION,BOSTON,MA,https://openalex.org/I2801756737,https://ror.org/02091ng19,Lowell General Hospital,0.728
+FLJ7DQKLL226,THE GENERAL HOSPITAL CORPORATION,BOSTON,MA,https://openalex.org/I4210087915,,Massachusetts General Hospital,manual
 FN2YCS2YAUW3,UNIVERSITY OF TENNESSEE,KNOXVILLE,TN,https://openalex.org/I75027704,https://ror.org/020f3ap87,University of Tennessee at Knoxville,1.0
 FPCUDWBE7DX2,THE UNIVERSITY OF TEXAS HEALTH SCIENCE CENTER AT TYLER,TYLER,TX,https://openalex.org/I90436673,https://ror.org/01sps7q28,The University of Texas Health Science Center at Tyler,1.0
 FPU6XGFXMBE9,UNIVERSITY OF NOTRE DAME DU LAC,NOTRE DAME,IN,https://openalex.org/I107639228,https://ror.org/00mkhxb43,University of Notre Dame,0.703
@@ -215,7 +215,7 @@ KMZBB7SJBP72,"CONSORTIUM FOR OCEAN LEADERSHIP, INC.",WASHINGTON,DC,https://opena
 KNSQZPJ3K775,STOWERS INSTITUTE FOR MEDICAL RESEARCH,KANSAS CITY,MO,https://openalex.org/I114131015,https://ror.org/04bgfm609,Stowers Institute for Medical Research,1.0
 KSJKE3KVNBB4,HAMPTON UNIVERSITY,HAMPTON,VA,https://openalex.org/I151328261,https://ror.org/05fde5z47,Hampton University,1.0
 KU3DCFJJTVN3,TEXAS A&M AGRILIFE RESEARCH,COLLEGE STATION,TX,https://openalex.org/I91045830,https://ror.org/01f5ytq51,Texas A&M University,0.444
-KUKXRCZ6NZC2,SLOAN-KETTERING INSTITUTE FOR CANCER RESEARCH,NEW YORK,NY,https://openalex.org/I4210150094,https://ror.org/05qdwtz81,Ludwig Cancer Research,0.618
+KUKXRCZ6NZC2,SLOAN-KETTERING INSTITUTE FOR CANCER RESEARCH,NEW YORK,NY,https://openalex.org/I1334819555,,Memorial Sloan Kettering Cancer Center,manual
 KULSKCCZJT27,MORGAN STATE UNIVERSITY,BALTIMORE,MD,https://openalex.org/I83909951,https://ror.org/017d8gk22,Morgan State University,1.0
 KWTAB1GYM4L9,UNIVERSITY OF PUERTO RICO MEDICAL SCIENCES CAMPUS,SAN JUAN,PR,https://openalex.org/I79620101,https://ror.org/00xcryt71,University of Arkansas for Medical Sciences,0.54
 KXN7HGCF6K91,UNIVERSITY OF MIAMI,MIAMI,FL,https://openalex.org/I145608581,https://ror.org/02dgjyy92,University of Miami,1.0
@@ -392,7 +392,7 @@ SKH5GMBR9GL3,NORTH CAROLINA AGRICULTURAL AND TECHNICAL STATE UNIVERSITY,GREENSBO
 SKX6AXF9ZTM3,DIGNITY HEALTH,SAN FRANCISCO,CA,https://openalex.org/I2802827176,https://ror.org/05c9r4685,Dignity Health,1.0
 SL2PF6R7MRN1,CLARKSON UNIVERSITY,POTSDAM,NY,https://openalex.org/I16944753,https://ror.org/03rwgpn18,Clarkson University,1.0
 SMK9PCMKXED6,INSTITUTE FOR SYSTEMS BIOLOGY,SEATTLE,WA,https://openalex.org/I3148997608,https://ror.org/02tpgw303,Institute for Systems Biology,1.0
-SN7KD2UK7GC5,WAKE FOREST UNIVERSITY HEALTH SCIENCES,WINSTON SALEM,NC,https://openalex.org/I4405269449,https://ror.org/046r1r105,Wake Forest University Health Sciences,1.0
+SN7KD2UK7GC5,WAKE FOREST UNIVERSITY HEALTH SCIENCES,WINSTON SALEM,NC,https://openalex.org/I47251452,,Wake Forest University,manual
 SPE2YDWHDYU4,UTAH STATE UNIVERSITY,LOGAN,UT,https://openalex.org/I121980950,https://ror.org/00h6set76,Utah State University,1.0
 SPVKK1RC2MZ3,THE REGENTS OF THE UNIVERSITY OF COLORADO,BOULDER,CO,https://openalex.org/I2802236040,https://ror.org/00jc20583,University of Colorado System,1.0
 SRG2J1WS9X63,SRI INTERNATIONAL,MENLO PARK,CA,https://openalex.org/I1298353152,https://ror.org/05s570m15,SRI International,1.0
@@ -482,13 +482,13 @@ YLF2SS2NYGC5,SANARIA INC.,ROCKVILLE,MD,https://openalex.org/I4210089633,https://
 YM5EKEVEGB75,"FRIENDS RESEARCH INSTITUTE, INC",BALTIMORE,MD,https://openalex.org/I4210146075,https://ror.org/03qjb5r86,Friends Research Institute,1.0
 YND4PLMC9AN7,UNIVERSITY OF ALABAMA AT BIRMINGHAM,BIRMINGHAM,AL,https://openalex.org/I32389192,https://ror.org/008s83205,University of Alabama at Birmingham,1.0
 YNT8TCJH8FQ8,WEILL MEDICAL COLLEGE OF CORNELL UNIVERSITY,NEW YORK,NY,https://openalex.org/I205783295,https://ror.org/05bnh6r87,Cornell University,0.488
-YRXVL4JYCEF5,PURDUE UNIVERSITY,WEST LAFAYETTE,IN,https://openalex.org/I2801333002,https://ror.org/05p8z3f47,Purdue University System,1.0
+YRXVL4JYCEF5,PURDUE UNIVERSITY,WEST LAFAYETTE,IN,https://openalex.org/I219193219,,Purdue University West Lafayette,manual
 YVVTQD8CJC79,RUTGERS THE STATE UNIVERSITY OF NEW JERSEY,NEWARK,NJ,https://openalex.org/I102322142,https://ror.org/05vt9qd57,"Rutgers, The State University of New Jersey",1.0
 YXJGGNC5J269,"UNIVERSITY OF KANSAS MEDICAL CENTER RESEARCH INSTITUTE, INC.",KANSAS CITY,KS,https://openalex.org/I4210128618,https://ror.org/036c9yv20,University of Kansas Medical Center,0.634
 YY46Q97AEZA8,THE RAND CORPORATION,SANTA MONICA,CA,https://openalex.org/I1309849503,https://ror.org/00f2z7n96,RAND Corporation,1.0
 YZJ6DKPM4W63,THE UNIVERSITY OF TEXAS SOUTHWESTERN MEDICAL CENTER,DALLAS,TX,https://openalex.org/I867280407,https://ror.org/05byvp690,The University of Texas Southwestern Medical Center,1.0
 Z1H9VJS8NG16,THE UNIVERSITY OF IOWA,IOWA CITY,IA,https://openalex.org/I126307644,https://ror.org/036jqmy94,University of Iowa,1.0
-Z1L9F1MM1RY3,"CHILDREN'S HOSPITAL CORPORATION, THE",BOSTON,MA,https://openalex.org/I4210115898,https://ror.org/0291jv411,Children's Hospital Foundation,1.0
+Z1L9F1MM1RY3,"CHILDREN'S HOSPITAL CORPORATION, THE",BOSTON,MA,https://openalex.org/I1288882113,,Boston Children's Hospital,manual
 Z3FGN9MF92U2,UNIVERSITY OF OREGON,EUGENE,OR,https://openalex.org/I181233156,https://ror.org/0293rh119,University of Oregon,1.0
 Z94KLERAG5V9,UNIVERSITY OF VERMONT & STATE AGRICULTURAL COLLEGE,BURLINGTON,VT,https://openalex.org/I111236770,https://ror.org/0155zta11,University of Vermont,0.891
 Z9CRZKD42ZT1,"UNIVERSITY OF MARYLAND, BALTIMORE",BALTIMORE,MD,https://openalex.org/I126744593,https://ror.org/04rq5mt64,"University of Maryland, Baltimore",1.0

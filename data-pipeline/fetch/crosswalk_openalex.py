@@ -168,6 +168,21 @@ MANUAL_OVERRIDES = {
     "DZ4YCZ3QSPR5": ("https://openalex.org/I63135867", "", "University of Cincinnati"),
     "GKPBCFV1QMM3": ("https://openalex.org/I4210146710", "", "Mayo Clinic in Florida"),
     "ULMJJBL7ZXX3": ("https://openalex.org/I4210125099", "", "Mayo Clinic in Arizona"),
+    # These three matched at high (even 1.0) similarity but were still wrong:
+    # generic legal suffixes ("Corporation" vs "Foundation") are both stripped
+    # as boilerplate, so an unrelated org sharing just the core name can
+    # collide at a perfect score - a real blind spot in the stopword approach,
+    # caught by cross-checking funding against OpenAlex output (these three
+    # had $2-5B in funding but only tens-to-hundreds of matched papers).
+    "FLJ7DQKLL226": ("https://openalex.org/I4210087915", "", "Massachusetts General Hospital"),
+    "Z1L9F1MM1RY3": ("https://openalex.org/I1288882113", "", "Boston Children's Hospital"),
+    "KUKXRCZ6NZC2": ("https://openalex.org/I1334819555", "", "Memorial Sloan Kettering Cancer Center"),
+    # Same failure shape as above, but via a different route: matched a
+    # "System"/sub-unit variant at a perfect 1.0 text score that turned out
+    # to have ~zero OpenAlex output itself - the real research output sits
+    # under the actual campus entity, not the administrative shell.
+    "YRXVL4JYCEF5": ("https://openalex.org/I219193219", "", "Purdue University West Lafayette"),
+    "SN7KD2UK7GC5": ("https://openalex.org/I47251452", "", "Wake Forest University"),
 }
 
 
