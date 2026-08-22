@@ -228,6 +228,7 @@
     <select id="state-select">
       <option value="__all__">All states</option>
     </select>
+    <button id="map-back-btn" style="display: none;">&larr; back to national</button>
   </div>
   <div class="control-group">
     <label for="year-range">Fiscal Year</label>
@@ -249,7 +250,6 @@
 <div class="tab-panel active" data-tab="map">
   <div id="content-wrap">
     <div id="map-wrap">
-      <button id="map-back-btn" style="display: none;">&larr; back to national map</button>
       <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
     </div>
     <div id="institutions-panel">
@@ -394,6 +394,7 @@
 
   function syncStateSelectUI() {
     stateSelect.property("value", selectedFips ? postalByFips.get(selectedFips) : "__all__");
+    document.getElementById("map-back-btn").style.display = selectedFips ? "inline-block" : "none";
   }
 
   stateSelect.on("change", () => {
@@ -425,7 +426,6 @@
   }
 
   function renderNationalMap(year, agency) {
-    document.getElementById("map-back-btn").style.display = "none";
     svg.selectAll("*").remove();
 
     const filtered = rows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
@@ -474,7 +474,6 @@
   }
 
   function renderStateMap(fips, year, agency) {
-    document.getElementById("map-back-btn").style.display = "inline-block";
     svg.selectAll("*").remove();
 
     const stateFeature = states.find(s => pad2(s.id) === fips);
@@ -1133,6 +1132,7 @@
   let activeTab = "map";
 
   function renderActiveTab() {
+    syncStateSelectUI();
     if (activeTab === "map") render();
     else if (activeTab === "scatter") renderScatter();
     else if (activeTab === "sankey") renderSankey();
