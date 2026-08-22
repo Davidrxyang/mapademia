@@ -374,7 +374,7 @@
       <div style="flex: 1 1 500px; min-width: 0;">
         <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
         <svg id="stacked-area-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;"></svg>
-        <h2 style="font-size: 14px; margin: 16px 0 8px;">Total funding by year (simple bar chart)</h2>
+        <h2 style="font-size: 14px; margin: 16px 0 8px;">Total funding by year</h2>
         <svg id="year-bar-svg" viewBox="0 0 560 260" style="width: 100%; height: auto;"></svg>
       </div>
       <div style="flex: 0 0 320px;">
@@ -594,7 +594,7 @@
       .filter(d => d.value > 0)
       .sort((a, b) => b.value - a.value)
       .slice(0, 15);
-    renderBarList("#map-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+    renderBarList("#map-bar-svg", barData, formatMoneyShort);
   }
 
   function renderStateMap(fips, start, end, agency) {
@@ -656,7 +656,7 @@
 
     document.getElementById("map-bar-title").textContent = `Top institutions in ${stateFeature.properties.name} by funding`;
     const barData = Array.from(fundingByUei.values(), d => ({ label: titleCase(d.name), value: d.funding })).slice(0, 15);
-    renderBarList("#map-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+    renderBarList("#map-bar-svg", barData, formatMoneyShort);
   }
 
   function renderInstitutions(start, end, agency) {
@@ -814,8 +814,8 @@
 
     const w = width || 900;
     const narrow = w < 500;
-    const barHeight = narrow ? 16 : 20, gap = narrow ? 4 : 6;
-    const labelWidth = narrow ? w * 0.42 : 190, valueWidth = narrow ? w * 0.22 : 90;
+    const barHeight = narrow ? 24 : 32, gap = narrow ? 8 : 12;
+    const labelWidth = narrow ? w * 0.46 : 250, valueWidth = narrow ? w * 0.24 : 120;
     const barAreaWidth = w - labelWidth - valueWidth;
     const h = Math.max(1, sorted.length) * (barHeight + gap);
     svg.attr("viewBox", `0 0 ${w} ${h}`);
@@ -833,21 +833,34 @@
     const row = svg.selectAll("g").data(sorted).join("g")
       .attr("transform", (d, i) => `translate(0, ${i * (barHeight + gap)})`);
 
-    const maxChars = narrow ? 14 : 24;
+    const maxChars = narrow ? 20 : 32;
     row.append("text")
-      .attr("x", 0).attr("y", barHeight * 0.7).attr("font-size", narrow ? 9 : 11).attr("fill", "var(--text)")
+      .attr("x", 0).attr("y", barHeight * 0.68).attr("font-size", narrow ? 13 : 15).attr("fill", "var(--text)")
       .text(d => d.label.length > maxChars ? d.label.slice(0, maxChars - 2) + "…" : d.label)
       .append("title").text(d => d.label);
 
     row.append("rect")
-      .attr("x", labelWidth).attr("y", 1).attr("height", barHeight - 2)
+      .attr("x", labelWidth).attr("y", 2).attr("height", barHeight - 4)
       .attr("width", d => Math.max(1, x(d.value))).attr("fill", "var(--accent)").attr("opacity", 0.85)
       .append("title").text(d => `${d.label}: ${fmt(d.value)}`);
 
     row.append("text")
-      .attr("x", d => labelWidth + Math.max(1, x(d.value)) + 6).attr("y", barHeight * 0.7)
-      .attr("font-size", narrow ? 8 : 10).attr("fill", "var(--muted)")
+      .attr("x", d => labelWidth + Math.max(1, x(d.value)) + 8).attr("y", barHeight * 0.68)
+      .attr("font-size", narrow ? 12 : 13).attr("fill", "var(--muted)")
       .text(d => fmt(d.value));
+  }
+
+  // Abbreviated dollar formatting ($153.4B, not $153,365,478,171) - the
+  // bar charts show these as inline labels, not axis ticks, so full
+  // precision would overflow the space available next to a short bar.
+  // Full precision is still one hover away via each bar's <title>.
+  function formatMoneyShort(v) {
+    const sign = v < 0 ? "-" : "";
+    const abs = Math.abs(v);
+    if (abs >= 1e9) return `${sign}$${(abs / 1e9).toFixed(1)}B`;
+    if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(1)}M`;
+    if (abs >= 1e3) return `${sign}$${(abs / 1e3).toFixed(1)}K`;
+    return `${sign}$${abs.toFixed(0)}`;
   }
 
   function titleCase(s) {
@@ -883,7 +896,7 @@
 
     const barData = Array.from(fundingByUei, ([uei, funding]) => ({ label: titleCase(nameByUei.get(uei)), value: funding }))
       .sort((a, b) => b.value - a.value).slice(0, 15);
-    renderBarList("#scatter-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+    renderBarList("#scatter-bar-svg", barData, formatMoneyShort);
 
     const svg = d3.select("#scatter-svg");
     svg.selectAll("*").remove();
@@ -995,7 +1008,7 @@
       }
       links.push({ source: nodeIndex(otherInstNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTop, d => d.funding)) });
 
-      barTitle = "Top institutions by funding (Sankey middle layer)";
+      barTitle = "Top institutions by funding";
       barData = topInst.map(([, e]) => ({ label: titleCase(e.name), value: e.total }));
       if (otherTotal > 0) barData.push({ label: "Other institutions", value: otherTotal });
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
@@ -1052,7 +1065,7 @@
       }
       links.push({ source: nodeIndex(otherFieldNodeName), target: nodeIndex("Other state"), value: Math.max(0, otherFieldTotal - d3.sum(otherTopStates, d => d.amt)) });
 
-      barTitle = "Top research fields by funding (Sankey middle layer)";
+      barTitle = "Top research fields by funding";
       barData = topFields.map(f => ({ label: f, value: fieldTotals.get(f) }));
       if (otherFieldTotal > 0) barData.push({ label: "Other fields", value: otherFieldTotal });
     } else {
@@ -1108,13 +1121,13 @@
       }
       links.push({ source: nodeIndex(otherStateNodeName), target: nodeIndex("Other field"), value: Math.max(0, otherTotal - d3.sum(otherTopFields, d => d.funding)) });
 
-      barTitle = "Top states by funding (Sankey middle layer)";
+      barTitle = "Top states by funding";
       barData = topStates.map(([stCode, e]) => ({ label: titleCase(stateNameByPostal.get(stCode) || stCode), value: e.total }));
       if (otherTotal > 0) barData.push({ label: "Other states", value: otherTotal });
     }
 
     document.getElementById("sankey-bar-title").textContent = barTitle;
-    renderBarList("#sankey-bar-svg", barData, v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+    renderBarList("#sankey-bar-svg", barData, formatMoneyShort);
 
     const svg = d3.select("#sankey-svg");
     svg.selectAll("*").remove();
@@ -1263,7 +1276,7 @@
     }
 
     renderBarList("#treemap-bar-svg", allFields.sort((a, b) => b.value - a.value).slice(0, 15),
-      v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+      formatMoneyShort);
 
     const svg = d3.select("#treemap-svg");
     svg.selectAll("*").remove();
@@ -1412,9 +1425,9 @@
     const otherTotal = d3.sum(arr.slice(10), d => d.value);
     if (otherTotal > 0) top.push({ name: otherLabel, value: otherTotal });
 
-    document.getElementById("state-bar-title").textContent = postal ? "Same data, as a bar chart (institutions)" : "Same data, as a bar chart (states)";
+    document.getElementById("state-bar-title").textContent = "Same data, as a bar chart";
     renderBarList("#state-bar-svg", top.map(d => ({ label: titleCase(d.name), value: d.value })),
-      v => `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 320);
+      formatMoneyShort, 320);
 
     const w = 320, h = 320, r = Math.min(w, h) / 2 - 10;
     const g = svg.append("g").attr("transform", `translate(${w / 2},${h / 2})`);
