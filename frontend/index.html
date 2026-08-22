@@ -93,7 +93,9 @@
     padding: 7px 0;
     border-bottom: 1px solid var(--border);
     font-size: 12.5px;
+    cursor: pointer;
   }
+  .inst-row:hover { background: rgba(255,255,255,0.03); }
   .inst-row:last-child { border-bottom: none; }
   .inst-rank { color: var(--muted); min-width: 1.6em; }
   .inst-name-wrap { flex: 1; min-width: 0; }
@@ -101,6 +103,30 @@
   .inst-loc { color: var(--muted); font-size: 11px; }
   .inst-amount { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .inst-awards { color: var(--muted); font-size: 11px; text-align: right; }
+  #detail-back {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    margin-bottom: 8px;
+  }
+  .detail-name { font-size: 13.5px; font-weight: 600; }
+  .detail-loc { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .detail-section-title {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 14px 0 6px;
+  }
+  .chart-caveat { font-size: 10.5px; color: var(--muted); font-style: italic; margin-top: 4px; }
+  .field-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; margin: 3px 0; }
+  .field-name { flex: 0 0 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-bar-track { flex: 1; background: var(--border); border-radius: 3px; height: 8px; overflow: hidden; }
+  .field-bar-fill { background: var(--accent); height: 100%; }
+  .field-pct { flex: 0 0 3em; text-align: right; color: var(--muted); }
   #tooltip {
     position: fixed;
     pointer-events: none;
@@ -166,10 +192,12 @@
 <script src="https://unpkg.com/topojson-client@3"></script>
 <script>
 (async function () {
-  const [us, rows, institutionRows] = await Promise.all([
+  const [us, rows, institutionRows, outputRows, fieldMixRows] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
     d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
+    d3.csv("data/institution_output_by_year.csv", d3.autoType),
+    d3.csv("data/institution_field_mix.csv", d3.autoType),
   ]);
 
   const states = topojson.feature(us, us.objects.states).features;
@@ -179,6 +207,7 @@
   // crosswalk from the state aggregate rather than hardcoding one.
   const postalByFips = new Map(rows.map(d => [pad2(d.state_fips), d.state_code]));
   let selectedFips = null;
+  let selectedUei = null;
   const TOP_N_INSTITUTIONS = 500; // must match aggregate.py's TOP_N_INSTITUTIONS
 
   const agencies = Array.from(new Set(rows.map(d => d.agency))).sort();
@@ -262,6 +291,11 @@
   }
 
   function renderInstitutions(year, agency) {
+    if (selectedUei) {
+      renderInstitutionDetail(selectedUei, agency);
+      return;
+    }
+
     const selectedPostal = selectedFips ? postalByFips.get(selectedFips) : null;
     const stateLabel = selectedFips
       ? states.find(s => pad2(s.id) === selectedFips)?.properties.name
@@ -303,7 +337,8 @@
       return;
     }
 
-    const row = list.selectAll(".inst-row").data(ranked, d => d.uei).join("div").attr("class", "inst-row");
+    const row = list.selectAll(".inst-row").data(ranked, d => d.uei).join("div").attr("class", "inst-row")
+      .on("click", (event, d) => { selectedUei = d.uei; render(); });
     row.append("div").attr("class", "inst-rank").text((d, i) => i + 1);
     const nameWrap = row.append("div").attr("class", "inst-name-wrap");
     nameWrap.append("div").attr("class", "inst-name").attr("title", d => d.name).text(d => titleCase(d.name));
@@ -311,6 +346,83 @@
     const amountWrap = row.append("div");
     amountWrap.append("div").attr("class", "inst-amount").text(d => `$${d.total_obligations.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
     amountWrap.append("div").attr("class", "inst-awards").text(d => `${d.award_count.toLocaleString()} awards`);
+  }
+
+  function renderInstitutionDetail(uei, agency) {
+    const meta = institutionRows.find(d => d.uei === uei);
+    const subtitle = d3.select("#institutions-subtitle");
+    subtitle.html("");
+
+    const list = d3.select("#institutions-list");
+    list.html("");
+
+    const back = list.append("button").attr("id", "detail-back").text("← back to list");
+    back.on("click", () => { selectedUei = null; render(); });
+
+    list.append("div").attr("class", "detail-name").text(titleCase(meta ? meta.name : uei));
+    if (meta) list.append("div").attr("class", "detail-loc").text(`${titleCase(meta.city)}, ${meta.state_code}`);
+
+    const fundingByYear = institutionRows
+      .filter(d => d.uei === uei && (agency === "__all__" || d.agency === agency))
+      .reduce((acc, d) => { acc.set(d.fiscal_year, (acc.get(d.fiscal_year) || 0) + d.total_obligations); return acc; }, new Map());
+    const fundingSeries = years.map(y => ({ year: y, value: fundingByYear.get(y) || 0 }));
+
+    const outputSeries = outputRows.filter(d => d.uei === uei).sort((a, b) => a.fiscal_year - b.fiscal_year)
+      .map(d => ({ year: d.fiscal_year, value: d.works_count }));
+    const citationSeries = outputRows.filter(d => d.uei === uei).sort((a, b) => a.fiscal_year - b.fiscal_year)
+      .map(d => ({ year: d.fiscal_year, value: d.cited_by_count }));
+
+    list.append("div").attr("class", "detail-section-title").text("Funding by year (selected agency)");
+    barChart(list.append("div"), fundingSeries, d => `$${d.value.toLocaleString(undefined, {maximumFractionDigits: 0})}`);
+
+    list.append("div").attr("class", "detail-section-title").text("Papers published by year (OpenAlex, all sources)");
+    barChart(list.append("div"), outputSeries, d => d.value.toLocaleString());
+
+    list.append("div").attr("class", "detail-section-title").text("Citations to those papers, by publication year");
+    barChart(list.append("div"), citationSeries, d => d.value.toLocaleString());
+    list.append("div").attr("class", "chart-caveat")
+      .text("Recent years look lower because papers need time to accumulate citations - this is a lag artifact, not declining impact.");
+
+    const allFields = fieldMixRows.filter(d => d.uei === uei);
+    const fields = allFields.slice().sort((a, b) => b.share - a.share).slice(0, 8);
+    const maxShare = fields.length ? fields[0].share : 1;
+    list.append("div").attr("class", "detail-section-title").text("Research field mix (OpenAlex, all-time)");
+    const fieldList = list.append("div");
+    const fieldRow = fieldList.selectAll(".field-row").data(fields).join("div").attr("class", "field-row");
+    fieldRow.append("div").attr("class", "field-name").attr("title", d => d.field_name).text(d => d.field_name);
+    const track = fieldRow.append("div").attr("class", "field-bar-track");
+    track.append("div").attr("class", "field-bar-fill").style("width", d => `${(d.share / maxShare) * 100}%`);
+    fieldRow.append("div").attr("class", "field-pct").text(d => `${(d.share * 100).toFixed(0)}%`);
+
+    if (fields.length === 0) {
+      fieldList.append("div").attr("class", "inst-loc").text("No OpenAlex field data available.");
+    } else {
+      fieldList.append("div").attr("class", "chart-caveat")
+        .text("Shares are of total output; OpenAlex tracks only each institution's ~25 most significant topics, so these don't sum to 100%.");
+    }
+  }
+
+  function barChart(container, series, labelFn) {
+    const w = 300, h = 46, barGap = 2;
+    const max = d3.max(series, d => d.value) || 1;
+    const barW = series.length ? (w - barGap * (series.length - 1)) / series.length : w;
+    const svg = container.append("svg").attr("width", "100%").attr("viewBox", `0 0 ${w} ${h + 12}`);
+    const g = svg.selectAll("g").data(series).join("g")
+      .attr("transform", (d, i) => `translate(${i * (barW + barGap)}, 0)`);
+    g.append("rect")
+      .attr("y", d => h - (d.value / max) * h)
+      .attr("width", barW)
+      .attr("height", d => Math.max(1, (d.value / max) * h))
+      .attr("fill", "var(--accent)")
+      .attr("opacity", 0.85)
+      .append("title").text(d => `FY${d.year}: ${labelFn(d)}`);
+    g.append("text")
+      .attr("y", h + 10)
+      .attr("font-size", 7)
+      .attr("fill", "var(--muted)")
+      .attr("text-anchor", "middle")
+      .attr("transform", `translate(${barW / 2}, 0)`)
+      .text(d => `'${String(d.year).slice(2)}`);
   }
 
   function titleCase(s) {
