@@ -338,6 +338,13 @@
 
 <div class="tab-panel" data-tab="sankey">
   <div class="chart-wrap">
+    <div class="control-group" id="sankey-order-group" style="margin-bottom: 10px;">
+      <label for="sankey-order-select">Middle order</label>
+      <select id="sankey-order-select">
+        <option value="state-field">State &rarr; Field</option>
+        <option value="field-state">Field &rarr; State</option>
+      </select>
+    </div>
     <div class="chart-note" id="sankey-note">Agency -&gt; top-funded institutions -&gt; research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.</div>
     <svg id="sankey-svg" viewBox="0 0 1000 600" style="width: 100%; height: auto;"></svg>
   </div>
@@ -831,6 +838,7 @@
     const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
+    document.getElementById("sankey-order-group").style.display = postal ? "none" : "flex";
 
     const nodesSet = new Map();
     const nodeNames = [];
@@ -882,6 +890,42 @@
           links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: e.total * (restShare / shareSum) });
         }
       }
+    } else if (document.getElementById("sankey-order-select").value === "field-state") {
+      noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
+      const TOP_FIELDS = 8, TOP_STATES_PER_FIELD = 3;
+      const stateNameByPostal = new Map(stateOptions);
+
+      const flat = computeAgencyStateFieldRows(start, end, agency);
+      const fieldTotals = new Map();
+      for (const r of flat) fieldTotals.set(r.field_name, (fieldTotals.get(r.field_name) || 0) + r.amount);
+      const topFields = Array.from(fieldTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, TOP_FIELDS).map(([name]) => name);
+      const topFieldSet = new Set(topFields);
+
+      const byField = new Map(topFields.map(f => [f, { byAgency: new Map(), byState: new Map(), total: 0 }]));
+      for (const r of flat) {
+        if (!topFieldSet.has(r.field_name)) continue;
+        const e = byField.get(r.field_name);
+        e.byAgency.set(r.agency, (e.byAgency.get(r.agency) || 0) + r.amount);
+        e.byState.set(r.state_code, (e.byState.get(r.state_code) || 0) + r.amount);
+        e.total += r.amount;
+      }
+
+      for (const fieldName of topFields) {
+        const e = byField.get(fieldName);
+        const fieldNodeName = "field:" + fieldName;
+        for (const [ag, amt] of e.byAgency) {
+          if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(fieldNodeName), value: amt });
+        }
+        const statesArr = Array.from(e.byState, ([stCode, amt]) => ({ stCode, amt })).sort((a, b) => b.amt - a.amt);
+        const top = statesArr.slice(0, TOP_STATES_PER_FIELD);
+        const restAmt = e.total - d3.sum(top, d => d.amt);
+        for (const s of top) {
+          links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex(titleCase(stateNameByPostal.get(s.stCode) || s.stCode)), value: s.amt });
+        }
+        if (restAmt > 0) {
+          links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex("Other state"), value: restAmt });
+        }
+      }
     } else {
       noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
       const TOP_STATES = 8, TOP_FIELDS_PER_STATE = 3;
@@ -929,13 +973,15 @@
     const nodes = nodeNames.map(name => {
       if (name.startsWith("inst:")) return { name: name.slice(5) };
       if (name.startsWith("state:")) return { name: name.slice(6) };
+      if (name.startsWith("field:")) return { name: name.slice(6) };
       return { name };
     });
     const w = 1000, h = 600;
     const sankeyGen = d3.sankey().nodeWidth(14).nodePadding(10).extent([[10, 10], [w - 10, h - 10]])
       .nodeSort((a, b) => {
-        if (a.name === "Other field") return 1;
-        if (b.name === "Other field") return -1;
+        const aOther = a.name.startsWith("Other "), bOther = b.name.startsWith("Other ");
+        if (aOther && !bOther) return 1;
+        if (bOther && !aOther) return -1;
         return d3.descending(a.value, b.value);
       });
     const graph = sankeyGen({ nodes: nodes.map(d => ({ ...d })), links: links.map(d => ({ ...d })) });
@@ -993,6 +1039,48 @@
       byKey.set(key, (byKey.get(key) || 0) + funding * (d.share / shareSum));
     }
     return byKey;
+  }
+
+  // Finest-grained version of the same allocation, keeping agency and state
+  // apart instead of collapsing them - lets the national Sankey view build
+  // either State -> Field or Field -> State links from one shared table
+  // (grouping by whichever comes first), instead of computing each
+  // direction from scratch.
+  function computeAgencyStateFieldRows(start, end, agency) {
+    const fundingByUeiAgency = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      const key = d.uei + "|" + d.agency;
+      let e = fundingByUeiAgency.get(key);
+      if (!e) { e = { state_code: d.state_code, agency: d.agency, funding: 0 }; fundingByUeiAgency.set(key, e); }
+      e.funding += d.total_obligations;
+    }
+
+    const fieldsByUei = new Map();
+    const shareSumByUei = new Map();
+    for (const d of fieldMixRows) {
+      if (!fieldsByUei.has(d.uei)) fieldsByUei.set(d.uei, []);
+      fieldsByUei.get(d.uei).push(d);
+      shareSumByUei.set(d.uei, (shareSumByUei.get(d.uei) || 0) + d.share);
+    }
+
+    const rows = [];
+    for (const [key, e] of fundingByUeiAgency) {
+      const uei = key.split("|")[0];
+      const fields = fieldsByUei.get(uei);
+      if (!fields) continue;
+      const shareSum = shareSumByUei.get(uei) || 1;
+      for (const f of fields) {
+        rows.push({
+          agency: e.agency,
+          state_code: e.state_code,
+          field_name: f.field_name,
+          amount: e.funding * (f.share / shareSum),
+        });
+      }
+    }
+    return rows;
   }
 
   function renderTreemap() {
@@ -1294,6 +1382,7 @@
 
   agencySelect.on("change", renderActiveTab);
   document.getElementById("scatter-y-select").addEventListener("change", () => { if (activeTab === "scatter") renderScatter(); });
+  document.getElementById("sankey-order-select").addEventListener("change", () => { if (activeTab === "sankey") renderSankey(); });
   document.getElementById("rankings-select").addEventListener("change", () => { rankingsSort = { key: "funding", dir: "desc" }; renderRankings(); });
   render();
 })();
