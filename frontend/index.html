@@ -932,7 +932,12 @@
       return { name };
     });
     const w = 1000, h = 600;
-    const sankeyGen = d3.sankey().nodeWidth(14).nodePadding(10).extent([[10, 10], [w - 10, h - 10]]);
+    const sankeyGen = d3.sankey().nodeWidth(14).nodePadding(10).extent([[10, 10], [w - 10, h - 10]])
+      .nodeSort((a, b) => {
+        if (a.name === "Other field") return 1;
+        if (b.name === "Other field") return -1;
+        return d3.descending(a.value, b.value);
+      });
     const graph = sankeyGen({ nodes: nodes.map(d => ({ ...d })), links: links.map(d => ({ ...d })) });
 
     const color = d3.scaleOrdinal(d3.schemeTableau10);
