@@ -53,7 +53,64 @@
     padding: 5px 8px;
     font-size: 13px;
   }
-  #year-label { font-variant-numeric: tabular-nums; min-width: 4ch; font-size: 13px; }
+  #year-label { font-variant-numeric: tabular-nums; min-width: 7ch; font-size: 13px; }
+  #year-range-slider {
+    position: relative;
+    width: 320px;
+    height: 28px;
+  }
+  #year-range-track, #year-range-fill {
+    position: absolute;
+    top: 12px;
+    height: 5px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  #year-range-track { width: 100%; background: var(--border); }
+  #year-range-fill { background: var(--accent); }
+  #year-range-slider input[type=range] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    margin: 0;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  #year-range-slider input[type=range]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    background: transparent;
+    height: 28px;
+  }
+  #year-range-slider input[type=range]::-moz-range-track {
+    background: transparent;
+    height: 28px;
+  }
+  #year-range-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
+  #year-range-slider input[type=range]::-moz-range-thumb {
+    pointer-events: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
   #tabs {
     display: flex;
     gap: 4px;
@@ -231,9 +288,14 @@
     <button id="map-back-btn" style="display: none;">&larr; back to national</button>
   </div>
   <div class="control-group">
-    <label for="year-range">Fiscal Year</label>
-    <input type="range" id="year-range" min="2016" max="2026" value="2026" step="1">
-    <span id="year-label">2026</span>
+    <label>Fiscal Year</label>
+    <div id="year-range-slider">
+      <div id="year-range-track"></div>
+      <div id="year-range-fill"></div>
+      <input type="range" id="year-start" min="2016" max="2026" value="2016" step="1">
+      <input type="range" id="year-end" min="2016" max="2026" value="2026" step="1">
+    </div>
+    <span id="year-label">2016–2026</span>
   </div>
   <div class="control-group" id="legend"></div>
 </div>
@@ -290,7 +352,7 @@
 
 <div class="tab-panel" data-tab="trends">
   <div class="chart-wrap">
-    <div class="chart-note">Shows all tracked fiscal years regardless of the year slider above.</div>
+    <div class="chart-note">The funding-over-time chart always shows all tracked fiscal years, regardless of the Fiscal Year range above.</div>
     <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
       <div style="flex: 1 1 500px; min-width: 0;">
         <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
@@ -364,11 +426,40 @@
     .text(d => d);
 
   const years = Array.from(new Set(rows.map(d => d.fiscal_year))).sort((a, b) => a - b);
-  const yearRange = document.getElementById("year-range");
-  yearRange.min = years[0];
-  yearRange.max = years[years.length - 1];
-  yearRange.value = years[years.length - 1];
-  document.getElementById("year-label").textContent = yearRange.value;
+  const yearStart = document.getElementById("year-start");
+  const yearEnd = document.getElementById("year-end");
+  [yearStart, yearEnd].forEach(el => { el.min = years[0]; el.max = years[years.length - 1]; });
+  yearStart.value = years[0];
+  yearEnd.value = years[years.length - 1];
+
+  function getYearRange() {
+    return { start: +yearStart.value, end: +yearEnd.value };
+  }
+
+  function yearLabel(start, end) {
+    return start === end ? `FY${start}` : `FY${start}–${end}`;
+  }
+
+  function updateYearRangeUI() {
+    const min = +yearStart.min, max = +yearStart.max;
+    const s = +yearStart.value, e = +yearEnd.value;
+    const pct = v => ((v - min) / (max - min)) * 100;
+    document.getElementById("year-range-fill").style.left = pct(s) + "%";
+    document.getElementById("year-range-fill").style.width = Math.max(0, pct(e) - pct(s)) + "%";
+    document.getElementById("year-label").textContent = s === e ? `FY${s}` : `FY${s}–${e}`;
+  }
+
+  yearStart.addEventListener("input", () => {
+    if (+yearStart.value > +yearEnd.value) yearStart.value = yearEnd.value;
+    updateYearRangeUI();
+    renderActiveTab();
+  });
+  yearEnd.addEventListener("input", () => {
+    if (+yearEnd.value < +yearStart.value) yearEnd.value = yearStart.value;
+    updateYearRangeUI();
+    renderActiveTab();
+  });
+  updateYearRangeUI();
 
   const svg = d3.select("#map");
   const nationalProjection = d3.geoAlbersUsa().fitSize([960, 600], { type: "FeatureCollection", features: states });
@@ -411,24 +502,23 @@
   });
 
   function render() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
-    document.getElementById("year-label").textContent = year;
     syncStateSelectUI();
 
     if (selectedFips) {
-      renderStateMap(selectedFips, year, agency);
+      renderStateMap(selectedFips, start, end, agency);
     } else {
-      renderNationalMap(year, agency);
+      renderNationalMap(start, end, agency);
     }
 
-    renderInstitutions(year, agency);
+    renderInstitutions(start, end, agency);
   }
 
-  function renderNationalMap(year, agency) {
+  function renderNationalMap(start, end, agency) {
     svg.selectAll("*").remove();
 
-    const filtered = rows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
+    const filtered = rows.filter(d => d.fiscal_year >= start && d.fiscal_year <= end && (agency === "__all__" || d.agency === agency));
     current = new Map();
     for (const d of filtered) {
       const key = pad2(d.state_fips);
@@ -473,7 +563,7 @@
     d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
   }
 
-  function renderStateMap(fips, year, agency) {
+  function renderStateMap(fips, start, end, agency) {
     svg.selectAll("*").remove();
 
     const stateFeature = states.find(s => pad2(s.id) === fips);
@@ -488,7 +578,7 @@
 
     const fundingByUei = new Map();
     for (const d of institutionRows) {
-      if (d.fiscal_year !== year) continue;
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
       if (d.state_code !== postal) continue;
       const prev = fundingByUei.get(d.uei);
@@ -522,7 +612,7 @@
                  ${d.awards.toLocaleString()} awards`);
       })
       .on("mouseleave", () => tooltip.style("opacity", 0))
-      .on("click", (event, d) => { selectedUei = d.uei; renderInstitutions(year, agency); });
+      .on("click", (event, d) => { selectedUei = d.uei; renderInstitutions(start, end, agency); });
 
     const noGeoCount = fundingByUei.size - points.length;
     d3.select("#legend").text(
@@ -531,7 +621,7 @@
     );
   }
 
-  function renderInstitutions(year, agency) {
+  function renderInstitutions(start, end, agency) {
     if (selectedUei) {
       renderInstitutionDetail(selectedUei, agency);
       return;
@@ -543,7 +633,7 @@
       : null;
 
     const filtered = institutionRows.filter(d =>
-      d.fiscal_year === year &&
+      d.fiscal_year >= start && d.fiscal_year <= end &&
       (agency === "__all__" || d.agency === agency) &&
       (!selectedPostal || d.state_code === selectedPostal)
     );
@@ -564,10 +654,10 @@
     const subtitle = d3.select("#institutions-subtitle");
     if (stateLabel) {
       subtitle.html("");
-      subtitle.append("span").text(`${stateLabel}, FY${year}`);
+      subtitle.append("span").text(`${stateLabel}, ${yearLabel(start, end)}`);
       subtitle.append("button").text("clear").on("click", () => { selectedFips = null; render(); });
     } else {
-      subtitle.text(`Nationwide, FY${year} · top 50 of ${TOP_N_INSTITUTIONS} tracked`);
+      subtitle.text(`Nationwide, ${yearLabel(start, end)} · top 50 of ${TOP_N_INSTITUTIONS} tracked`);
     }
 
     const list = d3.select("#institutions-list");
@@ -680,7 +770,7 @@
   }
 
   function renderScatter() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const yMetric = document.getElementById("scatter-y-select").value;
@@ -688,7 +778,7 @@
     const fundingByUei = new Map();
     const nameByUei = new Map();
     for (const d of institutionRows) {
-      if (d.fiscal_year !== year) continue;
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
       if (postal && d.state_code !== postal) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
@@ -696,7 +786,8 @@
     }
     const outputByUei = new Map();
     for (const d of outputRows) {
-      if (d.fiscal_year === year) outputByUei.set(d.uei, d[yMetric]);
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      outputByUei.set(d.uei, (outputByUei.get(d.uei) || 0) + d[yMetric]);
     }
 
     const data = [];
@@ -737,14 +828,14 @@
   }
 
   function renderSankey() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
 
     const instTotals = new Map();
     for (const d of institutionRows) {
-      if (d.fiscal_year !== year) continue;
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
       if (postal && d.state_code !== postal) continue;
       let e = instTotals.get(d.uei);
@@ -831,10 +922,10 @@
   // note on why field_mix shares alone don't sum to 1). Computed client-side
   // rather than pre-aggregated so it can respect the state filter for any
   // of the 50 states without a combinatorial explosion of backend files.
-  function computeFieldAllocation(year, agency, postal) {
+  function computeFieldAllocation(start, end, agency, postal) {
     const fundingByUei = new Map();
     for (const d of institutionRows) {
-      if (d.fiscal_year !== year) continue;
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
       if (agency !== "__all__" && d.agency !== agency) continue;
       if (postal && d.state_code !== postal) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
@@ -857,12 +948,12 @@
   }
 
   function renderTreemap() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
 
     const byDomain = new Map();
-    for (const [key, val] of computeFieldAllocation(year, agency, postal)) {
+    for (const [key, val] of computeFieldAllocation(start, end, agency, postal)) {
       const [domain, field] = key.split("|");
       if (!byDomain.has(domain)) byDomain.set(domain, []);
       byDomain.get(domain).push({ name: field, value: val });
@@ -950,7 +1041,7 @@
   }
 
   function renderStatePie() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const svg = d3.select("#state-pie-svg");
@@ -962,7 +1053,7 @@
       const byUei = new Map();
       const nameByUei = new Map();
       for (const d of institutionRows) {
-        if (d.fiscal_year !== year) continue;
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
         if (d.state_code !== postal) continue;
         byUei.set(d.uei, (byUei.get(d.uei) || 0) + d.total_obligations);
@@ -973,7 +1064,7 @@
       document.getElementById("state-pie-title").textContent = "Funding share by state (selected year/agency)";
       const byState = new Map();
       for (const d of rows) {
-        if (d.fiscal_year !== year) continue;
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
         byState.set(d.state_name, (byState.get(d.state_name) || 0) + d.total_obligations);
       }
@@ -1007,11 +1098,11 @@
 
   let rankingsSort = { key: "funding", dir: "desc" };
 
-  function getRankingsData(dimension, year, agency, postal) {
+  function getRankingsData(dimension, start, end, agency, postal) {
     if (dimension === "institutions") {
       const byUei = new Map();
       for (const d of institutionRows) {
-        if (d.fiscal_year !== year) continue;
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
         if (postal && d.state_code !== postal) continue;
         let e = byUei.get(d.uei);
@@ -1020,9 +1111,12 @@
         e.awards += d.award_count;
       }
       for (const d of outputRows) {
-        if (d.fiscal_year !== year) continue;
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
         const e = byUei.get(d.uei);
-        if (e) { e.papers = d.works_count; e.citations = d.cited_by_count; }
+        if (e) {
+          e.papers = (e.papers || 0) + d.works_count;
+          e.citations = (e.citations || 0) + d.cited_by_count;
+        }
       }
       const columns = [
         { key: "name", label: "Institution", type: "text", render: d => titleCase(d.name) },
@@ -1038,7 +1132,7 @@
     if (dimension === "states") {
       const byState = new Map();
       for (const d of rows) {
-        if (d.fiscal_year !== year) continue;
+        if (d.fiscal_year < start || d.fiscal_year > end) continue;
         if (agency !== "__all__" && d.agency !== agency) continue;
         if (postal && d.state_code !== postal) continue;
         let e = byState.get(d.state_name);
@@ -1055,7 +1149,7 @@
     }
 
     const byField = new Map();
-    for (const [key, funding] of computeFieldAllocation(year, agency, postal)) {
+    for (const [key, funding] of computeFieldAllocation(start, end, agency, postal)) {
       const [domain, field] = key.split("|");
       let e = byField.get(key);
       if (!e) { e = { domain, name: field, funding: 0 }; byField.set(key, e); }
@@ -1070,7 +1164,7 @@
   }
 
   function renderRankings() {
-    const year = +yearRange.value;
+    const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     let dimension = document.getElementById("rankings-select").value;
@@ -1078,7 +1172,7 @@
       dimension = "institutions";
       document.getElementById("rankings-select").value = "institutions";
     }
-    const { columns, rows } = getRankingsData(dimension, year, agency, postal);
+    const { columns, rows } = getRankingsData(dimension, start, end, agency, postal);
 
     if (!columns.some(c => c.key === rankingsSort.key)) {
       rankingsSort = { key: "funding", dir: "desc" };
@@ -1126,7 +1220,7 @@
 
     const agencyLabel = agency === "__all__" ? "all agencies" : agency;
     const stateLabel = postal ? ` · ${stateOptions.find(s => s[0] === postal)?.[1] ? titleCase(stateOptions.find(s => s[0] === postal)[1]) : postal}` : "";
-    document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · FY${year} · ${agencyLabel}${stateLabel}`;
+    document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · ${yearLabel(start, end)} · ${agencyLabel}${stateLabel}`;
   }
 
   let activeTab = "map";
@@ -1151,7 +1245,6 @@
   });
 
   agencySelect.on("change", renderActiveTab);
-  yearRange.addEventListener("input", renderActiveTab);
   document.getElementById("scatter-y-select").addEventListener("change", () => { if (activeTab === "scatter") renderScatter(); });
   document.getElementById("rankings-select").addEventListener("change", () => { rankingsSort = { key: "funding", dir: "desc" }; renderRankings(); });
   render();
