@@ -886,9 +886,7 @@
         for (const f of top) {
           links.push({ source: nodeIndex(instNodeName), target: nodeIndex(f.field_name), value: e.total * (f.share / shareSum) });
         }
-        if (restShare > 0) {
-          links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: e.total * (restShare / shareSum) });
-        }
+        links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: Math.max(0, e.total * (restShare / shareSum)) });
       }
     } else if (document.getElementById("sankey-order-select").value === "field-state") {
       noteEl.textContent = "Agency -> top research fields -> top-funded states. Select a state to switch this to a per-institution flow instead. Splits are estimated from tracked institutions' OpenAlex research profiles, not tagged per award.";
@@ -922,9 +920,7 @@
         for (const s of top) {
           links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex(titleCase(stateNameByPostal.get(s.stCode) || s.stCode)), value: s.amt });
         }
-        if (restAmt > 0) {
-          links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex("Other state"), value: restAmt });
-        }
+        links.push({ source: nodeIndex(fieldNodeName), target: nodeIndex("Other state"), value: Math.max(0, restAmt) });
       }
     } else {
       noteEl.textContent = "Agency -> top-funded states -> research fields. Select a state to switch this to a per-institution flow instead. Field splits are estimated from each state's tracked institutions' OpenAlex research profiles, not tagged per award.";
@@ -955,9 +951,7 @@
         for (const f of top) {
           links.push({ source: nodeIndex(stateNodeName), target: nodeIndex(f.field_name), value: f.funding });
         }
-        if (restAmt > 0) {
-          links.push({ source: nodeIndex(stateNodeName), target: nodeIndex("Other field"), value: restAmt });
-        }
+        links.push({ source: nodeIndex(stateNodeName), target: nodeIndex("Other field"), value: Math.max(0, restAmt) });
       }
     }
 
