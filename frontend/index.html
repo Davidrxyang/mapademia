@@ -54,6 +54,35 @@
     font-size: 13px;
   }
   #year-label { font-variant-numeric: tabular-nums; min-width: 4ch; font-size: 13px; }
+  #tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 28px 0;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .chart-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 28px 28px;
+  }
+  .chart-note { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .axis-label { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--border); }
+  .axis text { fill: var(--muted); font-size: 10px; }
   #content-wrap {
     display: flex;
     gap: 24px;
@@ -173,14 +202,69 @@
   <div class="control-group" id="legend"></div>
 </div>
 
-<div id="content-wrap">
-  <div id="map-wrap">
-    <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
+<div id="tabs">
+  <button class="tab-btn active" data-tab="map">Map &amp; Institutions</button>
+  <button class="tab-btn" data-tab="scatter">Funding vs. Impact</button>
+  <button class="tab-btn" data-tab="sankey">Money Flow</button>
+  <button class="tab-btn" data-tab="treemap">Research Fields</button>
+  <button class="tab-btn" data-tab="trends">Trends</button>
+</div>
+
+<div class="tab-panel active" data-tab="map">
+  <div id="content-wrap">
+    <div id="map-wrap">
+      <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
+    </div>
+    <div id="institutions-panel">
+      <h2>Top Institutions</h2>
+      <div id="institutions-subtitle"></div>
+      <div id="institutions-list"></div>
+    </div>
   </div>
-  <div id="institutions-panel">
-    <h2>Top Institutions</h2>
-    <div id="institutions-subtitle"></div>
-    <div id="institutions-list"></div>
+</div>
+
+<div class="tab-panel" data-tab="scatter">
+  <div class="chart-wrap">
+    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions.</div>
+    <div class="control-group" style="margin-bottom: 10px;">
+      <label for="scatter-y-select">Y axis</label>
+      <select id="scatter-y-select">
+        <option value="works_count">Papers published</option>
+        <option value="cited_by_count">Citations</option>
+      </select>
+    </div>
+    <svg id="scatter-svg" viewBox="0 0 900 560" style="width: 100%; height: auto; max-width: 900px;"></svg>
+  </div>
+</div>
+
+<div class="tab-panel" data-tab="sankey">
+  <div class="chart-wrap">
+    <div class="chart-note">Agency -&gt; top-funded institutions -&gt; research fields. The field split for each institution is estimated from its overall OpenAlex research profile, not tagged per award - treat it as an allocation proxy, not an exact accounting.</div>
+    <svg id="sankey-svg" viewBox="0 0 1000 600" style="width: 100%; height: auto;"></svg>
+  </div>
+</div>
+
+<div class="tab-panel" data-tab="treemap">
+  <div class="chart-wrap">
+    <div class="chart-note">Estimated funding by research field, for the selected year/agency - allocated proportionally to each institution's OpenAlex field mix, not from award-level field tags.</div>
+    <svg id="treemap-svg" viewBox="0 0 960 560" style="width: 100%; height: auto;"></svg>
+  </div>
+</div>
+
+<div class="tab-panel" data-tab="trends">
+  <div class="chart-wrap">
+    <div class="chart-note">Shows all tracked fiscal years regardless of the year slider above.</div>
+    <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
+      <div style="flex: 1 1 500px; min-width: 0;">
+        <h2 style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
+        <svg id="stacked-area-svg" viewBox="0 0 560 320" style="width: 100%; height: auto;"></svg>
+      </div>
+      <div style="flex: 0 0 320px;">
+        <h2 style="font-size: 14px; margin: 0 0 8px;">Funding share by state (selected year/agency)</h2>
+        <svg id="state-pie-svg" viewBox="0 0 320 320" style="width: 100%; height: auto; max-width: 320px;"></svg>
+        <div id="state-pie-legend" style="font-size: 11px; margin-top: 8px;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -190,14 +274,17 @@
 
 <script src="https://unpkg.com/d3@7"></script>
 <script src="https://unpkg.com/topojson-client@3"></script>
+<script src="https://unpkg.com/d3-sankey@0"></script>
 <script>
 (async function () {
-  const [us, rows, institutionRows, outputRows, fieldMixRows] = await Promise.all([
+  const [us, rows, institutionRows, outputRows, fieldMixRows, fieldAllocationRows, nihLinkedRows] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
     d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
     d3.csv("data/institution_output_by_year.csv", d3.autoType),
     d3.csv("data/institution_field_mix.csv", d3.autoType),
+    d3.csv("data/funding_allocated_by_field_year_agency.csv", d3.autoType),
+    d3.csv("data/nih_linked_publications_by_institution_year.csv", d3.autoType),
   ]);
 
   const states = topojson.feature(us, us.objects.states).features;
@@ -383,6 +470,15 @@
     list.append("div").attr("class", "chart-caveat")
       .text("Recent years look lower because papers need time to accumulate citations - this is a lag artifact, not declining impact.");
 
+    const nihLinkedSeries = nihLinkedRows.filter(d => d.uei === uei).sort((a, b) => a.fiscal_year - b.fiscal_year)
+      .map(d => ({ year: d.fiscal_year, value: d.paper_count }));
+    if (nihLinkedSeries.length > 0) {
+      list.append("div").attr("class", "detail-section-title").text("Papers directly linked to NIH grants (award-level match)");
+      barChart(list.append("div"), nihLinkedSeries, d => d.value.toLocaleString());
+      list.append("div").attr("class", "chart-caveat")
+        .text("Unlike the charts above (all OpenAlex output by this institution), these are papers matched to this institution's specific NIH award numbers - a stricter, more precise count. ~74% award match rate, so this modestly undercounts.");
+    }
+
     const allFields = fieldMixRows.filter(d => d.uei === uei);
     const fields = allFields.slice().sort((a, b) => b.share - a.share).slice(0, 8);
     const maxShare = fields.length ? fields[0].share : 1;
@@ -429,8 +525,300 @@
     return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  agencySelect.on("change", render);
-  yearRange.addEventListener("input", render);
+  function renderScatter() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    const yMetric = document.getElementById("scatter-y-select").value;
+
+    const fundingByUei = new Map();
+    const nameByUei = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
+      nameByUei.set(d.uei, d.name);
+    }
+    const outputByUei = new Map();
+    for (const d of outputRows) {
+      if (d.fiscal_year === year) outputByUei.set(d.uei, d[yMetric]);
+    }
+
+    const data = [];
+    for (const [uei, funding] of fundingByUei) {
+      const yVal = outputByUei.get(uei);
+      if (funding > 0 && yVal > 0) data.push({ uei, name: nameByUei.get(uei), funding, yVal });
+    }
+
+    const svg = d3.select("#scatter-svg");
+    svg.selectAll("*").remove();
+    const margin = { top: 20, right: 30, bottom: 50, left: 70 };
+    const w = 900 - margin.left - margin.right, h = 560 - margin.top - margin.bottom;
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    if (data.length === 0) {
+      g.append("text").attr("x", w / 2).attr("y", h / 2).attr("text-anchor", "middle").attr("fill", "var(--muted)")
+        .text("No data for this year/agency selection.");
+      return;
+    }
+
+    const x = d3.scaleLog().domain(d3.extent(data, d => d.funding)).nice().range([0, w]);
+    const y = d3.scaleLog().domain(d3.extent(data, d => d.yVal)).nice().range([h, 0]);
+
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`).call(d3.axisBottom(x).ticks(5, "~s"));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
+    g.append("text").attr("class", "axis-label").attr("x", w / 2).attr("y", h + 40).attr("text-anchor", "middle").text("Funding ($, log scale)");
+    g.append("text").attr("class", "axis-label").attr("transform", "rotate(-90)").attr("x", -h / 2).attr("y", -50).attr("text-anchor", "middle")
+      .text((yMetric === "works_count" ? "Papers published" : "Citations") + " (log scale)");
+
+    g.selectAll("circle").data(data).join("circle")
+      .attr("cx", d => x(d.funding)).attr("cy", d => y(d.yVal)).attr("r", 4)
+      .attr("fill", "var(--accent)").attr("opacity", 0.6)
+      .on("mousemove", (event, d) => {
+        tooltip.style("opacity", 1).style("left", event.clientX + 14 + "px").style("top", event.clientY + 14 + "px")
+          .html(`<strong>${titleCase(d.name)}</strong><br>$${d.funding.toLocaleString(undefined, { maximumFractionDigits: 0 })}<br>${d.yVal.toLocaleString()} ${yMetric === "works_count" ? "papers" : "citations"}`);
+      })
+      .on("mouseleave", () => tooltip.style("opacity", 0));
+  }
+
+  function renderSankey() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    const TOP_INST = 8, TOP_FIELDS_PER_INST = 3;
+
+    const instTotals = new Map();
+    for (const d of institutionRows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      let e = instTotals.get(d.uei);
+      if (!e) { e = { name: d.name, byAgency: new Map(), total: 0 }; instTotals.set(d.uei, e); }
+      e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
+      e.total += d.total_obligations;
+    }
+    const topInst = Array.from(instTotals.entries()).sort((a, b) => b[1].total - a[1].total).slice(0, TOP_INST);
+    const topInstUeis = new Set(topInst.map(([uei]) => uei));
+
+    const fieldByUei = new Map();
+    for (const d of fieldMixRows) {
+      if (!topInstUeis.has(d.uei)) continue;
+      if (!fieldByUei.has(d.uei)) fieldByUei.set(d.uei, []);
+      fieldByUei.get(d.uei).push(d);
+    }
+
+    const nodesSet = new Map();
+    const nodeNames = [];
+    function nodeIndex(name) {
+      if (!nodesSet.has(name)) { nodesSet.set(name, nodeNames.length); nodeNames.push(name); }
+      return nodesSet.get(name);
+    }
+
+    const links = [];
+    for (const [uei, e] of topInst) {
+      const instNodeName = "inst:" + titleCase(e.name);
+      for (const [ag, amt] of e.byAgency) {
+        if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(instNodeName), value: amt });
+      }
+      const fields = (fieldByUei.get(uei) || []).slice().sort((a, b) => b.share - a.share);
+      const top = fields.slice(0, TOP_FIELDS_PER_INST);
+      const shareSum = d3.sum(fields, d => d.share) || 1;
+      const restShare = shareSum - d3.sum(top, d => d.share);
+      for (const f of top) {
+        links.push({ source: nodeIndex(instNodeName), target: nodeIndex(f.field_name), value: e.total * (f.share / shareSum) });
+      }
+      if (restShare > 0) {
+        links.push({ source: nodeIndex(instNodeName), target: nodeIndex("Other field"), value: e.total * (restShare / shareSum) });
+      }
+    }
+
+    const svg = d3.select("#sankey-svg");
+    svg.selectAll("*").remove();
+
+    if (links.length === 0) {
+      svg.append("text").attr("x", 500).attr("y", 300).attr("text-anchor", "middle").attr("fill", "var(--muted)")
+        .text("No data for this year/agency selection.");
+      return;
+    }
+
+    const nodes = nodeNames.map(name => ({ name: name.startsWith("inst:") ? name.slice(5) : name }));
+    const w = 1000, h = 600;
+    const sankeyGen = d3.sankey().nodeWidth(14).nodePadding(10).extent([[10, 10], [w - 10, h - 10]]);
+    const graph = sankeyGen({ nodes: nodes.map(d => ({ ...d })), links: links.map(d => ({ ...d })) });
+
+    const color = d3.scaleOrdinal(d3.schemeTableau10);
+
+    svg.append("g").selectAll("rect").data(graph.nodes).join("rect")
+      .attr("x", d => d.x0).attr("y", d => d.y0).attr("width", d => d.x1 - d.x0).attr("height", d => Math.max(1, d.y1 - d.y0))
+      .attr("fill", d => color(d.name))
+      .append("title").text(d => `${d.name}: $${(d.value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+
+    svg.append("g").attr("fill", "none").selectAll("path").data(graph.links).join("path")
+      .attr("d", d3.sankeyLinkHorizontal())
+      .attr("stroke", d => color(d.source.name))
+      .attr("stroke-opacity", 0.35)
+      .attr("stroke-width", d => Math.max(1, d.width))
+      .append("title").text(d => `${d.source.name} -> ${d.target.name}: $${d.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+
+    svg.append("g").selectAll("text").data(graph.nodes).join("text")
+      .attr("x", d => (d.targetLinks.length === 0 ? d.x1 + 6 : (d.sourceLinks.length === 0 ? d.x0 - 6 : d.x1 + 6)))
+      .attr("y", d => (d.y0 + d.y1) / 2)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", d => (d.sourceLinks.length === 0 ? "end" : "start"))
+      .attr("font-size", 10)
+      .attr("fill", "var(--text)")
+      .text(d => d.name.length > 28 ? d.name.slice(0, 26) + "…" : d.name);
+  }
+
+  function renderTreemap() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    const filtered = fieldAllocationRows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
+
+    const byDomainField = new Map();
+    for (const d of filtered) {
+      const key = d.domain_name + "|" + d.field_name;
+      byDomainField.set(key, (byDomainField.get(key) || 0) + d.allocated_funding);
+    }
+    const byDomain = new Map();
+    for (const [key, val] of byDomainField) {
+      const [domain, field] = key.split("|");
+      if (!byDomain.has(domain)) byDomain.set(domain, []);
+      byDomain.get(domain).push({ name: field, value: val });
+    }
+
+    const svg = d3.select("#treemap-svg");
+    svg.selectAll("*").remove();
+
+    if (byDomain.size === 0) {
+      svg.append("text").attr("x", 480).attr("y", 280).attr("text-anchor", "middle").attr("fill", "var(--muted)")
+        .text("No data for this year/agency selection.");
+      return;
+    }
+
+    const root = d3.hierarchy({ name: "root", children: Array.from(byDomain, ([domain, children]) => ({ name: domain, children })) })
+      .sum(d => d.value || 0).sort((a, b) => b.value - a.value);
+
+    const w = 960, h = 560;
+    d3.treemap().size([w, h]).paddingOuter(3).paddingTop(18).paddingInner(2)(root);
+
+    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(Array.from(byDomain.keys()));
+
+    const domainNode = svg.selectAll(".domain-g").data(root.children).join("g");
+    domainNode.append("rect")
+      .attr("x", d => d.x0).attr("y", d => d.y0).attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0)
+      .attr("fill", "none").attr("stroke", "var(--border)");
+    domainNode.append("text").attr("x", d => d.x0 + 4).attr("y", d => d.y0 + 13)
+      .attr("font-size", 11).attr("fill", "var(--text)").attr("font-weight", 600)
+      .text(d => `${d.data.name} ($${d3.format("~s")(d.value)})`);
+
+    const leaf = svg.selectAll(".leaf").data(root.leaves()).join("g");
+    leaf.append("rect")
+      .attr("x", d => d.x0).attr("y", d => d.y0).attr("width", d => Math.max(0, d.x1 - d.x0)).attr("height", d => Math.max(0, d.y1 - d.y0))
+      .attr("fill", d => color(d.parent.data.name)).attr("opacity", 0.8).attr("stroke", "var(--bg)")
+      .append("title").text(d => `${d.data.name}: $${d.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+    leaf.append("text")
+      .attr("x", d => d.x0 + 3).attr("y", d => d.y0 + 11)
+      .attr("font-size", 9).attr("fill", "#fff")
+      .text(d => (d.x1 - d.x0) > 45 && (d.y1 - d.y0) > 12 ? (d.data.name.length > 20 ? d.data.name.slice(0, 18) + "…" : d.data.name) : "");
+  }
+
+  function renderTrends() {
+    renderStackedArea();
+    renderStatePie();
+  }
+
+  function renderStackedArea() {
+    const svg = d3.select("#stacked-area-svg");
+    svg.selectAll("*").remove();
+    const margin = { top: 10, right: 10, bottom: 24, left: 55 };
+    const w = 560 - margin.left - margin.right, h = 320 - margin.top - margin.bottom;
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const byYearAgency = new Map();
+    for (const d of rows) {
+      if (!byYearAgency.has(d.fiscal_year)) byYearAgency.set(d.fiscal_year, {});
+      const rec = byYearAgency.get(d.fiscal_year);
+      rec[d.agency] = (rec[d.agency] || 0) + d.total_obligations;
+    }
+    const data = years.map(y => ({ year: y, ...byYearAgency.get(y) }));
+    const stack = d3.stack().keys(agencies).value((d, key) => d[key] || 0)(data);
+
+    const x = d3.scaleLinear().domain(d3.extent(years)).range([0, w]);
+    const y = d3.scaleLinear().domain([0, d3.max(stack, s => d3.max(s, d => d[1]))]).nice().range([h, 0]);
+    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(agencies);
+    const area = d3.area().x(d => x(d.data.year)).y0(d => y(d[0])).y1(d => y(d[1]));
+
+    g.selectAll("path").data(stack).join("path").attr("d", area).attr("fill", d => color(d.key)).attr("opacity", 0.85)
+      .append("title").text(d => d.key);
+
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`)
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(Math.min(years.length, 8)));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
+
+    const legend = svg.append("g").attr("transform", `translate(${margin.left + 10},${margin.top + 6})`);
+    agencies.forEach((a, i) => {
+      legend.append("rect").attr("x", 0).attr("y", i * 14).attr("width", 10).attr("height", 10).attr("fill", color(a));
+      legend.append("text").attr("x", 14).attr("y", i * 14 + 9).attr("font-size", 9).attr("fill", "var(--text)").text(a);
+    });
+  }
+
+  function renderStatePie() {
+    const year = +yearRange.value;
+    const agency = agencySelect.property("value");
+    const svg = d3.select("#state-pie-svg");
+    svg.selectAll("*").remove();
+
+    const byState = new Map();
+    for (const d of rows) {
+      if (d.fiscal_year !== year) continue;
+      if (agency !== "__all__" && d.agency !== agency) continue;
+      byState.set(d.state_name, (byState.get(d.state_name) || 0) + d.total_obligations);
+    }
+    let arr = Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    const top = arr.slice(0, 10);
+    const otherTotal = d3.sum(arr.slice(10), d => d.value);
+    if (otherTotal > 0) top.push({ name: "Other states", value: otherTotal });
+
+    const w = 320, h = 320, r = Math.min(w, h) / 2 - 10;
+    const g = svg.append("g").attr("transform", `translate(${w / 2},${h / 2})`);
+    const color = d3.scaleOrdinal(d3.schemeTableau10);
+    const pieGen = d3.pie().value(d => d.value).sort(null);
+    const arcGen = d3.arc().innerRadius(r * 0.4).outerRadius(r);
+    const total = d3.sum(top, d => d.value) || 1;
+
+    g.selectAll("path").data(pieGen(top)).join("path")
+      .attr("d", arcGen).attr("fill", d => color(d.data.name)).attr("stroke", "var(--bg)").attr("stroke-width", 1)
+      .append("title").text(d => `${titleCase(d.data.name)}: $${d.data.value.toLocaleString(undefined, { maximumFractionDigits: 0 })} (${(100 * d.data.value / total).toFixed(1)}%)`);
+
+    const legend = d3.select("#state-pie-legend");
+    legend.html("");
+    top.forEach(d => {
+      const row = legend.append("div").style("display", "flex").style("align-items", "center").style("gap", "6px").style("margin", "2px 0");
+      row.append("div").style("width", "9px").style("height", "9px").style("background", color(d.name)).style("flex", "0 0 auto");
+      row.append("div").style("color", "var(--text)").text(`${titleCase(d.name)} — ${(100 * d.value / total).toFixed(1)}%`);
+    });
+  }
+
+  let activeTab = "map";
+
+  function renderActiveTab() {
+    if (activeTab === "map") render();
+    else if (activeTab === "scatter") renderScatter();
+    else if (activeTab === "sankey") renderSankey();
+    else if (activeTab === "treemap") renderTreemap();
+    else if (activeTab === "trends") renderTrends();
+  }
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.tab === activeTab));
+      renderActiveTab();
+    });
+  });
+
+  agencySelect.on("change", renderActiveTab);
+  yearRange.addEventListener("input", renderActiveTab);
+  document.getElementById("scatter-y-select").addEventListener("change", () => { if (activeTab === "scatter") renderScatter(); });
   render();
 })();
 </script>

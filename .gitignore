@@ -2,6 +2,7 @@ data-pipeline/raw/
 data-pipeline/processed/*.duckdb
 data-pipeline/fetch_run.log
 data-pipeline/crosswalk_run.log
+data-pipeline/fetch_nih_run.log
 __pycache__/
 *.pyc
 .venv/
