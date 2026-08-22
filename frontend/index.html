@@ -132,7 +132,7 @@
   .inst-loc { color: var(--muted); font-size: 11px; }
   .inst-amount { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .inst-awards { color: var(--muted); font-size: 11px; text-align: right; }
-  #detail-back {
+  #detail-back, #map-back-btn {
     background: none;
     border: none;
     color: var(--accent);
@@ -249,6 +249,7 @@
 <div class="tab-panel active" data-tab="map">
   <div id="content-wrap">
     <div id="map-wrap">
+      <button id="map-back-btn" style="display: none;">&larr; back to national map</button>
       <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
     </div>
     <div id="institutions-panel">
@@ -402,6 +403,12 @@
     renderActiveTab();
   });
 
+  document.getElementById("map-back-btn").addEventListener("click", () => {
+    selectedFips = null;
+    selectedUei = null;
+    renderActiveTab();
+  });
+
   function render() {
     const year = +yearRange.value;
     const agency = agencySelect.property("value");
@@ -418,6 +425,7 @@
   }
 
   function renderNationalMap(year, agency) {
+    document.getElementById("map-back-btn").style.display = "none";
     svg.selectAll("*").remove();
 
     const filtered = rows.filter(d => d.fiscal_year === year && (agency === "__all__" || d.agency === agency));
@@ -466,6 +474,7 @@
   }
 
   function renderStateMap(fips, year, agency) {
+    document.getElementById("map-back-btn").style.display = "inline-block";
     svg.selectAll("*").remove();
 
     const stateFeature = states.find(s => pad2(s.id) === fips);
