@@ -341,7 +341,7 @@
 
 <div class="tab-panel" data-tab="scatter">
   <div class="chart-wrap">
-    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions.</div>
+    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions. Funding is NIH/NSF grants only; output/citations are each institution's entire OpenAlex record (all funders, all fields) - this shows correlation, not money-to-paper causation.</div>
     <div class="control-group" style="margin-bottom: 10px;">
       <label for="scatter-y-select">Y axis</label>
       <select id="scatter-y-select">
@@ -385,6 +385,7 @@
 <div class="tab-panel" data-tab="trends">
   <div class="chart-wrap">
     <div class="chart-note">The funding-over-time chart always shows all tracked fiscal years, regardless of the Fiscal Year range above.</div>
+    <div class="chart-note" id="partial-year-note" style="display: none;"></div>
     <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
       <div style="flex: 2 1 480px; min-width: 260px;">
         <h2 id="stacked-area-title" style="font-size: 14px; margin: 0 0 8px;">Total funding by agency, over time</h2>
@@ -773,7 +774,7 @@
       list.append("div").attr("class", "detail-section-title").text("Papers directly linked to NIH grants (award-level match)");
       barChart(list.append("div"), nihLinkedSeries, d => d.value.toLocaleString());
       list.append("div").attr("class", "chart-caveat")
-        .text("Unlike the charts above (all OpenAlex output by this institution), these are papers matched to this institution's specific NIH award numbers - a stricter, more precise count. ~74% award match rate, so this modestly undercounts.");
+        .text("Unlike the charts above (all OpenAlex output by this institution), these are papers matched to this institution's specific NIH award numbers - a stricter, more precise count. ~74% award match rate undercounts this; award numbers that transferred or were shared across institutions can also link the same paper to more than one, which counts it here more than once.");
     }
 
     const allFields = fieldMixRows.filter(d => d.uei === uei);
@@ -1454,6 +1455,15 @@
   }
 
   function renderTrends() {
+    const lastYear = years[years.length - 1];
+    const fyEnd = new Date(`${lastYear}-09-30`);
+    const note = document.getElementById("partial-year-note");
+    if (new Date() < fyEnd) {
+      note.style.display = "";
+      note.textContent = `FY${lastYear} is still in progress (runs through September 30, ${lastYear}) - its bar/segment reflects only the transactions recorded so far, not a full year. Don't read its dip as a real decline.`;
+    } else {
+      note.style.display = "none";
+    }
     renderStackedArea();
     renderYearBarChart();
     renderStatePie();
