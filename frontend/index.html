@@ -320,6 +320,7 @@
   <button class="tab-btn" data-tab="treemap">Research Fields</button>
   <button class="tab-btn" data-tab="trends">Trends</button>
   <button class="tab-btn" data-tab="rankings">Rankings</button>
+  <button class="tab-btn" data-tab="notes">Notes</button>
 </div>
 
 <div class="tab-panel active" data-tab="map">
@@ -420,6 +421,51 @@
         <thead><tr id="rankings-head"></tr></thead>
         <tbody id="rankings-body"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" data-tab="notes">
+  <div class="chart-wrap" style="max-width: 900px; font-size: 13px; line-height: 1.6;">
+    <div class="chart-note" style="margin-bottom: 18px;">Every scope, filter, and methodology decision behind this data, in one place - so nothing here is a black box.</div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Data sources</h2>
+    <div style="margin-bottom: 16px;">
+      Funding: USAspending.gov Award Data Archive, grant-type prime awards only (Block Grant, Formula Grant, Project Grant, Cooperative Agreement - codes 02/03/04/05). This excludes loans, insurance, and direct payments, and excludes procurement contracts entirely.
+      Publications/citations: OpenAlex (bulk snapshot). NIH-specific award&#8594;publication linkage: NIH ExPORTER's own link tables.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Agencies tracked, and why each is scoped the way it is</h2>
+    <div style="margin-bottom: 16px;">
+      <div style="margin-bottom: 10px;"><strong>NIH, NSF, NASA</strong> - pulled at full agency scope, no additional filtering. Checked NASA's top grant recipients directly before adding it: genuinely research institutions and nonprofits, no filtering needed.</div>
+      <div style="margin-bottom: 10px;"><strong>DOE, EPA</strong> - restricted to recipients tagged as an institution of higher education. Pulled at full scope, both are dominated by non-research grant programs: DOE by state energy-program and weatherization formula grants (plus large industrial clean-energy-deployment grants - e.g. a single $1.7B award to a nuclear fuel company), EPA by multibillion-dollar "green bank" climate-finance grants (Greenhouse Gas Reduction Fund - one recipient alone received $6.97B in FY2024) and state environmental-agency formula grants. Neither agency exposes a clean sub-agency/office split that USAspending's bulk download API can filter on, so the restriction is applied after pulling the data, using each recipient's business type. Verified this produces a clean list of real university grants (e.g. Kansas State, University of Arizona, Fordham) with the non-research programs correctly excluded.</div>
+      <div style="margin-bottom: 10px;"><strong>DOD</strong> - same university-only restriction, plus a curated allow-list of legitimate research-performing nonprofits DOD funds directly (military medicine, applied research institutes) that a university-only filter would otherwise wrongly exclude: Henry M. Jackson Foundation, Battelle Memorial Institute, Research Triangle Institute, National Academy of Sciences, Woods Hole Oceanographic Institution, The General Hospital Corporation (Massachusetts General), The Morgridge Institute for Research, Charles Stark Draper Laboratory, Oak Ridge Associated Universities, Georgia Tech Research Corp, Vanderbilt University Medical Center, Denver Research Institute. Built by inspecting DOD's actual top nonprofit grant recipients (FY2016-2024), not guessed - explicitly excludes manufacturing/industrial consortiums (e.g. National Center for Manufacturing Sciences, FlexTech Alliance), non-research service organizations (USO, Red Cross, land-conservation trusts), and other non-research grant programs (Air Force Academy Athletic Corporation, Young Marines).</div>
+      <div><strong>Department of Education</strong> - not included. Its grant-type data is dominated by state K-12 formula grants (Title I, IDEA - billions of dollars each, via state education agencies), worse than DOE/EPA's contamination. The same higher-education business-type filter that worked cleanly for DOE/EPA did not cleanly exclude these state agencies when tested - so ED was left out rather than shipped with an unverified filter.</div>
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Institution tracking</h2>
+    <div style="margin-bottom: 16px;">
+      Institution-level views are capped to the top 500 recipients by all-time funding (a Pareto cut - the top 500 cover roughly 93% of total tracked obligations nationally, though far less for some states with many small recipients). Matched to OpenAlex institution records by name-similarity (not any authoritative ID crosswalk - none exists between USAspending's recipient UEI and OpenAlex's ROR-based IDs), with manual corrections applied wherever a mismatch was found. A small number of institutions still have a low-confidence or unresolved match; the underlying dollar figures for those are still shown, just without a reliable research-output correlation.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Funding and award-count methodology</h2>
+    <div style="margin-bottom: 16px;">
+      Funding sums each transaction's incremental obligation (not the cumulative award total), attributed to the recipient's registered state/institution - i.e. funding is tied to where the recipient is, not where the work is physically performed. Award counts count each distinct award only in the first fiscal year it appears for that specific state/institution, so a multi-year grant is counted once, not once per year it's active.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Field allocation</h2>
+    <div style="margin-bottom: 16px;">
+      Research-field breakdowns (Money Flow, Research Fields, Rankings) are an estimate, not tagged per award: each institution's funding is split across fields in proportion to that institution's own OpenAlex research-topic mix, renormalized since OpenAlex only tracks roughly the 25 most significant topics per institution. "Other field(s)" and "Untracked institutions" absorb two different things under one label: an institution's own topics outside its tracked top 25, and funding to institutions outside the top-500 cutoff entirely (which can't be allocated to any field since we don't know which institution it went to). State and agency totals shown alongside these breakdowns are the true full totals either way - only the field split itself is an estimate.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Known limitations, not yet resolved</h2>
+    <div style="margin-bottom: 16px;">
+      Some institutions are registered under more than one USAspending recipient ID (re-registrations over time, or genuinely separate campuses/systems) - these show up as separate entries rather than being merged, since an automated merge risks conflating unrelated institutions. A few large university systems (e.g. Rutgers) map to a single OpenAlex entity across multiple recipient IDs, because OpenAlex itself doesn't split them by campus. NIH-linked publication counts can double-count a paper when its award number was shared or transferred across institutions. Citations for recent publication years are naturally lower than older years (they haven't had time to accumulate yet) - not a decline in impact.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Not in scope</h2>
+    <div>
+      No researcher/PI-level view: NIH ExPORTER has a stable per-person ID that would make tracking a researcher's own funding straightforward, but linking that reliably to a specific OpenAlex author is a much harder, much larger-scale version of the institution-matching problem above (OpenAlex's own ORCID coverage is only around 56% of authors), so it was scoped out rather than shipped as a low-confidence feature.
     </div>
   </div>
 </div>
