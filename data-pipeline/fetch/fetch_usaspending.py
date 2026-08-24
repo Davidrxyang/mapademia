@@ -37,6 +37,18 @@ AGENCIES = [
         "type": "awarding",
         "toptier_name": "Department of Health and Human Services",
     },
+    # Pulled at full toptier scope (all sub-agencies/branches) - unlike NIH,
+    # none of these have a clean subtier/office split usable by this API for
+    # isolating just their research arm (checked: DOE's grant-relevant offices
+    # aren't a single subtier; ED and EPA don't expose sub-agencies to this
+    # API at all). So each toptier pull includes non-research grant programs
+    # too (e.g. DOE state energy formula grants, EPA state environmental
+    # grants) - aggregate.py filters those out at aggregation time using the
+    # recipient's business type (and, for DOD, a curated allow-list), not here.
+    {"name": "National Aeronautics and Space Administration", "tier": "toptier", "type": "awarding"},
+    {"name": "Department of Defense", "tier": "toptier", "type": "awarding"},
+    {"name": "Department of Energy", "tier": "toptier", "type": "awarding"},
+    {"name": "Environmental Protection Agency", "tier": "toptier", "type": "awarding"},
 ]
 
 FISCAL_YEARS = range(2016, 2027)  # FY2016 through FY2026 (partial, to date)

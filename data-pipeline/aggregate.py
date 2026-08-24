@@ -25,12 +25,67 @@ PROCESSED_DIR = Path(__file__).resolve().parent.parent / "frontend" / "data"
 # would bloat the published artifact for no benefit.
 TOP_N_INSTITUTIONS = 500
 
+# DOE and EPA's grant-type awards (unlike NIH/NSF's) are dominated by non-
+# research programs when pulled at full toptier scope - DOE's state energy/
+# weatherization formula grants, EPA's multibillion-dollar "green bank"
+# climate-finance grants (Greenhouse Gas Reduction Fund) and state
+# environmental-agency formula grants. Neither agency exposes a clean
+# subtier/office split this API can filter on (checked directly against
+# USAspending's agency endpoints), so both are restricted post-hoc to
+# recipients tagged as an institution of higher education - which cleanly
+# isolates real university research grants (verified against USAspending's
+# search API: this produces exactly the kind of university list you'd
+# expect, e.g. Kansas State, University of Arizona, Fordham).
+HIGHER_ED_BUSINESS_TYPE_CODES = ["H", "O", "S", "T", "U"]
+UNIVERSITY_GRANTS_ONLY_AGENCIES = ["Department of Energy", "Environmental Protection Agency"]
+
+# DOD's grant-type awards have the same problem, but its legitimate research
+# footprint isn't limited to universities - it also funds a handful of real
+# research-performing nonprofits directly (military medicine, applied
+# research institutes). Curated by hand against DOD's actual top nonprofit
+# recipients (cumulative FY2016-2024): keeps the ones that are themselves
+# research performers, excludes manufacturing/industrial consortiums
+# (National Center for Manufacturing Sciences, FlexTech Alliance, Vertical
+# Lift Consortium...), non-research service orgs (USO, Red Cross, Institute
+# of International Education's exchange programs, land-conservation
+# trusts...), and other non-research grant programs (Air Force Academy
+# Athletic Corporation, Young Marines...). Matched by exact recipient name
+# as it appears in USAspending data, scoped to Department of Defense only.
+DOD_RESEARCH_NONPROFIT_NAMES = [
+    "THE HENRY M. JACKSON FOUNDATION FOR THE ADVANCEMENT OF MILITARY MEDICINE, INC.",
+    "BATTELLE MEMORIAL INSTITUTE",
+    "RESEARCH TRIANGLE INSTITUTE",
+    "NATIONAL ACADEMY OF SCIENCES",
+    "WOODS HOLE OCEANOGRAPHIC INSTITUTION",
+    "THE GENERAL HOSPITAL CORPORATION",
+    "THE MORGRIDGE INSTITUTE FOR RESEARCH, INC.",
+    "THE CHARLES STARK DRAPER LABORATORY, INC.",
+    "OAK RIDGE ASSOCIATED UNIVERSITIES, INCORPORATED",
+    "GEORGIA TECH RESEARCH CORP",
+    "VANDERBILT UNIVERSITY MEDICAL CENTER",
+    "DENVER RESEARCH INSTITUTE",
+]
+
 
 def main():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
 
     csv_glob = str(RAW_DIR / "*" / "*" / "*.csv")
+    restricted_agencies_sql = ", ".join(
+        "'" + a.replace("'", "''") + "'" for a in [*UNIVERSITY_GRANTS_ONLY_AGENCIES, "Department of Defense"]
+    )
+    # business_types_code is not always a single letter - USAspending
+    # concatenates multiple category codes with no delimiter when a
+    # recipient carries more than one tag (e.g. "HA" = higher-ed institution
+    # that's also a state-government instrumentality, extremely common for
+    # public universities; confirmed by inspecting real fetched data, not
+    # assumed - an exact-match filter would have wrongly excluded every one
+    # of these). Each letter maps to exactly one category in USAspending's
+    # taxonomy regardless of what else it's concatenated with, so a
+    # substring check per code is the correct match, not an exact one.
+    higher_ed_clause_sql = " or ".join(f"business_types_code like '%{c}%'" for c in HIGHER_ED_BUSINESS_TYPE_CODES)
+    dod_nonprofits_sql = ", ".join("'" + n.replace("'", "''") + "'" for n in DOD_RESEARCH_NONPROFIT_NAMES)
     con.execute(f"""
         create table transactions as
         select
@@ -48,6 +103,11 @@ def main():
         from read_csv_auto('{csv_glob}', union_by_name=true, ignore_errors=true)
         where recipient_country_code = 'USA'
           and recipient_state_code is not null
+          and (
+              awarding_agency_name not in ({restricted_agencies_sql})
+              or ({higher_ed_clause_sql})
+              or (awarding_agency_name = 'Department of Defense' and upper(recipient_name) in ({dod_nonprofits_sql}))
+          )
     """)
 
     # award_count (below) counts each distinct award only in the fiscal year
