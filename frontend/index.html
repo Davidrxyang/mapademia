@@ -342,7 +342,7 @@
 
 <div class="tab-panel" data-tab="scatter">
   <div class="chart-wrap">
-    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions. Funding is NIH/NSF grants only; output/citations are each institution's entire OpenAlex record (all funders, all fields) - this shows correlation, not money-to-paper causation.</div>
+    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions. Funding reflects the agencies tracked here (see the Notes tab); output/citations are each institution's entire OpenAlex record (all funders, all fields) - this shows correlation, not money-to-paper causation.</div>
     <div class="control-group" style="margin-bottom: 10px;">
       <label for="scatter-y-select">Y axis</label>
       <select id="scatter-y-select">
@@ -655,7 +655,8 @@
         render();
       });
 
-    d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
+    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    d3.select("#legend").text(`Darker = more funding (${agencyLabel}) · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
 
     document.getElementById("map-bar-title").textContent = "Top states by funding";
     const barData = states
@@ -718,8 +719,9 @@
       .on("click", (event, d) => { selectedUei = d.uei; renderInstitutions(start, end, agency); });
 
     const noGeoCount = fundingByUei.size - points.length;
+    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
     d3.select("#legend").text(
-      `${stateFeature.properties.name} · circle size = funding · ${points.length} institutions shown` +
+      `${stateFeature.properties.name} (${agencyLabel}) · circle size = funding · ${points.length} institutions shown` +
       (noGeoCount > 0 ? ` (${noGeoCount} untracked, no map coordinates)` : "")
     );
 
@@ -758,13 +760,14 @@
 
     const ranked = Array.from(byUei.values()).sort((a, b) => b.total_obligations - a.total_obligations).slice(0, 50);
 
+    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
     const subtitle = d3.select("#institutions-subtitle");
     if (stateLabel) {
       subtitle.html("");
-      subtitle.append("span").text(`${stateLabel}, ${yearLabel(start, end)}`);
+      subtitle.append("span").text(`${stateLabel}, ${yearLabel(start, end)} · ${agencyLabel}`);
       subtitle.append("button").text("clear").on("click", () => { selectedFips = null; render(); });
     } else {
-      subtitle.text(`Nationwide, ${yearLabel(start, end)} · top 50 of ${TOP_N_INSTITUTIONS} tracked`);
+      subtitle.text(`Nationwide, ${yearLabel(start, end)} · ${agencyLabel} · top 50 of ${TOP_N_INSTITUTIONS} tracked`);
     }
 
     const list = d3.select("#institutions-list");
@@ -932,6 +935,20 @@
     return `${sign}$${abs.toFixed(0)}`;
   }
 
+  // Same magnitude suffixes as formatMoneyShort (B/M/K), no "$" - for axis
+  // ticks and other bare numbers (funding without a repeated $ prefix,
+  // paper/citation counts). Used instead of d3.format("~s")'s SI prefixes,
+  // which render a billion as "G" (giga) - technically correct, but not
+  // how anyone reads a dollar figure or a paper count in English.
+  function formatCountShort(v) {
+    const sign = v < 0 ? "-" : "";
+    const abs = Math.abs(v);
+    if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(1)}B`;
+    if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(1)}M`;
+    if (abs >= 1e3) return `${sign}${(abs / 1e3).toFixed(1)}K`;
+    return `${sign}${abs.toFixed(0)}`;
+  }
+
   function titleCase(s) {
     return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
@@ -1013,8 +1030,8 @@
     const x = d3.scaleLog().domain(d3.extent(data, d => d.funding)).nice().range([0, w]);
     const y = d3.scaleLog().domain(d3.extent(data, d => d.yVal)).nice().range([h, 0]);
 
-    g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`).call(d3.axisBottom(x).ticks(5, "~s"));
-    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`).call(d3.axisBottom(x).ticks(5).tickFormat(formatCountShort));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickFormat(formatCountShort));
     g.append("text").attr("class", "axis-label").attr("x", w / 2).attr("y", h + 40).attr("text-anchor", "middle").text("Funding ($, log scale)");
     g.append("text").attr("class", "axis-label").attr("transform", "rotate(-90)").attr("x", -h / 2).attr("y", -50).attr("text-anchor", "middle")
       .text((yMetric === "works_count" ? "Papers published" : "Citations") + " (log scale)");
@@ -1525,7 +1542,7 @@
       .attr("fill", "none").attr("stroke", "var(--border)");
     domainNode.append("text").attr("x", d => d.x0 + 4).attr("y", d => d.y0 + 13)
       .attr("font-size", 11).attr("fill", "var(--text)").attr("font-weight", 600)
-      .text(d => `${d.data.name} ($${d3.format("~s")(d.value)})`);
+      .text(d => `${d.data.name} ($${formatCountShort(d.value)})`);
 
     const leaf = svg.selectAll(".leaf").data(root.leaves()).join("g");
     leaf.append("rect")
@@ -1579,7 +1596,7 @@
 
     g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickFormat(formatCountShort));
   }
 
   function renderStackedArea() {
@@ -1613,7 +1630,7 @@
 
     g.append("g").attr("class", "axis").attr("transform", `translate(0,${h})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(Math.min(years.length, 8)));
-    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5, "~s"));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickFormat(formatCountShort));
 
     const legend = svg.append("g").attr("transform", `translate(${margin.left + 10},${margin.top + 6})`);
     agencies.forEach((a, i) => {
