@@ -37,15 +37,52 @@ def main():
         where country_code in ('US', 'PR', 'VI', 'GU', 'AS', 'MP')
     """)
 
+    # Some institutions are registered under multiple recipient UEIs (re-
+    # registration over time, or genuinely separate campuses/systems) that
+    # all crosswalk to the SAME OpenAlex entity - e.g. Rutgers alone spans 8
+    # UEIs mapping to one OpenAlex ID, since OpenAlex doesn't split it by
+    # campus. Left uncorrected, every one of those UEIs would get credited
+    # with the entity's FULL works_count/cited_by_count, overcounting total
+    # output by up to 8x for institutions like this (confirmed against 44
+    # OpenAlex IDs shared by more than one UEI in the current crosswalk).
+    # Apportioned by each UEI's share of the group's total tracked funding,
+    # not split evenly - a UEI carrying 90% of a group's funding reasonably
+    # gets ~90% of the shared output credited to it, not an equal 1/8th
+    # regardless of its actual scale. Falls back to an even split only if
+    # the whole group has zero tracked funding.
+    funding_path = Path(__file__).resolve().parent.parent / "frontend" / "data" / "funding_by_institution_year_agency.csv"
+    con.execute(f"""
+        create table uei_funding as
+        select uei, sum(total_obligations::double) as total_funding
+        from read_csv_auto('{funding_path}', union_by_name=true, ignore_errors=true)
+        group by uei
+    """)
+    con.execute("""
+        create table uei_weight as
+        with base as (
+            select c.uei, c.openalex_id, coalesce(f.total_funding, 0) as funding
+            from crosswalk c
+            left join uei_funding f on f.uei = c.uei
+        ),
+        grp as (
+            select openalex_id, sum(funding) as grp_funding, count(*) as grp_n
+            from base group by openalex_id
+        )
+        select b.uei,
+            case when g.grp_funding > 0 then b.funding / g.grp_funding else 1.0 / g.grp_n end as weight
+        from base b join grp g on g.openalex_id = b.openalex_id
+    """)
+
     con.execute(f"""
         copy (
             select
                 c.uei,
                 cy.year as fiscal_year,
-                cy.works_count,
-                cy.cited_by_count
+                cy.works_count * w.weight as works_count,
+                cy.cited_by_count * w.weight as cited_by_count
             from crosswalk c
             join insts i on i.id = c.openalex_id
+            join uei_weight w on w.uei = c.uei
             cross join unnest(i.counts_by_year) as t(cy)
             where cy.year between {MIN_YEAR} and {MAX_YEAR}
             order by c.uei, cy.year
