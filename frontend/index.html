@@ -11,7 +11,7 @@
     --text: #e6e8ec;
     --muted: #8b93a1;
     --border: #232733;
-    --accent: #5b8cff;
+    --accent: #f2f3f5;
   }
   * { box-sizing: border-box; }
   html, body { max-width: 100%; overflow-x: hidden; }
@@ -505,6 +505,18 @@
   let selectedUei = null;
   const TOP_N_INSTITUTIONS = 500; // must match aggregate.py's TOP_N_INSTITUTIONS
 
+  // Categorical palette for multi-series charts (Sankey nodes, Treemap
+  // domains, stacked-area agencies, state-share pie) - replaces d3's
+  // colorful schemeTableau10 with neutral greys only, alternating dark/
+  // light so adjacent categories in a legend or stack stay distinguishable.
+  // Floor kept well above the page background (#0b0d12) and panel/border
+  // tones so a large filled area (e.g. a treemap domain box) never nearly
+  // vanishes into the page just because it drew an unlucky palette index.
+  const GREYSCALE_CATEGORICAL = [
+    "#ebebeb", "#555555", "#aaaaaa", "#6e6e6e", "#cdcdcd",
+    "#414141", "#969696", "#bebebe", "#4b4b4b", "#828282",
+  ];
+
   const agencies = Array.from(new Set(rows.map(d => d.agency))).sort();
   const agencySelect = d3.select("#agency-select");
   agencySelect.selectAll("option.agency")
@@ -556,11 +568,14 @@
   const tooltip = d3.select("#tooltip");
 
   // Funding is heavily concentrated in a handful of states, so a linear
-  // scale leaves most of the map washed-out near white. A sqrt scale
-  // compresses the top end and pulls mid/low values further into the
-  // color ramp, and remapping into interpolateBlues' upper range (instead
-  // of starting at pure white) darkens the map overall.
-  const color = d3.scaleSequentialSqrt(t => d3.interpolateBlues(0.2 + 0.8 * t));
+  // scale leaves most of the map with barely-distinguishable low values.
+  // A sqrt scale compresses the top end and pulls mid/low values further
+  // apart. Against this page's near-black background, mapping low funding
+  // to black-ish grey would work fine, but mapping HIGH funding to black
+  // (the usual "high=dark" convention) would make the most-funded states
+  // vanish into the page - so this ramp is inverted: low funding stays a
+  // dark, receding grey, high funding brightens toward white and pops.
+  const color = d3.scaleSequentialSqrt(t => d3.interpolateGreys(0.85 - 0.8 * t));
   let current = new Map();
 
   // state dropdown: a global filter, kept in sync with clicking a state on
@@ -654,7 +669,7 @@
         render();
       });
 
-    d3.select("#legend").text(`Darker = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
+    d3.select("#legend").text(`Brighter = more funding · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
 
     document.getElementById("map-bar-title").textContent = "Top states by funding";
     const barData = states
@@ -1328,7 +1343,7 @@
       });
     const graph = sankeyGen({ nodes: nodes.map(d => ({ ...d })), links: links.map(d => ({ ...d })) });
 
-    const color = d3.scaleOrdinal(d3.schemeTableau10);
+    const color = d3.scaleOrdinal(GREYSCALE_CATEGORICAL);
 
     svg.append("g").selectAll("rect").data(graph.nodes).join("rect")
       .attr("x", d => d.x0).attr("y", d => d.y0).attr("width", d => d.x1 - d.x0).attr("height", d => Math.max(1, d.y1 - d.y0))
@@ -1516,7 +1531,7 @@
     const w = 960, h = 560;
     d3.treemap().size([w, h]).paddingOuter(3).paddingTop(18).paddingInner(2)(root);
 
-    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(Array.from(byDomain.keys()));
+    const color = d3.scaleOrdinal(GREYSCALE_CATEGORICAL).domain(Array.from(byDomain.keys()));
 
     const domainNode = svg.selectAll(".domain-g").data(root.children).join("g");
     domainNode.append("rect")
@@ -1604,7 +1619,7 @@
 
     const x = d3.scaleLinear().domain(d3.extent(years)).range([0, w]);
     const y = d3.scaleLinear().domain([0, d3.max(stack, s => d3.max(s, d => d[1]))]).nice().range([h, 0]);
-    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(agencies);
+    const color = d3.scaleOrdinal(GREYSCALE_CATEGORICAL).domain(agencies);
     const area = d3.area().x(d => x(d.data.year)).y0(d => y(d[0])).y1(d => y(d[1]));
 
     g.selectAll("path").data(stack).join("path").attr("d", area).attr("fill", d => color(d.key)).attr("opacity", 0.85)
@@ -1663,7 +1678,7 @@
 
     const w = 320, h = 320, r = Math.min(w, h) / 2 - 10;
     const g = svg.append("g").attr("transform", `translate(${w / 2},${h / 2})`);
-    const color = d3.scaleOrdinal(d3.schemeTableau10);
+    const color = d3.scaleOrdinal(GREYSCALE_CATEGORICAL);
     const pieGen = d3.pie().value(d => d.value).sort(null);
     const arcGen = d3.arc().innerRadius(r * 0.4).outerRadius(r);
     const total = d3.sum(top, d => d.value) || 1;
