@@ -59,10 +59,12 @@ C1F5LNUF7W86,Engineering,Physical Sciences,0.015286
 C1F5LNUF7W86,Health Professions,Health Sciences,0.0125437
 C1F5LNUF7W86,Social Sciences,Social Sciences,0.0066099
 C1F5LNUF7W86,Physics and Astronomy,Physical Sciences,0.0052316
-C37HLWKKAH69,Medicine,Health Sciences,7.18e-05
-C37HLWKKAH69,"Biochemistry, Genetics and Molecular Biology",Life Sciences,3.18e-05
-C37HLWKKAH69,Engineering,Physical Sciences,7.1e-06
-C37HLWKKAH69,Environmental Science,Physical Sciences,3.9e-06
+C31ES3WEAVQ5,Arts and Humanities,Social Sciences,0.051232299999999995
+C31ES3WEAVQ5,Physics and Astronomy,Physical Sciences,0.0185373
+C31ES3WEAVQ5,Social Sciences,Social Sciences,0.011132800000000002
+C31ES3WEAVQ5,Decision Sciences,Social Sciences,0.0046831
+C31ES3WEAVQ5,Earth and Planetary Sciences,Physical Sciences,0.0027343
+C31ES3WEAVQ5,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0027173
 C3KXNLTAAY98,Medicine,Health Sciences,0.054187000000000006
 C3KXNLTAAY98,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.029842099999999996
 C3KXNLTAAY98,Dentistry,Health Sciences,0.0179879
@@ -103,6 +105,16 @@ C9MRZK4B7K39,Neuroscience,Life Sciences,9.09e-05
 C9MRZK4B7K39,Social Sciences,Social Sciences,3.7e-05
 C9MRZK4B7K39,Psychology,Social Sciences,3.38e-05
 C9MRZK4B7K39,Decision Sciences,Social Sciences,3.08e-05
+CDAQNZCL6287,Arts and Humanities,Social Sciences,0.0003665
+CDAQNZCL6287,Environmental Science,Physical Sciences,0.00026199999999999997
+CDAQNZCL6287,Social Sciences,Social Sciences,0.00010829999999999999
+CDAQNZCL6287,Physics and Astronomy,Physical Sciences,9.669999999999999e-05
+CDAQNZCL6287,Medicine,Health Sciences,9.14e-05
+CDAQNZCL6287,Engineering,Physical Sciences,8.37e-05
+CDAQNZCL6287,"Biochemistry, Genetics and Molecular Biology",Life Sciences,6.28e-05
+CDAQNZCL6287,Agricultural and Biological Sciences,Life Sciences,5.35e-05
+CDAQNZCL6287,Health Professions,Health Sciences,5.02e-05
+CDAQNZCL6287,Decision Sciences,Social Sciences,3.64e-05
 CFMMM5JM7HJ9,Agricultural and Biological Sciences,Life Sciences,0.12541409999999997
 CFMMM5JM7HJ9,Environmental Science,Physical Sciences,0.0255077
 CFMMM5JM7HJ9,Veterinary,Health Sciences,0.023855
@@ -132,12 +144,14 @@ CJDNG9D14MW7,Computer Science,Physical Sciences,0.008889000000000001
 CJDNG9D14MW7,Psychology,Social Sciences,0.0031285
 CJDNG9D14MW7,Social Sciences,Social Sciences,0.0030617
 CJDNG9D14MW7,Engineering,Physical Sciences,0.0029303
-CM4TTRKFCLF9,Social Sciences,Social Sciences,0.0265041
-CM4TTRKFCLF9,Psychology,Social Sciences,0.006774400000000001
-CM4TTRKFCLF9,Arts and Humanities,Social Sciences,0.0057878
-CM4TTRKFCLF9,Decision Sciences,Social Sciences,0.0018594
-CM4TTRKFCLF9,Physics and Astronomy,Physical Sciences,0.0017231
-CM4TTRKFCLF9,Neuroscience,Life Sciences,0.0013964
+CL7KJX2VFHS9,Social Sciences,Social Sciences,0.0091463
+CL7KJX2VFHS9,"Business, Management and Accounting",Social Sciences,0.0055498
+CL7KJX2VFHS9,Arts and Humanities,Social Sciences,0.0054884
+CL7KJX2VFHS9,Psychology,Social Sciences,0.0020469
+CL7KJX2VFHS9,Mathematics,Physical Sciences,0.0019767
+CL7KJX2VFHS9,Health Professions,Health Sciences,0.0018425
+CL7KJX2VFHS9,Environmental Science,Physical Sciences,0.0011876
+CL7KJX2VFHS9,Earth and Planetary Sciences,Physical Sciences,0.0009625
 CWKJEXDG79A7,Engineering,Physical Sciences,0.0277045
 CWKJEXDG79A7,Materials Science,Physical Sciences,0.018877
 CWKJEXDG79A7,Environmental Science,Physical Sciences,0.0136148
@@ -146,6 +160,17 @@ CWKJEXDG79A7,Chemistry,Physical Sciences,0.0027644
 CWKJEXDG79A7,Health Professions,Health Sciences,0.0020877
 CWKJEXDG79A7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0019933
 CWKJEXDG79A7,Computer Science,Physical Sciences,0.0019216
+D27FSZD2L2U9,Social Sciences,Social Sciences,0.0036677
+D27FSZD2L2U9,Health Professions,Health Sciences,0.0018288000000000002
+D27FSZD2L2U9,Arts and Humanities,Social Sciences,0.001139
+D27FSZD2L2U9,Psychology,Social Sciences,0.0011137
+D27FSZD2L2U9,Engineering,Physical Sciences,0.0006194
+D27FSZD2L2U9,Computer Science,Physical Sciences,0.0005397
+D27FSZD2L2U9,Agricultural and Biological Sciences,Life Sciences,0.0003682
+D27FSZD2L2U9,Medicine,Health Sciences,0.0003253
+D27FSZD2L2U9,Environmental Science,Physical Sciences,0.000322
+D27FSZD2L2U9,Neuroscience,Life Sciences,0.0003142
+D27FSZD2L2U9,Decision Sciences,Social Sciences,0.0002765
 D33QGS3Q3DJ3,Physics and Astronomy,Physical Sciences,0.0250667
 D33QGS3Q3DJ3,Social Sciences,Social Sciences,0.023034699999999998
 D33QGS3Q3DJ3,Chemistry,Physical Sciences,0.0055919
@@ -164,12 +189,6 @@ D3LHU66KBLD5,Social Sciences,Social Sciences,0.0225868
 D3LHU66KBLD5,Mathematics,Physical Sciences,0.0201364
 D3LHU66KBLD5,Immunology and Microbiology,Life Sciences,0.017572
 D3LHU66KBLD5,Environmental Science,Physical Sciences,0.0149203
-D4H1F8KMJJ28,Medicine,Health Sciences,0.0040046
-D4H1F8KMJJ28,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0026077
-D4H1F8KMJJ28,Immunology and Microbiology,Life Sciences,0.0019957
-D4H1F8KMJJ28,Neuroscience,Life Sciences,0.0002866
-D4H1F8KMJJ28,Engineering,Physical Sciences,0.0002753
-D4H1F8KMJJ28,Agricultural and Biological Sciences,Life Sciences,0.000262
 D5S9JZ1KDP49,Engineering,Physical Sciences,0.0009029
 D5S9JZ1KDP49,Computer Science,Physical Sciences,0.0005523
 D5S9JZ1KDP49,"Business, Management and Accounting",Social Sciences,0.0004564
@@ -185,6 +204,14 @@ DAY7Z8ZD48Q3,Arts and Humanities,Social Sciences,0.0119557
 DAY7Z8ZD48Q3,Psychology,Social Sciences,0.0106467
 DAY7Z8ZD48Q3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0031298
 DAY7Z8ZD48Q3,Engineering,Physical Sciences,0.0031045
+DBP4N9GHCA14,Agricultural and Biological Sciences,Life Sciences,0.023359199999999997
+DBP4N9GHCA14,Environmental Science,Physical Sciences,0.0054052
+DBP4N9GHCA14,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0022659
+DDL5KU1YZLP3,Physics and Astronomy,Physical Sciences,0.023193299999999997
+DDL5KU1YZLP3,Engineering,Physical Sciences,0.0016293
+DDL5KU1YZLP3,Chemistry,Physical Sciences,0.0005465
+DDL5KU1YZLP3,Social Sciences,Social Sciences,0.0003508
+DDL5KU1YZLP3,Earth and Planetary Sciences,Physical Sciences,0.0002979
 DFNLDECWM8J8,Materials Science,Physical Sciences,0.0741342
 DFNLDECWM8J8,Chemistry,Physical Sciences,0.013962599999999999
 DFNLDECWM8J8,Engineering,Physical Sciences,0.013751000000000001
@@ -192,17 +219,6 @@ DFNLDECWM8J8,Chemical Engineering,Physical Sciences,0.0073185
 DFNLDECWM8J8,Decision Sciences,Social Sciences,0.005534
 DFNLDECWM8J8,Psychology,Social Sciences,0.0033258
 DFNLDECWM8J8,Social Sciences,Social Sciences,0.0028191
-DJCTQA1PR7Q4,Neuroscience,Life Sciences,0.012863600000000001
-DJCTQA1PR7Q4,Nursing,Health Sciences,0.0083897
-DJCTQA1PR7Q4,Agricultural and Biological Sciences,Life Sciences,0.0029000000000000002
-DJCTQA1PR7Q4,Engineering,Physical Sciences,0.0027296
-DJCTQA1PR7Q4,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0020945
-DJCTQA1PR7Q4,Psychology,Social Sciences,0.0020291
-DJCTQA1PR7Q4,Medicine,Health Sciences,0.0015404
-DJCTQA1PR7Q4,Chemistry,Physical Sciences,0.0011772
-DJCTQA1PR7Q4,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,0.0008871
-DJCTQA1PR7Q4,Social Sciences,Social Sciences,0.0004217
-DJCTQA1PR7Q4,Computer Science,Physical Sciences,0.0003843
 DKMDCB5HNBL7,Medicine,Health Sciences,0.0341208
 DKMDCB5HNBL7,Neuroscience,Life Sciences,0.014275200000000002
 DKMDCB5HNBL7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0137544
@@ -321,6 +337,15 @@ DZ4YCZ3QSPR5,Neuroscience,Life Sciences,0.0053922
 DZ4YCZ3QSPR5,Environmental Science,Physical Sciences,0.0052042
 DZ4YCZ3QSPR5,Immunology and Microbiology,Life Sciences,0.0048821
 DZ4YCZ3QSPR5,Chemical Engineering,Physical Sciences,0.0047804
+DZFJT2KH9C43,Social Sciences,Social Sciences,0.0105298
+DZFJT2KH9C43,Health Professions,Health Sciences,0.0072039
+DZFJT2KH9C43,Physics and Astronomy,Physical Sciences,0.006956100000000001
+DZFJT2KH9C43,Earth and Planetary Sciences,Physical Sciences,0.006098800000000001
+DZFJT2KH9C43,Environmental Science,Physical Sciences,0.002117
+DZFJT2KH9C43,Psychology,Social Sciences,0.0016522
+DZFJT2KH9C43,Medicine,Health Sciences,0.0015842
+DZFJT2KH9C43,Engineering,Physical Sciences,0.000724
+DZFJT2KH9C43,Agricultural and Biological Sciences,Life Sciences,0.0007058
 E13MDBKHLDB5,Engineering,Physical Sciences,0.043363299999999994
 E13MDBKHLDB5,Social Sciences,Social Sciences,0.010651200000000001
 E13MDBKHLDB5,Computer Science,Physical Sciences,0.006351900000000001
@@ -397,17 +422,6 @@ EAL3QNJK3CB9,Neuroscience,Life Sciences,0.0010338
 EAL3QNJK3CB9,Medicine,Health Sciences,0.0008438
 EAL3QNJK3CB9,Arts and Humanities,Social Sciences,0.0002774
 EAL3QNJK3CB9,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,0.0001717
-EAZXZLPJYJZ2,Social Sciences,Social Sciences,0.0034406999999999992
-EAZXZLPJYJZ2,"Business, Management and Accounting",Social Sciences,0.000763
-EAZXZLPJYJZ2,"Economics, Econometrics and Finance",Social Sciences,0.0004109
-EAZXZLPJYJZ2,Arts and Humanities,Social Sciences,0.000409
-EAZXZLPJYJZ2,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0002727
-EAZXZLPJYJZ2,Environmental Science,Physical Sciences,0.0002678
-EAZXZLPJYJZ2,Mathematics,Physical Sciences,0.0002619
-EAZXZLPJYJZ2,Physics and Astronomy,Physical Sciences,0.0002344
-EAZXZLPJYJZ2,Chemistry,Physical Sciences,0.0002016
-EAZXZLPJYJZ2,Materials Science,Physical Sciences,0.0001911
-EAZXZLPJYJZ2,Health Professions,Health Sciences,0.000178
 EB8ASJBCFER9,Earth and Planetary Sciences,Physical Sciences,0.0304895
 EB8ASJBCFER9,Medicine,Health Sciences,0.023499700000000002
 EB8ASJBCFER9,Physics and Astronomy,Physical Sciences,0.0121573
@@ -419,6 +433,11 @@ EB8ASJBCFER9,Environmental Science,Physical Sciences,0.0046767
 EB8ASJBCFER9,"Business, Management and Accounting",Social Sciences,0.0046576
 EB8ASJBCFER9,Health Professions,Health Sciences,0.0046161
 EB8ASJBCFER9,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0039114
+ECESTN2SSVH1,Social Sciences,Social Sciences,0.0940688
+ECESTN2SSVH1,"Business, Management and Accounting",Social Sciences,0.032109900000000004
+ECESTN2SSVH1,Arts and Humanities,Social Sciences,0.0189533
+ECESTN2SSVH1,"Economics, Econometrics and Finance",Social Sciences,0.014737499999999999
+ECESTN2SSVH1,Psychology,Social Sciences,0.0043305
 ECQEYCHRNKJ4,Social Sciences,Social Sciences,0.0524178
 ECQEYCHRNKJ4,Physics and Astronomy,Physical Sciences,0.0183613
 ECQEYCHRNKJ4,Earth and Planetary Sciences,Physical Sciences,0.014927300000000001
@@ -691,13 +710,6 @@ F4SLJ5WF59F6,Arts and Humanities,Social Sciences,0.0039889
 F4SLJ5WF59F6,Physics and Astronomy,Physical Sciences,0.0024467
 F4SLJ5WF59F6,Health Professions,Health Sciences,0.0023816
 F4SLJ5WF59F6,Immunology and Microbiology,Life Sciences,0.0019814
-F696R1G6DN85,Medicine,Health Sciences,5.3200000000000006e-05
-F696R1G6DN85,Agricultural and Biological Sciences,Life Sciences,4.28e-05
-F696R1G6DN85,"Biochemistry, Genetics and Molecular Biology",Life Sciences,3.93e-05
-F696R1G6DN85,Environmental Science,Physical Sciences,3.79e-05
-F696R1G6DN85,Arts and Humanities,Social Sciences,3.24e-05
-F696R1G6DN85,Engineering,Physical Sciences,1.17e-05
-F696R1G6DN85,Decision Sciences,Social Sciences,3.7e-06
 F6G9C4HMNHW4,Engineering,Physical Sciences,0.0367773
 F6G9C4HMNHW4,Social Sciences,Social Sciences,0.016843
 F6G9C4HMNHW4,Psychology,Social Sciences,0.0032243999999999997
@@ -799,12 +811,6 @@ FN2YCS2YAUW3,Agricultural and Biological Sciences,Life Sciences,0.030398
 FN2YCS2YAUW3,Medicine,Health Sciences,0.025847000000000002
 FN2YCS2YAUW3,Materials Science,Physical Sciences,0.0135793
 FN2YCS2YAUW3,Environmental Science,Physical Sciences,0.010655
-FPCUDWBE7DX2,Medicine,Health Sciences,0.0214435
-FPCUDWBE7DX2,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0026824
-FPCUDWBE7DX2,Veterinary,Health Sciences,0.0025147
-FPCUDWBE7DX2,Immunology and Microbiology,Life Sciences,0.0015788999999999998
-FPCUDWBE7DX2,Chemistry,Physical Sciences,0.001084
-FPCUDWBE7DX2,Agricultural and Biological Sciences,Life Sciences,0.0005746
 FPU6XGFXMBE9,Arts and Humanities,Social Sciences,0.0654338
 FPU6XGFXMBE9,Social Sciences,Social Sciences,0.049612
 FPU6XGFXMBE9,Physics and Astronomy,Physical Sciences,0.0430036
@@ -813,6 +819,14 @@ FPU6XGFXMBE9,Engineering,Physical Sciences,0.0139998
 FPU6XGFXMBE9,"Economics, Econometrics and Finance",Social Sciences,0.0083837
 FPU6XGFXMBE9,Mathematics,Physical Sciences,0.0080327
 FPU6XGFXMBE9,"Business, Management and Accounting",Social Sciences,0.0068744
+FTAAW94S6LC6,Social Sciences,Social Sciences,0.006414399999999999
+FTAAW94S6LC6,Engineering,Physical Sciences,0.0063835
+FTAAW94S6LC6,Computer Science,Physical Sciences,0.0034464
+FTAAW94S6LC6,"Business, Management and Accounting",Social Sciences,0.0020672
+FTAAW94S6LC6,Physics and Astronomy,Physical Sciences,0.0012188
+FTAAW94S6LC6,Health Professions,Health Sciences,0.0007459
+FTAAW94S6LC6,Psychology,Social Sciences,0.0006618
+FTAAW94S6LC6,Medicine,Health Sciences,0.0006198
 FTMTDMBR29C7,Medicine,Health Sciences,0.36751980000000006
 FTMTDMBR29C7,Health Professions,Health Sciences,0.0696244
 FTMTDMBR29C7,Social Sciences,Social Sciences,0.0644419
@@ -938,6 +952,15 @@ GBNGC495XA67,Agricultural and Biological Sciences,Life Sciences,0.001408
 GFKFBWG2TV98,Earth and Planetary Sciences,Physical Sciences,0.15647969999999997
 GFKFBWG2TV98,Environmental Science,Physical Sciences,0.07302949999999998
 GFKFBWG2TV98,Engineering,Physical Sciences,0.0118952
+GGFBMCXBJLY1,Engineering,Physical Sciences,0.10360710000000001
+GGFBMCXBJLY1,Agricultural and Biological Sciences,Life Sciences,0.06223
+GGFBMCXBJLY1,Veterinary,Health Sciences,0.0400955
+GGFBMCXBJLY1,Environmental Science,Physical Sciences,0.0233037
+GGFBMCXBJLY1,Physics and Astronomy,Physical Sciences,0.0198951
+GGFBMCXBJLY1,Materials Science,Physical Sciences,0.0149034
+GGFBMCXBJLY1,Medicine,Health Sciences,0.0140812
+GGFBMCXBJLY1,Mathematics,Physical Sciences,0.0108322
+GGFBMCXBJLY1,Psychology,Social Sciences,0.0103944
 GKMSN3DA6P91,Engineering,Physical Sciences,0.0397332
 GKMSN3DA6P91,Environmental Science,Physical Sciences,0.016659999999999998
 GKMSN3DA6P91,Materials Science,Physical Sciences,0.008008000000000001
@@ -1215,13 +1238,6 @@ HTQ6K6NJFHA6,"Economics, Econometrics and Finance",Social Sciences,0.00083890000
 HTQ6K6NJFHA6,Medicine,Health Sciences,0.0007455000000000001
 HTQ6K6NJFHA6,Decision Sciences,Social Sciences,0.0003799
 HTQ6K6NJFHA6,Environmental Science,Physical Sciences,0.0003577
-HVE6K4YS3B51,Social Sciences,Social Sciences,0.007112800000000001
-HVE6K4YS3B51,Medicine,Health Sciences,0.0043961
-HVE6K4YS3B51,Environmental Science,Physical Sciences,0.0027639
-HVE6K4YS3B51,Health Professions,Health Sciences,0.0017402999999999997
-HVE6K4YS3B51,"Economics, Econometrics and Finance",Social Sciences,0.0006636
-HVE6K4YS3B51,Agricultural and Biological Sciences,Life Sciences,0.0006077
-HVE6K4YS3B51,"Business, Management and Accounting",Social Sciences,0.0004603
 HWPEKM8VFTJ9,Social Sciences,Social Sciences,0.0212699
 HWPEKM8VFTJ9,Health Professions,Health Sciences,0.0166029
 HWPEKM8VFTJ9,Psychology,Social Sciences,0.0116059
@@ -1258,6 +1274,13 @@ HYYJJ5ZP7CR9,Computer Science,Physical Sciences,0.0013391
 HYYJJ5ZP7CR9,Medicine,Health Sciences,0.0008088
 HYYJJ5ZP7CR9,Health Professions,Health Sciences,0.0006637
 HYYJJ5ZP7CR9,Nursing,Health Sciences,0.0004661
+HZJ2JZUALWN4,Engineering,Physical Sciences,0.015733300000000002
+HZJ2JZUALWN4,Physics and Astronomy,Physical Sciences,0.014386300000000001
+HZJ2JZUALWN4,Earth and Planetary Sciences,Physical Sciences,0.011253200000000001
+HZJ2JZUALWN4,Environmental Science,Physical Sciences,0.008724899999999999
+HZJ2JZUALWN4,Social Sciences,Social Sciences,0.0051419
+HZJ2JZUALWN4,Decision Sciences,Social Sciences,0.0016151
+HZJ2JZUALWN4,Computer Science,Physical Sciences,0.0015022
 J19ZXYATJLT3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.020914999999999996
 J19ZXYATJLT3,Medicine,Health Sciences,0.0128371
 J22LNTMEDP73,Social Sciences,Social Sciences,0.061622699999999996
@@ -1329,16 +1352,6 @@ JBQ9M3PLFDP5,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0012
 JBQ9M3PLFDP5,Neuroscience,Life Sciences,0.0011493
 JBQ9M3PLFDP5,Medicine,Health Sciences,0.0010556
 JBQ9M3PLFDP5,Psychology,Social Sciences,0.0010471
-JCALBPNMAHF3,Agricultural and Biological Sciences,Life Sciences,0.0051208
-JCALBPNMAHF3,Medicine,Health Sciences,0.0043534
-JCALBPNMAHF3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0038049
-JCALBPNMAHF3,Health Professions,Health Sciences,0.0012193
-JCALBPNMAHF3,Immunology and Microbiology,Life Sciences,0.0008960999999999999
-JCALBPNMAHF3,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,0.0006839
-JCALBPNMAHF3,Social Sciences,Social Sciences,0.0005804
-JCALBPNMAHF3,Environmental Science,Physical Sciences,0.0004312
-JCALBPNMAHF3,"Economics, Econometrics and Finance",Social Sciences,0.0004098
-JCALBPNMAHF3,Arts and Humanities,Social Sciences,0.0004013
 JDLVAVGYJQ21,Medicine,Health Sciences,0.36751980000000006
 JDLVAVGYJQ21,Health Professions,Health Sciences,0.0696244
 JDLVAVGYJQ21,Social Sciences,Social Sciences,0.0644419
@@ -1416,6 +1429,15 @@ JJHCMK4NT5N3,Neuroscience,Life Sciences,0.0027966
 JJHCMK4NT5N3,Psychology,Social Sciences,0.0025551
 JJHCMK4NT5N3,"Economics, Econometrics and Finance",Social Sciences,0.0025366
 JJHCMK4NT5N3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.002263
+JJKGF97BMBE1,Engineering,Physical Sciences,0.0049280999999999995
+JJKGF97BMBE1,Environmental Science,Physical Sciences,0.0021945999999999997
+JJKGF97BMBE1,Earth and Planetary Sciences,Physical Sciences,0.0015094000000000002
+JJKGF97BMBE1,Social Sciences,Social Sciences,0.0007809
+JJKGF97BMBE1,Psychology,Social Sciences,0.0006066
+JJKGF97BMBE1,Arts and Humanities,Social Sciences,0.0004182
+JJKGF97BMBE1,Agricultural and Biological Sciences,Life Sciences,0.0003134
+JJKGF97BMBE1,Health Professions,Health Sciences,0.0002787
+JJKGF97BMBE1,Decision Sciences,Social Sciences,0.0002765
 JKKNZLNYLJ19,Engineering,Physical Sciences,0.016333
 JKKNZLNYLJ19,Social Sciences,Social Sciences,0.0055374000000000005
 JKKNZLNYLJ19,Psychology,Social Sciences,0.0053939999999999995
@@ -1429,16 +1451,6 @@ JL4JHE9SDRR3,Medicine,Health Sciences,0.1900237
 JL4JHE9SDRR3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0354186
 JL4JHE9SDRR3,Social Sciences,Social Sciences,0.005216
 JL4JHE9SDRR3,Agricultural and Biological Sciences,Life Sciences,0.0045278
-JMGMMM7BMBT6,Social Sciences,Social Sciences,0.0084305
-JMGMMM7BMBT6,Engineering,Physical Sciences,0.006338
-JMGMMM7BMBT6,"Business, Management and Accounting",Social Sciences,0.0049625
-JMGMMM7BMBT6,Computer Science,Physical Sciences,0.0022171
-JMGMMM7BMBT6,Environmental Science,Physical Sciences,0.0019876
-JMGMMM7BMBT6,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0012127
-JMGMMM7BMBT6,Earth and Planetary Sciences,Physical Sciences,0.0010435
-JMGMMM7BMBT6,Chemistry,Physical Sciences,0.000994
-JMGMMM7BMBT6,Psychology,Social Sciences,0.0009718
-JMGMMM7BMBT6,Health Professions,Health Sciences,0.0009033
 JNBLLTBTLLD8,Medicine,Health Sciences,0.0246448
 JNBLLTBTLLD8,Arts and Humanities,Social Sciences,0.0110445
 JNBLLTBTLLD8,Health Professions,Health Sciences,0.0082208
@@ -1468,6 +1480,17 @@ JW2NGMP4NMA3,Engineering,Physical Sciences,0.08098230000000001
 JW2NGMP4NMA3,Environmental Science,Physical Sciences,0.0249195
 JW2NGMP4NMA3,Earth and Planetary Sciences,Physical Sciences,0.0198428
 JW2NGMP4NMA3,Materials Science,Physical Sciences,0.0061098
+JW7MLW3RRK34,Environmental Science,Physical Sciences,0.009217699999999999
+JW7MLW3RRK34,Physics and Astronomy,Physical Sciences,0.0047112
+JW7MLW3RRK34,Agricultural and Biological Sciences,Life Sciences,0.0042685
+JW7MLW3RRK34,Medicine,Health Sciences,0.0036787
+JW7MLW3RRK34,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0027987000000000003
+JW7MLW3RRK34,Materials Science,Physical Sciences,0.0023144000000000003
+JW7MLW3RRK34,Health Professions,Health Sciences,0.0020582
+JW7MLW3RRK34,Engineering,Physical Sciences,0.0015383
+JW7MLW3RRK34,Chemical Engineering,Physical Sciences,0.0010237
+JW7MLW3RRK34,Social Sciences,Social Sciences,0.0010232
+JW7MLW3RRK34,Veterinary,Health Sciences,0.0010033
 JWSYC7RUMJD1,Arts and Humanities,Social Sciences,0.0909016
 JWSYC7RUMJD1,Social Sciences,Social Sciences,0.0805809
 JWSYC7RUMJD1,Engineering,Physical Sciences,0.0232288
@@ -1490,15 +1513,6 @@ JZDRNT166LE4,Medicine,Health Sciences,0.0467631
 JZDRNT166LE4,Immunology and Microbiology,Life Sciences,0.0040033
 JZDRNT166LE4,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0034653
 JZDRNT166LE4,"Business, Management and Accounting",Social Sciences,0.0030678
-K3YFW6S3YQ67,Medicine,Health Sciences,0.0005725999999999999
-K3YFW6S3YQ67,Health Professions,Health Sciences,0.0005673
-K3YFW6S3YQ67,Psychology,Social Sciences,0.000525
-K3YFW6S3YQ67,Social Sciences,Social Sciences,0.00017549999999999998
-K3YFW6S3YQ67,Nursing,Health Sciences,0.0001528
-K3YFW6S3YQ67,Engineering,Physical Sciences,0.0001303
-K3YFW6S3YQ67,Chemistry,Physical Sciences,9.93e-05
-K3YFW6S3YQ67,Decision Sciences,Social Sciences,8.24e-05
-K3YFW6S3YQ67,Materials Science,Physical Sciences,6.85e-05
 K49BLGJHG935,Medicine,Health Sciences,0.0015665000000000002
 K49BLGJHG935,Health Professions,Health Sciences,0.001281
 K49BLGJHG935,Engineering,Physical Sciences,0.0005526
@@ -1572,11 +1586,6 @@ KMZBB7SJBP72,Chemical Engineering,Physical Sciences,5.85e-05
 KMZBB7SJBP72,Engineering,Physical Sciences,4.51e-05
 KMZBB7SJBP72,Agricultural and Biological Sciences,Life Sciences,4.17e-05
 KMZBB7SJBP72,Health Professions,Health Sciences,3.56e-05
-KNSQZPJ3K775,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0285516
-KNSQZPJ3K775,Environmental Science,Physical Sciences,0.0018026
-KNSQZPJ3K775,Agricultural and Biological Sciences,Life Sciences,0.0011347
-KNSQZPJ3K775,Neuroscience,Life Sciences,0.0011298
-KNSQZPJ3K775,Earth and Planetary Sciences,Physical Sciences,0.0007545
 KSJKE3KVNBB4,Physics and Astronomy,Physical Sciences,0.0154665
 KSJKE3KVNBB4,Engineering,Physical Sciences,0.0042134
 KSJKE3KVNBB4,Earth and Planetary Sciences,Physical Sciences,0.0038252
@@ -1632,6 +1641,12 @@ KXNVA7JCC5K6,Engineering,Physical Sciences,0.0052526
 KXNVA7JCC5K6,Neuroscience,Life Sciences,0.0046731
 KXNVA7JCC5K6,Environmental Science,Physical Sciences,0.0035408
 KXNVA7JCC5K6,Health Professions,Health Sciences,0.0034546
+KZNHNMDUTJA5,Engineering,Physical Sciences,0.0252011
+KZNHNMDUTJA5,Computer Science,Physical Sciences,0.0048092000000000005
+KZNHNMDUTJA5,Physics and Astronomy,Physical Sciences,0.0029325
+KZNHNMDUTJA5,Social Sciences,Social Sciences,0.0026963
+KZNHNMDUTJA5,Arts and Humanities,Social Sciences,0.000952
+KZNHNMDUTJA5,Materials Science,Physical Sciences,0.0009341
 L1DXXP1KGP77,Social Sciences,Social Sciences,0.009181299999999998
 L1DXXP1KGP77,Psychology,Social Sciences,0.0013131000000000002
 L1DXXP1KGP77,Physics and Astronomy,Physical Sciences,0.0009178
@@ -1666,11 +1681,6 @@ L6NFUM28LQM5,Earth and Planetary Sciences,Physical Sciences,0.0351131
 L6NFUM28LQM5,Social Sciences,Social Sciences,0.0320403
 L6NFUM28LQM5,Environmental Science,Physical Sciences,0.030161
 L6NFUM28LQM5,Computer Science,Physical Sciences,0.0163495
-L8RJFGJXXS36,Neuroscience,Life Sciences,0.0033483000000000007
-L8RJFGJXXS36,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0016866
-L8RJFGJXXS36,Decision Sciences,Social Sciences,0.0001868
-L8RJFGJXXS36,Engineering,Physical Sciences,0.0001448
-L8RJFGJXXS36,Medicine,Health Sciences,0.0001182
 L952KGDMSLV5,Social Sciences,Social Sciences,0.0004681
 L952KGDMSLV5,Agricultural and Biological Sciences,Life Sciences,8.060000000000001e-05
 L952KGDMSLV5,Materials Science,Physical Sciences,7.67e-05
@@ -1699,15 +1709,6 @@ LCLSJAGTNZQ7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0012
 LCLSJAGTNZQ7,Neuroscience,Life Sciences,0.0011493
 LCLSJAGTNZQ7,Medicine,Health Sciences,0.0010556
 LCLSJAGTNZQ7,Psychology,Social Sciences,0.0010471
-LF77GRM3FWG5,Social Sciences,Social Sciences,0.003718
-LF77GRM3FWG5,Agricultural and Biological Sciences,Life Sciences,0.0036407
-LF77GRM3FWG5,Earth and Planetary Sciences,Physical Sciences,0.0020788
-LF77GRM3FWG5,Arts and Humanities,Social Sciences,0.0016749
-LF77GRM3FWG5,"Business, Management and Accounting",Social Sciences,0.0009705
-LF77GRM3FWG5,"Economics, Econometrics and Finance",Social Sciences,0.0008389000000000001
-LF77GRM3FWG5,Medicine,Health Sciences,0.0007455000000000001
-LF77GRM3FWG5,Decision Sciences,Social Sciences,0.0003799
-LF77GRM3FWG5,Environmental Science,Physical Sciences,0.0003577
 LFDKLGTB62C4,Physics and Astronomy,Physical Sciences,0.023193299999999997
 LFDKLGTB62C4,Engineering,Physical Sciences,0.0016293
 LFDKLGTB62C4,Chemistry,Physical Sciences,0.0005465
@@ -1799,11 +1800,6 @@ LNGXAKMH8J26,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0001
 LNGXAKMH8J26,Nursing,Health Sciences,0.0001152
 LNGXAKMH8J26,"Business, Management and Accounting",Social Sciences,0.0001022
 LNGXAKMH8J26,"Economics, Econometrics and Finance",Social Sciences,9.11e-05
-LT8YKFJDVKJ3,Medicine,Health Sciences,0.0056947
-LT8YKFJDVKJ3,Health Professions,Health Sciences,0.0034764999999999996
-LT8YKFJDVKJ3,Psychology,Social Sciences,0.0018391
-LT8YKFJDVKJ3,Social Sciences,Social Sciences,0.0015528999999999999
-LT8YKFJDVKJ3,Decision Sciences,Social Sciences,0.0004743
 LT9CXX8L19G1,Environmental Science,Physical Sciences,0.1097813
 LT9CXX8L19G1,Veterinary,Health Sciences,0.066336
 LT9CXX8L19G1,Earth and Planetary Sciences,Physical Sciences,0.053366899999999995
@@ -1965,13 +1961,6 @@ MAYKB1LWD5U9,"Economics, Econometrics and Finance",Social Sciences,0.0002277
 MAYKB1LWD5U9,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.000192
 MAYKB1LWD5U9,Neuroscience,Life Sciences,0.0001895
 MAYKB1LWD5U9,Immunology and Microbiology,Life Sciences,0.0001745
-MBBKNBU5DCC6,Medicine,Health Sciences,0.0007307
-MBBKNBU5DCC6,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.00042790000000000005
-MBBKNBU5DCC6,Immunology and Microbiology,Life Sciences,0.0001625
-MBBKNBU5DCC6,Environmental Science,Physical Sciences,5.8e-05
-MBBKNBU5DCC6,Agricultural and Biological Sciences,Life Sciences,3.37e-05
-MBBKNBU5DCC6,Neuroscience,Life Sciences,2.12e-05
-MBBKNBU5DCC6,Chemistry,Physical Sciences,1.94e-05
 MBD2CZMR5N48,Agricultural and Biological Sciences,Life Sciences,0.0019927
 MBD2CZMR5N48,Social Sciences,Social Sciences,0.0010345999999999999
 MBD2CZMR5N48,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0010054
@@ -1986,13 +1975,6 @@ MBD2CZMR5N48,Medicine,Health Sciences,0.0001856
 MBKKNQM9QME3,Medicine,Health Sciences,0.025640300000000005
 MBKKNQM9QME3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.006852799999999999
 MBKKNQM9QME3,Health Professions,Health Sciences,0.0012261
-MBT9RXJJ7428,Medicine,Health Sciences,0.0073586
-MBT9RXJJ7428,Environmental Science,Physical Sciences,0.004527
-MBT9RXJJ7428,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0028656
-MBT9RXJJ7428,Engineering,Physical Sciences,0.0011909
-MBT9RXJJ7428,Health Professions,Health Sciences,0.0006431
-MBT9RXJJ7428,Chemical Engineering,Physical Sciences,0.0005849
-MBT9RXJJ7428,Neuroscience,Life Sciences,0.000508
 MBU6HCLNZ431,Medicine,Health Sciences,0.1247115
 MBU6HCLNZ431,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0122922
 MBU6HCLNZ431,Immunology and Microbiology,Life Sciences,0.0081269
@@ -2087,9 +2069,6 @@ MNJDKB4FXLM6,Mathematics,Physical Sciences,0.007934
 MNJDKB4FXLM6,Medicine,Health Sciences,0.0077128
 MNJDKB4FXLM6,Psychology,Social Sciences,0.006998
 MNJDKB4FXLM6,Social Sciences,Social Sciences,0.0067433
-MNMJWSC5Z4H1,Physics and Astronomy,Physical Sciences,0.0819652
-MNMJWSC5Z4H1,Mathematics,Physical Sciences,0.0507829
-MNMJWSC5Z4H1,Computer Science,Physical Sciences,0.004214
 MNS7B9CVKDN7,Social Sciences,Social Sciences,0.10826140000000001
 MNS7B9CVKDN7,Psychology,Social Sciences,0.0297923
 MNS7B9CVKDN7,Neuroscience,Life Sciences,0.0053296
@@ -2124,11 +2103,6 @@ MR7ZQXJSQKA5,Environmental Science,Physical Sciences,1.31e-05
 MR7ZQXJSQKA5,Chemistry,Physical Sciences,9e-06
 MR7ZQXJSQKA5,Decision Sciences,Social Sciences,6.7e-06
 MR7ZQXJSQKA5,Mathematics,Physical Sciences,6.2e-06
-MS3QH9KM4EN5,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,9.37e-05
-MS3QH9KM4EN5,Neuroscience,Life Sciences,6.41e-05
-MS3QH9KM4EN5,Medicine,Health Sciences,3.37e-05
-MS3QH9KM4EN5,"Biochemistry, Genetics and Molecular Biology",Life Sciences,2.38e-05
-MS3QH9KM4EN5,Psychology,Social Sciences,2.34e-05
 MSPWVMXXMN76,Medicine,Health Sciences,0.0896723
 MSPWVMXXMN76,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0300313
 MSPWVMXXMN76,Immunology and Microbiology,Life Sciences,0.010872099999999999
@@ -2204,12 +2178,6 @@ N52NHWMBZNG5,Medicine,Health Sciences,0.053866599999999994
 N52NHWMBZNG5,Health Professions,Health Sciences,0.0059904
 N52NHWMBZNG5,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0021086
 N52NHWMBZNG5,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,0.0020468
-N58JMBDDUGU7,Social Sciences,Social Sciences,0.0152007
-N58JMBDDUGU7,Psychology,Social Sciences,0.0043816
-N58JMBDDUGU7,Agricultural and Biological Sciences,Life Sciences,0.0026185
-N58JMBDDUGU7,"Business, Management and Accounting",Social Sciences,0.0020921
-N58JMBDDUGU7,Computer Science,Physical Sciences,0.0017959
-N58JMBDDUGU7,Decision Sciences,Social Sciences,0.0009285
 N63ZMY7UETA3,Agricultural and Biological Sciences,Life Sciences,0.007069400000000001
 N63ZMY7UETA3,Physics and Astronomy,Physical Sciences,0.005455
 N63ZMY7UETA3,Engineering,Physical Sciences,0.0043628
@@ -2435,15 +2403,6 @@ NVUWAFWQ57S5,Decision Sciences,Social Sciences,0.0007196
 NVUWAFWQ57S5,Agricultural and Biological Sciences,Life Sciences,0.0006963
 NVUWAFWQ57S5,Psychology,Social Sciences,0.0006705
 NVUWAFWQ57S5,Environmental Science,Physical Sciences,0.0006406
-NWQ2AMLQTLN6,Engineering,Physical Sciences,0.0032946
-NWQ2AMLQTLN6,Medicine,Health Sciences,0.0016218
-NWQ2AMLQTLN6,Social Sciences,Social Sciences,0.0010492
-NWQ2AMLQTLN6,Computer Science,Physical Sciences,0.0008517
-NWQ2AMLQTLN6,Environmental Science,Physical Sciences,0.0006096
-NWQ2AMLQTLN6,Decision Sciences,Social Sciences,0.0005468000000000001
-NWQ2AMLQTLN6,Psychology,Social Sciences,0.0003314
-NWQ2AMLQTLN6,Veterinary,Health Sciences,0.0003052
-NWQ2AMLQTLN6,Mathematics,Physical Sciences,0.0002601
 NX9PXMKW5KW8,Social Sciences,Social Sciences,0.0855466
 NX9PXMKW5KW8,"Economics, Econometrics and Finance",Social Sciences,0.0764323
 NX9PXMKW5KW8,Neuroscience,Life Sciences,0.050197099999999995
@@ -2482,6 +2441,13 @@ P2TDH1JCJD31,Arts and Humanities,Social Sciences,0.0019692
 P2TDH1JCJD31,Health Professions,Health Sciences,0.0016122
 P2TDH1JCJD31,Engineering,Physical Sciences,0.0014008
 P2TDH1JCJD31,Materials Science,Physical Sciences,0.0013309
+PB11V1KH3KV4,Physics and Astronomy,Physical Sciences,0.0598945
+PB11V1KH3KV4,Engineering,Physical Sciences,0.03866490000000001
+PB11V1KH3KV4,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0071458
+PB11V1KH3KV4,Materials Science,Physical Sciences,0.0058982
+PB11V1KH3KV4,Chemical Engineering,Physical Sciences,0.0040641
+PB11V1KH3KV4,Environmental Science,Physical Sciences,0.0031287
+PB11V1KH3KV4,Earth and Planetary Sciences,Physical Sciences,0.0021941
 PB3AJE5ZEJ59,Social Sciences,Social Sciences,0.005060999999999999
 PB3AJE5ZEJ59,Environmental Science,Physical Sciences,0.0016176
 PB3AJE5ZEJ59,"Business, Management and Accounting",Social Sciences,0.0008381
@@ -2532,6 +2498,17 @@ PKFJZHG2MLG9,Physics and Astronomy,Physical Sciences,0.0013843
 PKFJZHG2MLG9,Social Sciences,Social Sciences,0.0010731
 PKFJZHG2MLG9,Earth and Planetary Sciences,Physical Sciences,0.0009544
 PKFJZHG2MLG9,Decision Sciences,Social Sciences,0.0008685
+PMMKPCKNN9R2,Earth and Planetary Sciences,Physical Sciences,0.0066485
+PMMKPCKNN9R2,"Business, Management and Accounting",Social Sciences,0.006146800000000001
+PMMKPCKNN9R2,Environmental Science,Physical Sciences,0.005645
+PMMKPCKNN9R2,Engineering,Physical Sciences,0.0054475
+PMMKPCKNN9R2,Computer Science,Physical Sciences,0.0044656999999999995
+PMMKPCKNN9R2,Social Sciences,Social Sciences,0.0019630999999999997
+PMMKPCKNN9R2,Energy,Physical Sciences,0.0016034
+PMMKPCKNN9R2,Physics and Astronomy,Physical Sciences,0.0013332
+PMMKPCKNN9R2,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0010874
+PMMKPCKNN9R2,Materials Science,Physical Sciences,0.0010478
+PMMKPCKNN9R2,Decision Sciences,Social Sciences,0.001012
 Q266L2NDAVP1,"Business, Management and Accounting",Social Sciences,0.0309818
 Q266L2NDAVP1,Computer Science,Physical Sciences,0.0177178
 Q266L2NDAVP1,Social Sciences,Social Sciences,0.0104455
@@ -2559,6 +2536,12 @@ Q3LLLDFHPNL3,Psychology,Social Sciences,0.0033218
 Q3LLLDFHPNL3,Engineering,Physical Sciences,0.0024826
 Q3LLLDFHPNL3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0016984
 Q3LLLDFHPNL3,Environmental Science,Physical Sciences,0.0015798
+Q7KKMKT2ANN7,Physics and Astronomy,Physical Sciences,0.11786180000000002
+Q7KKMKT2ANN7,Earth and Planetary Sciences,Physical Sciences,0.10089270000000002
+Q7KKMKT2ANN7,Environmental Science,Physical Sciences,0.0223545
+Q7KKMKT2ANN7,Engineering,Physical Sciences,0.0189786
+Q7KKMKT2ANN7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0166645
+Q7KKMKT2ANN7,Computer Science,Physical Sciences,0.0070336
 Q7N8CH7NR418,Agricultural and Biological Sciences,Life Sciences,0.05367349999999999
 Q7N8CH7NR418,Earth and Planetary Sciences,Physical Sciences,0.035365
 Q7N8CH7NR418,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.030076600000000002
@@ -2576,6 +2559,14 @@ QB12VPNQQFE8,Neuroscience,Life Sciences,0.0016816
 QB12VPNQQFE8,Computer Science,Physical Sciences,0.001503
 QB12VPNQQFE8,Earth and Planetary Sciences,Physical Sciences,0.0013514
 QB12VPNQQFE8,Arts and Humanities,Social Sciences,0.0012052
+QCKAHGYGVCE4,Physics and Astronomy,Physical Sciences,0.0089726
+QCKAHGYGVCE4,Environmental Science,Physical Sciences,0.0048292
+QCKAHGYGVCE4,Earth and Planetary Sciences,Physical Sciences,0.0038158000000000003
+QCKAHGYGVCE4,Engineering,Physical Sciences,0.0024047
+QCKAHGYGVCE4,Medicine,Health Sciences,0.0005828
+QCKAHGYGVCE4,Computer Science,Physical Sciences,0.0004855
+QCKAHGYGVCE4,Agricultural and Biological Sciences,Life Sciences,0.0004053
+QCKAHGYGVCE4,Chemistry,Physical Sciences,0.0003847
 QD1MX6N5YTN4,Engineering,Physical Sciences,0.10360710000000001
 QD1MX6N5YTN4,Agricultural and Biological Sciences,Life Sciences,0.06223
 QD1MX6N5YTN4,Veterinary,Health Sciences,0.0400955
@@ -2594,16 +2585,6 @@ QD4MGHFDJKU1,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0050
 QD4MGHFDJKU1,Engineering,Physical Sciences,0.0048675
 QD4MGHFDJKU1,"Business, Management and Accounting",Social Sciences,0.0042548
 QD4MGHFDJKU1,Arts and Humanities,Social Sciences,0.0040645
-QD7TRLY8JPJ4,Social Sciences,Social Sciences,0.0006343
-QD7TRLY8JPJ4,"Economics, Econometrics and Finance",Social Sciences,0.0002362
-QD7TRLY8JPJ4,Environmental Science,Physical Sciences,0.00019779999999999998
-QD7TRLY8JPJ4,"Business, Management and Accounting",Social Sciences,0.00019740000000000003
-QD7TRLY8JPJ4,Medicine,Health Sciences,0.0001638
-QD7TRLY8JPJ4,Engineering,Physical Sciences,6.78e-05
-QD7TRLY8JPJ4,Computer Science,Physical Sciences,6.06e-05
-QD7TRLY8JPJ4,Psychology,Social Sciences,4.43e-05
-QD7TRLY8JPJ4,"Biochemistry, Genetics and Molecular Biology",Life Sciences,2.89e-05
-QD7TRLY8JPJ4,Health Professions,Health Sciences,2.87e-05
 QDE5UHE5XD16,Engineering,Physical Sciences,0.1637883
 QDE5UHE5XD16,Computer Science,Physical Sciences,0.0305458
 QDE5UHE5XD16,Environmental Science,Physical Sciences,0.0217696
@@ -2669,13 +2650,6 @@ QN6MS4VN7BD1,Health Professions,Health Sciences,0.0285537
 QN6MS4VN7BD1,Psychology,Social Sciences,0.0142121
 QN6MS4VN7BD1,Social Sciences,Social Sciences,0.0139081
 QN6MS4VN7BD1,"Economics, Econometrics and Finance",Social Sciences,0.0137502
-QUF6D3M4P2G1,Neuroscience,Life Sciences,0.009547799999999999
-QUF6D3M4P2G1,Medicine,Health Sciences,0.007255199999999999
-QUF6D3M4P2G1,Psychology,Social Sciences,0.0043143
-QUF6D3M4P2G1,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0012569999999999999
-QUF6D3M4P2G1,Computer Science,Physical Sciences,0.001124
-QUF6D3M4P2G1,Mathematics,Physical Sciences,0.0004975
-QUF6D3M4P2G1,Social Sciences,Social Sciences,0.0003878
 QWYKRJH5NNJ3,Environmental Science,Physical Sciences,0.050969
 QWYKRJH5NNJ3,Earth and Planetary Sciences,Physical Sciences,0.0357794
 QWYKRJH5NNJ3,Agricultural and Biological Sciences,Life Sciences,0.0336116
@@ -2692,10 +2666,6 @@ R28EKN92ZTZ9,Medicine,Health Sciences,0.0122764
 R28EKN92ZTZ9,Computer Science,Physical Sciences,0.0106655
 R28EKN92ZTZ9,Decision Sciences,Social Sciences,0.0103869
 R28EKN92ZTZ9,Arts and Humanities,Social Sciences,0.0100361
-R85KZ9JP3NM3,Physics and Astronomy,Physical Sciences,0.2412278
-R85KZ9JP3NM3,Engineering,Physical Sciences,0.0352479
-R85KZ9JP3NM3,Materials Science,Physical Sciences,0.029795
-R85KZ9JP3NM3,Medicine,Health Sciences,0.0074998
 R8JEVL4ULGB7,Medicine,Health Sciences,0.1092718
 R8JEVL4ULGB7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.031716
 R8JEVL4ULGB7,Social Sciences,Social Sciences,0.0052863
@@ -2786,6 +2756,20 @@ S3GMKS8ELA16,Medicine,Health Sciences,0.6056395000000001
 S3GMKS8ELA16,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.1403171
 S3GMKS8ELA16,Physics and Astronomy,Physical Sciences,0.0295578
 S3GMKS8ELA16,"Economics, Econometrics and Finance",Social Sciences,0.0247686
+S9GFNEC7QLZ7,Social Sciences,Social Sciences,0.0004681
+S9GFNEC7QLZ7,Agricultural and Biological Sciences,Life Sciences,8.060000000000001e-05
+S9GFNEC7QLZ7,Materials Science,Physical Sciences,7.67e-05
+S9GFNEC7QLZ7,Decision Sciences,Social Sciences,7.65e-05
+S9GFNEC7QLZ7,Computer Science,Physical Sciences,7.31e-05
+S9GFNEC7QLZ7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,7.13e-05
+S9GFNEC7QLZ7,Psychology,Social Sciences,6.26e-05
+S9GFNEC7QLZ7,Health Professions,Health Sciences,4.67e-05
+S9GFNEC7QLZ7,Neuroscience,Life Sciences,4.4e-05
+S9GFNEC7QLZ7,Mathematics,Physical Sciences,4.12e-05
+S9GFNEC7QLZ7,"Business, Management and Accounting",Social Sciences,4.02e-05
+S9GFNEC7QLZ7,Environmental Science,Physical Sciences,3.64e-05
+S9GFNEC7QLZ7,Arts and Humanities,Social Sciences,3.49e-05
+S9GFNEC7QLZ7,Medicine,Health Sciences,2.86e-05
 SB35ENJFKK14,Medicine,Health Sciences,0.0068368
 SB35ENJFKK14,Neuroscience,Life Sciences,0.001389
 SB35ENJFKK14,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0006271
@@ -2830,6 +2814,12 @@ SL2PF6R7MRN1,Chemistry,Physical Sciences,0.0033012
 SL2PF6R7MRN1,Physics and Astronomy,Physical Sciences,0.0030746
 SL2PF6R7MRN1,Social Sciences,Social Sciences,0.002541
 SL2PF6R7MRN1,Mathematics,Physical Sciences,0.0014444
+SLMPURD4W9U9,Engineering,Physical Sciences,0.0179928
+SLMPURD4W9U9,Environmental Science,Physical Sciences,0.0022444
+SLMPURD4W9U9,Earth and Planetary Sciences,Physical Sciences,0.0018882
+SLMPURD4W9U9,Mathematics,Physical Sciences,0.0012591
+SLMPURD4W9U9,Materials Science,Physical Sciences,0.0008506
+SLMPURD4W9U9,Computer Science,Physical Sciences,0.0005911
 SMK9PCMKXED6,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0203568
 SMK9PCMKXED6,Chemistry,Physical Sciences,0.0065833
 SMK9PCMKXED6,Agricultural and Biological Sciences,Life Sciences,0.0008694
@@ -3090,6 +3080,12 @@ V5LLVC627U34,Arts and Humanities,Social Sciences,0.0050650999999999995
 V5LLVC627U34,Medicine,Health Sciences,0.0046404
 V5LLVC627U34,Engineering,Physical Sciences,0.001598
 V5LLVC627U34,Health Professions,Health Sciences,0.0014667
+V62NC51F7YV1,Engineering,Physical Sciences,0.026294299999999996
+V62NC51F7YV1,Arts and Humanities,Social Sciences,0.0129768
+V62NC51F7YV1,Social Sciences,Social Sciences,0.0113909
+V62NC51F7YV1,Physics and Astronomy,Physical Sciences,0.007869000000000001
+V62NC51F7YV1,Materials Science,Physical Sciences,0.0041377
+V62NC51F7YV1,Environmental Science,Physical Sciences,0.0026842
 V6AFQPN18437,Engineering,Physical Sciences,0.1045852
 V6AFQPN18437,Physics and Astronomy,Physical Sciences,0.0856307
 V6AFQPN18437,Social Sciences,Social Sciences,0.054711499999999996
@@ -3100,15 +3096,6 @@ V6AFQPN18437,Environmental Science,Physical Sciences,0.0149626
 V6AFQPN18437,Medicine,Health Sciences,0.0132716
 V6AFQPN18437,Agricultural and Biological Sciences,Life Sciences,0.0126158
 V6AFQPN18437,Arts and Humanities,Social Sciences,0.0116838
-V6EQM9ABEM89,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0003033
-V6EQM9ABEM89,Medicine,Health Sciences,0.0002719
-V6EQM9ABEM89,Psychology,Social Sciences,0.0001875
-V6EQM9ABEM89,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,0.0001647
-V6EQM9ABEM89,Neuroscience,Life Sciences,0.0001598
-V6EQM9ABEM89,Immunology and Microbiology,Life Sciences,0.000135
-V6EQM9ABEM89,Arts and Humanities,Social Sciences,0.0001259
-V6EQM9ABEM89,Agricultural and Biological Sciences,Life Sciences,0.0001013
-V6EQM9ABEM89,Chemistry,Physical Sciences,4.09e-05
 V913TCT2SFZ9,Medicine,Health Sciences,0.0132011
 V913TCT2SFZ9,Psychology,Social Sciences,0.0066282
 V913TCT2SFZ9,Neuroscience,Life Sciences,0.0052317
@@ -3128,10 +3115,21 @@ VGJHK59NMPK9,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0002
 VGJHK59NMPK9,Health Professions,Health Sciences,0.0001721
 VGJHK59NMPK9,Agricultural and Biological Sciences,Life Sciences,0.0001612
 VGJHK59NMPK9,Medicine,Health Sciences,0.0001073
+VL5FH97BNMH5,Physics and Astronomy,Physical Sciences,0.11199949999999999
+VL5FH97BNMH5,Environmental Science,Physical Sciences,0.0368328
+VL5FH97BNMH5,Social Sciences,Social Sciences,0.0203447
+VL5FH97BNMH5,Earth and Planetary Sciences,Physical Sciences,0.0177669
+VL5FH97BNMH5,Agricultural and Biological Sciences,Life Sciences,0.0063215
+VL5FH97BNMH5,Medicine,Health Sciences,0.0063175
 VLQKFEEJ3NE9,Medicine,Health Sciences,0.1083481
 VLQKFEEJ3NE9,Immunology and Microbiology,Life Sciences,0.0188938
 VLQKFEEJ3NE9,Social Sciences,Social Sciences,0.0056064
 VLQKFEEJ3NE9,Health Professions,Health Sciences,0.0032552
+VPWMMPGGPJ74,Physics and Astronomy,Physical Sciences,0.04488679999999999
+VPWMMPGGPJ74,Earth and Planetary Sciences,Physical Sciences,0.0139434
+VPWMMPGGPJ74,Engineering,Physical Sciences,0.0136797
+VPWMMPGGPJ74,Environmental Science,Physical Sciences,0.011944999999999999
+VPWMMPGGPJ74,Medicine,Health Sciences,0.0106326
 VQ5WK498QDC6,Arts and Humanities,Social Sciences,0.006772500000000001
 VQ5WK498QDC6,Social Sciences,Social Sciences,0.0032859000000000005
 VQ5WK498QDC6,Earth and Planetary Sciences,Physical Sciences,0.0005388
@@ -3155,6 +3153,11 @@ VXUFPE4MCZH5,Environmental Science,Physical Sciences,0.032741400000000004
 VXUFPE4MCZH5,Earth and Planetary Sciences,Physical Sciences,0.0101026
 VXUFPE4MCZH5,Computer Science,Physical Sciences,0.0082359
 VXUFPE4MCZH5,Engineering,Physical Sciences,0.0051129
+W1NBN156CYF9,Physics and Astronomy,Physical Sciences,0.023193299999999997
+W1NBN156CYF9,Engineering,Physical Sciences,0.0016293
+W1NBN156CYF9,Chemistry,Physical Sciences,0.0005465
+W1NBN156CYF9,Social Sciences,Social Sciences,0.0003508
+W1NBN156CYF9,Earth and Planetary Sciences,Physical Sciences,0.0002979
 W6Q8XJV41Z98,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.007590800000000002
 W6Q8XJV41Z98,Social Sciences,Social Sciences,0.00133
 W6Q8XJV41Z98,Engineering,Physical Sciences,0.0011909
@@ -3201,6 +3204,13 @@ WK63UJ11C2H7,Medicine,Health Sciences,0.0510143
 WK63UJ11C2H7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0140406
 WK63UJ11C2H7,Immunology and Microbiology,Life Sciences,0.0050106
 WK63UJ11C2H7,Social Sciences,Social Sciences,0.0019811
+WKAUE7NHR4L1,Physics and Astronomy,Physical Sciences,0.05427130000000001
+WKAUE7NHR4L1,Engineering,Physical Sciences,0.007036000000000001
+WKAUE7NHR4L1,Earth and Planetary Sciences,Physical Sciences,0.0042484
+WKAUE7NHR4L1,Environmental Science,Physical Sciences,0.0028737
+WKAUE7NHR4L1,Chemistry,Physical Sciences,0.0014303
+WKAUE7NHR4L1,Medicine,Health Sciences,0.0013916
+WKAUE7NHR4L1,Agricultural and Biological Sciences,Life Sciences,0.0009128
 WKPTJDWG2C68,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.019785300000000002
 WKPTJDWG2C68,Medicine,Health Sciences,0.0021011
 WKPTJDWG2C68,Neuroscience,Life Sciences,0.0004244
@@ -3225,6 +3235,13 @@ WMHWCFJNAJL3,Medicine,Health Sciences,0.0132679
 WMHWCFJNAJL3,Neuroscience,Life Sciences,0.0044948
 WMHWCFJNAJL3,Chemistry,Physical Sciences,0.0007881
 WMHWCFJNAJL3,Immunology and Microbiology,Life Sciences,0.0006332
+WNN6VH618X58,Mathematics,Physical Sciences,0.0184079
+WNN6VH618X58,Physics and Astronomy,Physical Sciences,0.0156749
+WNN6VH618X58,Engineering,Physical Sciences,0.0078989
+WNN6VH618X58,Psychology,Social Sciences,0.004783
+WNN6VH618X58,Computer Science,Physical Sciences,0.0044338
+WNN6VH618X58,Arts and Humanities,Social Sciences,0.0043961
+WNN6VH618X58,Environmental Science,Physical Sciences,0.0024524
 WNTPS995QBM7,Health Professions,Health Sciences,0.032949099999999995
 WNTPS995QBM7,Computer Science,Physical Sciences,0.0265781
 WNTPS995QBM7,Social Sciences,Social Sciences,0.0259755
@@ -3325,20 +3342,6 @@ XJ7MMPHBMGM7,Psychology,Social Sciences,0.0025811
 XJUCJAYJWYV1,Medicine,Health Sciences,0.06870490000000001
 XJUCJAYJWYV1,Engineering,Physical Sciences,0.0038547
 XJUCJAYJWYV1,Materials Science,Physical Sciences,0.0020639
-XNAKYW3FTSE1,Social Sciences,Social Sciences,0.0004681
-XNAKYW3FTSE1,Agricultural and Biological Sciences,Life Sciences,8.060000000000001e-05
-XNAKYW3FTSE1,Materials Science,Physical Sciences,7.67e-05
-XNAKYW3FTSE1,Decision Sciences,Social Sciences,7.65e-05
-XNAKYW3FTSE1,Computer Science,Physical Sciences,7.31e-05
-XNAKYW3FTSE1,"Biochemistry, Genetics and Molecular Biology",Life Sciences,7.13e-05
-XNAKYW3FTSE1,Psychology,Social Sciences,6.26e-05
-XNAKYW3FTSE1,Health Professions,Health Sciences,4.67e-05
-XNAKYW3FTSE1,Neuroscience,Life Sciences,4.4e-05
-XNAKYW3FTSE1,Mathematics,Physical Sciences,4.12e-05
-XNAKYW3FTSE1,"Business, Management and Accounting",Social Sciences,4.02e-05
-XNAKYW3FTSE1,Environmental Science,Physical Sciences,3.64e-05
-XNAKYW3FTSE1,Arts and Humanities,Social Sciences,3.49e-05
-XNAKYW3FTSE1,Medicine,Health Sciences,2.86e-05
 XNY5ULPU8EN6,Medicine,Health Sciences,0.06355809999999999
 XNY5ULPU8EN6,Immunology and Microbiology,Life Sciences,0.009541399999999998
 XNY5ULPU8EN6,Nursing,Health Sciences,0.0088208
@@ -3380,6 +3383,15 @@ Y28BEBJ4MNU7,Immunology and Microbiology,Life Sciences,0.0001106
 Y28BEBJ4MNU7,Psychology,Social Sciences,9.65e-05
 Y2K4F9RPRRG7,Medicine,Health Sciences,0.3179989
 Y2K4F9RPRRG7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.05173030000000001
+Y3RET2XN41S5,Environmental Science,Physical Sciences,0.0093369
+Y3RET2XN41S5,Earth and Planetary Sciences,Physical Sciences,0.0045701
+Y3RET2XN41S5,Social Sciences,Social Sciences,0.0041029000000000005
+Y3RET2XN41S5,Engineering,Physical Sciences,0.0030523
+Y3RET2XN41S5,Psychology,Social Sciences,0.0025706
+Y3RET2XN41S5,"Economics, Econometrics and Finance",Social Sciences,0.0016562
+Y3RET2XN41S5,Agricultural and Biological Sciences,Life Sciences,0.001181
+Y3RET2XN41S5,Health Professions,Health Sciences,0.0009212
+Y3RET2XN41S5,Computer Science,Physical Sciences,0.0007774
 Y6MGH342N169,Agricultural and Biological Sciences,Life Sciences,0.0512692
 Y6MGH342N169,Mathematics,Physical Sciences,0.030602900000000002
 Y6MGH342N169,Social Sciences,Social Sciences,0.0292122
@@ -3399,6 +3411,21 @@ Y8CWNJRCNN91,Social Sciences,Social Sciences,0.0128371
 Y8CWNJRCNN91,Decision Sciences,Social Sciences,0.0121827
 Y8CWNJRCNN91,Medicine,Health Sciences,0.0120801
 Y8CWNJRCNN91,Psychology,Social Sciences,0.010707
+YDQLHSMTBZ24,Medicine,Health Sciences,0.0002022
+YDQLHSMTBZ24,Engineering,Physical Sciences,0.00010180000000000001
+YDQLHSMTBZ24,Physics and Astronomy,Physical Sciences,8.03e-05
+YDQLHSMTBZ24,Social Sciences,Social Sciences,6.71e-05
+YDQLHSMTBZ24,Materials Science,Physical Sciences,5.86e-05
+YDQLHSMTBZ24,Decision Sciences,Social Sciences,4.57e-05
+YDQLHSMTBZ24,"Biochemistry, Genetics and Molecular Biology",Life Sciences,3.62e-05
+YDQLHSMTBZ24,"Business, Management and Accounting",Social Sciences,2.56e-05
+YDQLHSMTBZ24,Environmental Science,Physical Sciences,2.33e-05
+YDQLHSMTBZ24,Arts and Humanities,Social Sciences,2.04e-05
+YDQLHSMTBZ24,Agricultural and Biological Sciences,Life Sciences,1.75e-05
+YDQLHSMTBZ24,Energy,Physical Sciences,1.34e-05
+YDQLHSMTBZ24,Chemistry,Physical Sciences,1.31e-05
+YDQLHSMTBZ24,Psychology,Social Sciences,1.18e-05
+YDQLHSMTBZ24,Computer Science,Physical Sciences,9.2e-06
 YEZEE8W5JKA3,Earth and Planetary Sciences,Physical Sciences,0.013293999999999997
 YEZEE8W5JKA3,Environmental Science,Physical Sciences,0.0071127
 YEZEE8W5JKA3,Engineering,Physical Sciences,0.003077
@@ -3406,11 +3433,6 @@ YEZEE8W5JKA3,Physics and Astronomy,Physical Sciences,0.0011442
 YEZEE8W5JKA3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0007372
 YEZEE8W5JKA3,"Business, Management and Accounting",Social Sciences,0.0004485
 YEZEE8W5JKA3,Social Sciences,Social Sciences,0.0004148
-YGWAZMUHLGQ3,Psychology,Social Sciences,0.012699300000000002
-YGWAZMUHLGQ3,Medicine,Health Sciences,0.005430600000000001
-YGWAZMUHLGQ3,Social Sciences,Social Sciences,0.0052508
-YGWAZMUHLGQ3,Health Professions,Health Sciences,0.0026752
-YGWAZMUHLGQ3,Mathematics,Physical Sciences,0.0010534
 YH86RTW2YVJ4,Social Sciences,Social Sciences,0.10987079999999999
 YH86RTW2YVJ4,"Business, Management and Accounting",Social Sciences,0.038720700000000004
 YH86RTW2YVJ4,"Economics, Econometrics and Finance",Social Sciences,0.019346
@@ -3496,6 +3518,16 @@ Z1H9VJS8NG16,Agricultural and Biological Sciences,Life Sciences,0.0099775
 Z1H9VJS8NG16,Social Sciences,Social Sciences,0.0090592
 Z1H9VJS8NG16,Dentistry,Health Sciences,0.0081086
 Z1H9VJS8NG16,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.007926
+Z1L7BKGEAGC7,Social Sciences,Social Sciences,0.0152113
+Z1L7BKGEAGC7,Environmental Science,Physical Sciences,0.0102512
+Z1L7BKGEAGC7,"Business, Management and Accounting",Social Sciences,0.0082301
+Z1L7BKGEAGC7,Psychology,Social Sciences,0.007696100000000001
+Z1L7BKGEAGC7,Medicine,Health Sciences,0.0073997
+Z1L7BKGEAGC7,Neuroscience,Life Sciences,0.0064418
+Z1L7BKGEAGC7,Health Professions,Health Sciences,0.0020361
+Z1L7BKGEAGC7,Computer Science,Physical Sciences,0.0019009
+Z1L7BKGEAGC7,Decision Sciences,Social Sciences,0.0016831
+Z1L7BKGEAGC7,Earth and Planetary Sciences,Physical Sciences,0.0016391
 Z1L9F1MM1RY3,Medicine,Health Sciences,0.23059319999999997
 Z1L9F1MM1RY3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0493175
 Z1L9F1MM1RY3,Health Professions,Health Sciences,0.0152036
@@ -3522,11 +3554,6 @@ Z9CRZKD42ZT1,Immunology and Microbiology,Life Sciences,0.006399
 Z9CRZKD42ZT1,Neuroscience,Life Sciences,0.0062994
 Z9CRZKD42ZT1,Agricultural and Biological Sciences,Life Sciences,0.0060334
 Z9CRZKD42ZT1,Engineering,Physical Sciences,0.0059726
-ZFCRKN45MMD6,Environmental Science,Physical Sciences,0.027648499999999993
-ZFCRKN45MMD6,Medicine,Health Sciences,0.0024352
-ZFCRKN45MMD6,Agricultural and Biological Sciences,Life Sciences,0.0023465
-ZFCRKN45MMD6,Earth and Planetary Sciences,Physical Sciences,0.0021866999999999998
-ZFCRKN45MMD6,Immunology and Microbiology,Life Sciences,0.0009306
 ZGKVAM2JVKG2,Social Sciences,Social Sciences,0.0040339
 ZGKVAM2JVKG2,Decision Sciences,Social Sciences,0.0023404
 ZGKVAM2JVKG2,Medicine,Health Sciences,0.0016022999999999999
@@ -3538,15 +3565,6 @@ ZGKVAM2JVKG2,Engineering,Physical Sciences,0.0006834
 ZGKVAM2JVKG2,Agricultural and Biological Sciences,Life Sciences,0.000437
 ZGKVAM2JVKG2,"Economics, Econometrics and Finance",Social Sciences,0.0003583
 ZGKVAM2JVKG2,Neuroscience,Life Sciences,0.0003506
-ZM3DYHAGMKM3,Neuroscience,Life Sciences,0.0007613
-ZM3DYHAGMKM3,Medicine,Health Sciences,0.000556
-ZM3DYHAGMKM3,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0005383
-ZM3DYHAGMKM3,Immunology and Microbiology,Life Sciences,0.00042919999999999997
-ZM3DYHAGMKM3,Social Sciences,Social Sciences,0.00019319999999999998
-ZM3DYHAGMKM3,Agricultural and Biological Sciences,Life Sciences,0.0001185
-ZM3DYHAGMKM3,Arts and Humanities,Social Sciences,7.69e-05
-ZM3DYHAGMKM3,"Pharmacology, Toxicology and Pharmaceutics",Life Sciences,6.69e-05
-ZM3DYHAGMKM3,Engineering,Physical Sciences,6.41e-05
 ZPAUY3FQMM26,Immunology and Microbiology,Life Sciences,0.0313288
 ZPAUY3FQMM26,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0152756
 ZPAUY3FQMM26,Medicine,Health Sciences,0.007957299999999999
