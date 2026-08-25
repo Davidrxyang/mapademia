@@ -54,6 +54,51 @@
     padding: 5px 8px;
     font-size: 13px;
   }
+  #agency-control { position: relative; }
+  #agency-select-btn {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    min-width: 11em;
+  }
+  #agency-select-btn:hover { border-color: var(--muted); }
+  #agency-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  #agency-panel.open { display: block; }
+  #agency-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  #agency-presets button {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+  #agency-presets button:hover { border-color: var(--muted); }
+  #agency-presets button.active { border-color: var(--text); font-weight: 600; }
+  #agency-checklist { max-height: 280px; overflow-y: auto; }
+  .agency-check-row { display: flex; align-items: center; gap: 8px; padding: 4px 2px; font-size: 12.5px; cursor: pointer; }
+  .agency-check-row:hover { background: rgba(0,0,0,0.04); }
+  .agency-check-row input { margin: 0; cursor: pointer; }
+  .agency-check-row .agency-amt { margin-left: auto; color: var(--muted); font-size: 11px; white-space: nowrap; }
   #year-label { font-variant-numeric: tabular-nums; min-width: 7ch; font-size: 13px; }
   #year-range-slider {
     position: relative;
@@ -287,11 +332,13 @@
 </header>
 
 <div class="controls">
-  <div class="control-group">
-    <label for="agency-select">Agency</label>
-    <select id="agency-select">
-      <option value="__all__">All</option>
-    </select>
+  <div class="control-group" id="agency-control">
+    <label>Agency</label>
+    <button type="button" id="agency-select-btn"></button>
+    <div id="agency-panel">
+      <div id="agency-presets"></div>
+      <div id="agency-checklist"></div>
+    </div>
   </div>
   <div class="control-group">
     <label for="state-select">State</label>
@@ -505,14 +552,103 @@
   let selectedUei = null;
   const TOP_N_INSTITUTIONS = 500; // must match aggregate.py's TOP_N_INSTITUTIONS
 
-  const agencies = Array.from(new Set(rows.map(d => d.agency))).sort();
-  const agencySelect = d3.select("#agency-select");
-  agencySelect.selectAll("option.agency")
-    .data(agencies)
-    .join("option")
-    .attr("class", "agency")
-    .attr("value", d => d)
-    .text(d => d);
+  // Agency-name groupings for the multi-select's presets. Hardcoded because
+  // the frontend's own data only carries a flat "agency" string per row
+  // (sub-agency name where one exists, else the top-tier department name -
+  // see aggregate.py) - there's no parent/child relationship left in the
+  // data itself to derive these from. Kept as plain name lists, intersected
+  // with whatever's actually present, so a future agency addition/removal
+  // doesn't need a matching data-shape change here to avoid breaking.
+  const DOE_GROUP = ["Department of Energy", "Assistant Secretary for Fossil Energy", "Assistant Secretary for Conservation and Renewable Energy"];
+  const DOD_GROUP = [
+    "Department of Defense", "Department of the Army", "Department of the Navy", "Department of the Air Force",
+    "Defense Health Agency", "Uniformed Services University of the Health Sciences", "Defense Advanced Research Projects Agency",
+    "Defense Threat Reduction Agency", "Washington Headquarters Services", "Defense Prisoner of War/Missing Personnel Office",
+    "Office of Local Defense Community Cooperation", "Defense Logistics Agency", "National Geospatial-Intelligence Agency",
+    "Department of Defense Education Activity", "Defense Intelligence Agency", "Assistant Secretary for Defense Programs",
+    "Defense Contract Management Agency", "Defense Human Resources Activity", "Defense Microelectronics Activity", "Missile Defense Agency",
+  ];
+  const AGENCY_PRESETS = {
+    top5: { label: "Top 5 (default)", names: ["National Institutes of Health", "National Science Foundation", "National Aeronautics and Space Administration", ...DOE_GROUP, ...DOD_GROUP] },
+    all: { label: "All", names: null }, // null = every currently-known agency
+    life: { label: "Life Sciences", names: ["National Institutes of Health", "Defense Health Agency", "Uniformed Services University of the Health Sciences"] },
+    physical: { label: "Physical Sciences", names: ["National Science Foundation", "Department of Energy", "National Aeronautics and Space Administration", "Defense Advanced Research Projects Agency", "National Geospatial-Intelligence Agency", "Defense Microelectronics Activity", "Missile Defense Agency", "Defense Threat Reduction Agency"] },
+    environment: { label: "Environmental & Energy", names: ["Environmental Protection Agency", "Assistant Secretary for Fossil Energy", "Assistant Secretary for Conservation and Renewable Energy"] },
+    defense: { label: "Defense & Security", names: ["Department of Defense", "Department of the Army", "Department of the Navy", "Department of the Air Force", "Defense Logistics Agency", "Defense Intelligence Agency", "Defense Contract Management Agency", "Defense Human Resources Activity", "Defense Prisoner of War/Missing Personnel Office", "Office of Local Defense Community Cooperation", "Washington Headquarters Services", "Department of Defense Education Activity", "Assistant Secretary for Defense Programs"] },
+  };
+
+  const agencyTotals = new Map();
+  for (const d of rows) agencyTotals.set(d.agency, (agencyTotals.get(d.agency) || 0) + d.total_obligations);
+  // Sorted by funding (descending), not alphabetically - the checklist is
+  // long enough (27 agencies) that surfacing the biggest first matters more
+  // than alphabetical order for a list most people will never fully expand.
+  const agencies = Array.from(agencyTotals.keys()).sort((a, b) => agencyTotals.get(b) - agencyTotals.get(a));
+
+  let selectedAgencies = new Set(
+    AGENCY_PRESETS.top5.names.filter(n => agencies.includes(n))
+  );
+
+  const agencyBtn = document.getElementById("agency-select-btn");
+  const agencyPanel = document.getElementById("agency-panel");
+
+  function findMatchingPreset(sel) {
+    for (const [key, preset] of Object.entries(AGENCY_PRESETS)) {
+      const names = preset.names === null ? agencies : preset.names.filter(n => agencies.includes(n));
+      if (names.length === sel.size && names.every(n => sel.has(n))) return key;
+    }
+    return null;
+  }
+
+  function agencyLabelText(sel) {
+    const presetKey = findMatchingPreset(sel);
+    if (presetKey) return AGENCY_PRESETS[presetKey].label.replace(" (default)", "");
+    if (sel.size === agencies.length) return "all agencies";
+    if (sel.size === 0) return "no agencies";
+    if (sel.size === 1) return Array.from(sel)[0];
+    return `${sel.size} agencies`;
+  }
+
+  function updateAgencyButton() {
+    agencyBtn.textContent = agencyLabelText(selectedAgencies) + " ▾";
+  }
+
+  function matchingPresetKey() {
+    return findMatchingPreset(selectedAgencies);
+  }
+
+  const presetsWrap = d3.select("#agency-presets");
+  presetsWrap.selectAll("button").data(Object.entries(AGENCY_PRESETS)).join("button")
+    .attr("data-key", d => d[0])
+    .text(d => d[1].label)
+    .on("click", (event, [key, preset]) => {
+      selectedAgencies = new Set(preset.names === null ? agencies : preset.names.filter(n => agencies.includes(n)));
+      refreshAgencyUI();
+      renderActiveTab();
+    });
+
+  const checklistWrap = d3.select("#agency-checklist");
+  const checkRows = checklistWrap.selectAll(".agency-check-row").data(agencies).join("label").attr("class", "agency-check-row");
+  checkRows.append("input").attr("type", "checkbox")
+    .on("change", (event, d) => {
+      if (event.target.checked) selectedAgencies.add(d); else selectedAgencies.delete(d);
+      refreshAgencyUI();
+      renderActiveTab();
+    });
+  checkRows.append("span").text(d => d);
+  checkRows.append("span").attr("class", "agency-amt").text(d => formatMoneyShort(agencyTotals.get(d)));
+
+  function refreshAgencyUI() {
+    updateAgencyButton();
+    const activeKey = matchingPresetKey();
+    presetsWrap.selectAll("button").classed("active", d => d[0] === activeKey);
+    checklistWrap.selectAll(".agency-check-row input").property("checked", d => selectedAgencies.has(d));
+  }
+  refreshAgencyUI();
+
+  agencyBtn.addEventListener("click", () => agencyPanel.classList.toggle("open"));
+  document.addEventListener("click", (event) => {
+    if (!document.getElementById("agency-control").contains(event.target)) agencyPanel.classList.remove("open");
+  });
 
   const years = Array.from(new Set(rows.map(d => d.fiscal_year))).sort((a, b) => a - b);
   const yearStart = document.getElementById("year-start");
@@ -598,7 +734,7 @@
 
   function render() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     syncStateSelectUI();
 
     if (selectedFips) {
@@ -613,7 +749,7 @@
   function renderNationalMap(start, end, agency) {
     svg.selectAll("*").remove();
 
-    const filtered = rows.filter(d => d.fiscal_year >= start && d.fiscal_year <= end && (agency === "__all__" || d.agency === agency));
+    const filtered = rows.filter(d => d.fiscal_year >= start && d.fiscal_year <= end && agency.has(d.agency));
     current = new Map();
     for (const d of filtered) {
       const key = pad2(d.state_fips);
@@ -655,7 +791,7 @@
         render();
       });
 
-    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    const agencyLabel = agencyLabelText(agency);
     d3.select("#legend").text(`Darker = more funding (${agencyLabel}) · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
 
     document.getElementById("map-bar-title").textContent = "Top states by funding";
@@ -683,7 +819,7 @@
     const fundingByUei = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       if (d.state_code !== postal) continue;
       const prev = fundingByUei.get(d.uei);
       if (prev) { prev.funding += d.total_obligations; prev.awards += d.award_count; }
@@ -719,7 +855,7 @@
       .on("click", (event, d) => { selectedUei = d.uei; renderInstitutions(start, end, agency); });
 
     const noGeoCount = fundingByUei.size - points.length;
-    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    const agencyLabel = agencyLabelText(agency);
     d3.select("#legend").text(
       `${stateFeature.properties.name} (${agencyLabel}) · circle size = funding · ${points.length} institutions shown` +
       (noGeoCount > 0 ? ` (${noGeoCount} untracked, no map coordinates)` : "")
@@ -743,7 +879,7 @@
 
     const filtered = institutionRows.filter(d =>
       d.fiscal_year >= start && d.fiscal_year <= end &&
-      (agency === "__all__" || d.agency === agency) &&
+      agency.has(d.agency) &&
       (!selectedPostal || d.state_code === selectedPostal)
     );
 
@@ -760,7 +896,7 @@
 
     const ranked = Array.from(byUei.values()).sort((a, b) => b.total_obligations - a.total_obligations).slice(0, 50);
 
-    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    const agencyLabel = agencyLabelText(agency);
     const subtitle = d3.select("#institutions-subtitle");
     if (stateLabel) {
       subtitle.html("");
@@ -804,7 +940,7 @@
     if (meta) list.append("div").attr("class", "detail-loc").text(`${titleCase(meta.city)}, ${meta.state_code}`);
 
     const fundingByYear = institutionRows
-      .filter(d => d.uei === uei && (agency === "__all__" || d.agency === agency))
+      .filter(d => d.uei === uei && agency.has(d.agency))
       .reduce((acc, d) => { acc.set(d.fiscal_year, (acc.get(d.fiscal_year) || 0) + d.total_obligations); return acc; }, new Map());
     const fundingSeries = years.map(y => ({ year: y, value: fundingByYear.get(y) || 0 }));
 
@@ -986,7 +1122,7 @@
 
   function renderScatter() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const yMetric = document.getElementById("scatter-y-select").value;
 
@@ -994,7 +1130,7 @@
     const nameByUei = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       if (postal && d.state_code !== postal) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
       nameByUei.set(d.uei, d.name);
@@ -1048,7 +1184,7 @@
 
   function renderSankey() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     document.getElementById("sankey-order-group").style.display = postal ? "none" : "flex";
 
@@ -1072,7 +1208,7 @@
       const instTotals = new Map();
       for (const d of institutionRows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         if (d.state_code !== postal) continue;
         let e = instTotals.get(d.uei);
         if (!e) { e = { name: d.name, byAgency: new Map(), total: 0 }; instTotals.set(d.uei, e); }
@@ -1115,7 +1251,7 @@
       const fullByAgencyForState = new Map();
       for (const d of rows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         if (d.state_code !== postal) continue;
         fullStateTotal += d.total_obligations;
         fullByAgencyForState.set(d.agency, (fullByAgencyForState.get(d.agency) || 0) + d.total_obligations);
@@ -1247,7 +1383,7 @@
       const stateTotals = new Map();
       for (const d of rows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         let e = stateTotals.get(d.state_code);
         if (!e) { e = { byAgency: new Map(), total: 0 }; stateTotals.set(d.state_code, e); }
         e.byAgency.set(d.agency, (e.byAgency.get(d.agency) || 0) + d.total_obligations);
@@ -1400,7 +1536,7 @@
     const fundingByUei = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       if (stateFilterFn && !stateFilterFn(d.state_code)) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
     }
@@ -1420,7 +1556,7 @@
     const fundingByUeiAgency = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       const key = d.uei + "|" + d.agency;
       let e = fundingByUeiAgency.get(key);
       if (!e) { e = { state_code: d.state_code, agency: d.agency, funding: 0 }; fundingByUeiAgency.set(key, e); }
@@ -1466,7 +1602,7 @@
     const fullByStateAgency = new Map();
     for (const d of rows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       const saKey = d.state_code + "|" + d.agency;
       fullByStateAgency.set(saKey, (fullByStateAgency.get(saKey) || 0) + d.total_obligations);
     }
@@ -1486,7 +1622,7 @@
 
   function renderTreemap() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
 
     const byDomain = new Map();
@@ -1506,7 +1642,7 @@
     let fullTotal = 0;
     for (const d of rows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       if (postal && d.state_code !== postal) continue;
       fullTotal += d.total_obligations;
     }
@@ -1641,7 +1777,7 @@
 
   function renderStatePie() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     const svg = d3.select("#state-pie-svg");
     svg.selectAll("*").remove();
@@ -1653,7 +1789,7 @@
       const nameByUei = new Map();
       for (const d of institutionRows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         if (d.state_code !== postal) continue;
         byUei.set(d.uei, (byUei.get(d.uei) || 0) + d.total_obligations);
         nameByUei.set(d.uei, d.name);
@@ -1664,7 +1800,7 @@
       const byState = new Map();
       for (const d of rows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         byState.set(d.state_name, (byState.get(d.state_name) || 0) + d.total_obligations);
       }
       arr = Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
@@ -1706,7 +1842,7 @@
       const byUei = new Map();
       for (const d of institutionRows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         if (postal && d.state_code !== postal) continue;
         let e = byUei.get(d.uei);
         if (!e) { e = { name: d.name, city: d.city, state_code: d.state_code, funding: 0, awards: 0 }; byUei.set(d.uei, e); }
@@ -1736,7 +1872,7 @@
       const byState = new Map();
       for (const d of rows) {
         if (d.fiscal_year < start || d.fiscal_year > end) continue;
-        if (agency !== "__all__" && d.agency !== agency) continue;
+        if (!agency.has(d.agency)) continue;
         if (postal && d.state_code !== postal) continue;
         let e = byState.get(d.state_name);
         if (!e) { e = { name: d.state_name, funding: 0, awards: 0 }; byState.set(d.state_name, e); }
@@ -1763,7 +1899,7 @@
     let fieldsFullTotal = 0;
     for (const d of rows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (agency !== "__all__" && d.agency !== agency) continue;
+      if (!agency.has(d.agency)) continue;
       if (postal && d.state_code !== postal) continue;
       fieldsFullTotal += d.total_obligations;
     }
@@ -1781,7 +1917,7 @@
 
   function renderRankings() {
     const { start, end } = getYearRange();
-    const agency = agencySelect.property("value");
+    const agency = selectedAgencies;
     const postal = selectedFips ? postalByFips.get(selectedFips) : null;
     let dimension = document.getElementById("rankings-select").value;
     if (postal && dimension === "states") {
@@ -1834,7 +1970,7 @@
         });
     });
 
-    const agencyLabel = agency === "__all__" ? "all agencies" : agency;
+    const agencyLabel = agencyLabelText(agency);
     const stateLabel = postal ? ` · ${stateOptions.find(s => s[0] === postal)?.[1] ? titleCase(stateOptions.find(s => s[0] === postal)[1]) : postal}` : "";
     document.getElementById("rankings-note").textContent = `${rows.length} ${dimension} · ${yearLabel(start, end)} · ${agencyLabel}${stateLabel}`;
   }
@@ -1860,7 +1996,6 @@
     });
   });
 
-  agencySelect.on("change", renderActiveTab);
   document.getElementById("scatter-y-select").addEventListener("change", () => { if (activeTab === "scatter") renderScatter(); });
   document.getElementById("sankey-order-select").addEventListener("change", () => { if (activeTab === "sankey") renderSankey(); });
   document.getElementById("rankings-select").addEventListener("change", () => { rankingsSort = { key: "funding", dir: "desc" }; renderRankings(); });
