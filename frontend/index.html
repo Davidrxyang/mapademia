@@ -99,6 +99,10 @@
   .agency-check-row:hover { background: rgba(0,0,0,0.04); }
   .agency-check-row input { margin: 0; cursor: pointer; }
   .agency-check-row .agency-amt { margin-left: auto; color: var(--muted); font-size: 11px; white-space: nowrap; }
+  .agency-expand-toggle, .agency-expand-toggle-spacer { display: inline-block; width: 1.2em; text-align: center; color: var(--muted); font-size: 10px; flex-shrink: 0; }
+  .agency-expand-toggle:hover { color: var(--text); }
+  .agency-check-child { padding-left: 1.9em; font-size: 12px; color: var(--muted); }
+  .agency-check-child span:not(.agency-amt) { color: var(--text); }
   #year-label { font-variant-numeric: tabular-nums; min-width: 7ch; font-size: 13px; }
   #year-range-slider {
     position: relative;
@@ -552,15 +556,16 @@
   let selectedUei = null;
   const TOP_N_INSTITUTIONS = 500; // must match aggregate.py's TOP_N_INSTITUTIONS
 
-  // Agency-name groupings for the multi-select's presets. Hardcoded because
-  // the frontend's own data only carries a flat "agency" string per row
-  // (sub-agency name where one exists, else the top-tier department name -
-  // see aggregate.py) - there's no parent/child relationship left in the
-  // data itself to derive these from. Kept as plain name lists, intersected
-  // with whatever's actually present, so a future agency addition/removal
-  // doesn't need a matching data-shape change here to avoid breaking.
-  const DOE_GROUP = ["Department of Energy", "Assistant Secretary for Fossil Energy", "Assistant Secretary for Conservation and Renewable Energy"];
-  const DOD_GROUP = [
+  // Agency-name groupings, hardcoded because the frontend's own data only
+  // carries a flat "agency" string per row (sub-agency name where one
+  // exists, else the top-tier department name - see aggregate.py) - no
+  // parent/child relationship survives into the data itself. The selector
+  // groups by these 6 real top-tier entities (NIH, NSF, NASA, DOE, DOD,
+  // EPA) instead of listing DOD's ~20 sub-offices and DOE's 2 as if they
+  // were peers of NIH/NSF/NASA - only DOE and DOD have more than one child,
+  // so only they get an expand toggle to pick specific sub-offices.
+  const DOE_CHILDREN = ["Department of Energy", "Assistant Secretary for Fossil Energy", "Assistant Secretary for Conservation and Renewable Energy"];
+  const DOD_CHILDREN = [
     "Department of Defense", "Department of the Army", "Department of the Navy", "Department of the Air Force",
     "Defense Health Agency", "Uniformed Services University of the Health Sciences", "Defense Advanced Research Projects Agency",
     "Defense Threat Reduction Agency", "Washington Headquarters Services", "Defense Prisoner of War/Missing Personnel Office",
@@ -569,7 +574,7 @@
     "Defense Contract Management Agency", "Defense Human Resources Activity", "Defense Microelectronics Activity", "Missile Defense Agency",
   ];
   const AGENCY_PRESETS = {
-    top5: { label: "Top 5 (default)", names: ["National Institutes of Health", "National Science Foundation", "National Aeronautics and Space Administration", ...DOE_GROUP, ...DOD_GROUP] },
+    top5: { label: "Top 5 (default)", names: ["National Institutes of Health", "National Science Foundation", "National Aeronautics and Space Administration", ...DOE_CHILDREN, ...DOD_CHILDREN] },
     all: { label: "All", names: null }, // null = every currently-known agency
     life: { label: "Life Sciences", names: ["National Institutes of Health", "Defense Health Agency", "Uniformed Services University of the Health Sciences"] },
     physical: { label: "Physical Sciences", names: ["National Science Foundation", "Department of Energy", "National Aeronautics and Space Administration", "Defense Advanced Research Projects Agency", "National Geospatial-Intelligence Agency", "Defense Microelectronics Activity", "Missile Defense Agency", "Defense Threat Reduction Agency"] },
@@ -579,14 +584,29 @@
 
   const agencyTotals = new Map();
   for (const d of rows) agencyTotals.set(d.agency, (agencyTotals.get(d.agency) || 0) + d.total_obligations);
-  // Sorted by funding (descending), not alphabetically - the checklist is
-  // long enough (27 agencies) that surfacing the biggest first matters more
-  // than alphabetical order for a list most people will never fully expand.
-  const agencies = Array.from(agencyTotals.keys()).sort((a, b) => agencyTotals.get(b) - agencyTotals.get(a));
+  const agencies = Array.from(agencyTotals.keys());
+
+  // Parent-name lookup for any raw agency string - also used by charts
+  // (Sankey, Trends) that need to group by the 6 top-tier entities instead
+  // of showing every DOD/DOE sub-office as its own node/series.
+  const PARENT_OF_AGENCY = new Map();
+  const PARENT_GROUPS = [
+    { name: "National Institutes of Health", children: ["National Institutes of Health"] },
+    { name: "National Science Foundation", children: ["National Science Foundation"] },
+    { name: "National Aeronautics and Space Administration", children: ["National Aeronautics and Space Administration"] },
+    { name: "Department of Energy", children: DOE_CHILDREN },
+    { name: "Department of Defense", children: DOD_CHILDREN },
+    { name: "Environmental Protection Agency", children: ["Environmental Protection Agency"] },
+  ].map(g => ({ name: g.name, children: g.children.filter(c => agencies.includes(c)) }))
+    .filter(g => g.children.length > 0)
+    .sort((a, b) => d3.sum(b.children, c => agencyTotals.get(c) || 0) - d3.sum(a.children, c => agencyTotals.get(c) || 0));
+  for (const g of PARENT_GROUPS) for (const c of g.children) PARENT_OF_AGENCY.set(c, g.name);
+  function parentAgencyOf(agency) { return PARENT_OF_AGENCY.get(agency) || agency; }
 
   let selectedAgencies = new Set(
     AGENCY_PRESETS.top5.names.filter(n => agencies.includes(n))
   );
+  let expandedGroups = new Set();
 
   const agencyBtn = document.getElementById("agency-select-btn");
   const agencyPanel = document.getElementById("agency-panel");
@@ -622,32 +642,82 @@
     .text(d => d[1].label)
     .on("click", (event, [key, preset]) => {
       selectedAgencies = new Set(preset.names === null ? agencies : preset.names.filter(n => agencies.includes(n)));
+      // Auto-expand any group this preset only partially selected, so the
+      // user can see which of its sub-offices actually got picked instead
+      // of just an indeterminate checkbox with no visible explanation.
+      for (const g of PARENT_GROUPS) {
+        const n = g.children.filter(c => selectedAgencies.has(c)).length;
+        if (n > 0 && n < g.children.length) expandedGroups.add(g.name); else expandedGroups.delete(g.name);
+      }
       refreshAgencyUI();
       renderActiveTab();
     });
 
-  const checklistWrap = d3.select("#agency-checklist");
-  const checkRows = checklistWrap.selectAll(".agency-check-row").data(agencies).join("label").attr("class", "agency-check-row");
-  checkRows.append("input").attr("type", "checkbox")
-    .on("change", (event, d) => {
-      if (event.target.checked) selectedAgencies.add(d); else selectedAgencies.delete(d);
-      refreshAgencyUI();
-      renderActiveTab();
-    });
-  checkRows.append("span").text(d => d);
-  checkRows.append("span").attr("class", "agency-amt").text(d => formatMoneyShort(agencyTotals.get(d)));
+  function renderAgencyChecklist() {
+    const checklistWrap = d3.select("#agency-checklist");
+    checklistWrap.html("");
+    for (const g of PARENT_GROUPS) {
+      const selectedCount = g.children.filter(c => selectedAgencies.has(c)).length;
+      const isExpandable = g.children.length > 1;
+      const row = checklistWrap.append("label").attr("class", "agency-check-row agency-check-parent");
+      row.append("span")
+        .attr("class", isExpandable ? "agency-expand-toggle" : "agency-expand-toggle-spacer")
+        .text(isExpandable ? (expandedGroups.has(g.name) ? "▾" : "▸") : "")
+        .on("click", (event) => {
+          if (!isExpandable) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (expandedGroups.has(g.name)) expandedGroups.delete(g.name); else expandedGroups.add(g.name);
+          renderAgencyChecklist();
+        });
+      row.append("input").attr("type", "checkbox")
+        .property("checked", selectedCount === g.children.length)
+        .property("indeterminate", selectedCount > 0 && selectedCount < g.children.length)
+        .on("click", (event) => {
+          event.stopPropagation();
+          const allSelected = g.children.every(c => selectedAgencies.has(c));
+          for (const c of g.children) { if (allSelected) selectedAgencies.delete(c); else selectedAgencies.add(c); }
+          refreshAgencyUI();
+          renderActiveTab();
+        });
+      row.append("span").text(g.name);
+      row.append("span").attr("class", "agency-amt").text(formatMoneyShort(d3.sum(g.children, c => agencyTotals.get(c) || 0)));
+
+      if (isExpandable && expandedGroups.has(g.name)) {
+        for (const c of g.children) {
+          const childRow = checklistWrap.append("label").attr("class", "agency-check-row agency-check-child");
+          childRow.append("input").attr("type", "checkbox")
+            .property("checked", selectedAgencies.has(c))
+            .on("change", (event) => {
+              event.stopPropagation();
+              if (event.target.checked) selectedAgencies.add(c); else selectedAgencies.delete(c);
+              refreshAgencyUI();
+              renderActiveTab();
+            });
+          childRow.append("span").text(c);
+          childRow.append("span").attr("class", "agency-amt").text(formatMoneyShort(agencyTotals.get(c) || 0));
+        }
+      }
+    }
+  }
 
   function refreshAgencyUI() {
     updateAgencyButton();
     const activeKey = matchingPresetKey();
     presetsWrap.selectAll("button").classed("active", d => d[0] === activeKey);
-    checklistWrap.selectAll(".agency-check-row input").property("checked", d => selectedAgencies.has(d));
+    renderAgencyChecklist();
   }
   refreshAgencyUI();
 
   agencyBtn.addEventListener("click", () => agencyPanel.classList.toggle("open"));
   document.addEventListener("click", (event) => {
-    if (!document.getElementById("agency-control").contains(event.target)) agencyPanel.classList.remove("open");
+    // composedPath() captures the event's path at dispatch time, unlike
+    // Node.contains() which re-checks the live DOM - a click that rebuilds
+    // the checklist (expand toggle, checkbox) detaches its own target node
+    // before this listener runs, which would make contains() wrongly
+    // report "outside" and close the panel on every single interaction
+    // inside it.
+    if (!event.composedPath().includes(document.getElementById("agency-control"))) agencyPanel.classList.remove("open");
   });
 
   const years = Array.from(new Set(rows.map(d => d.fiscal_year))).sort((a, b) => a - b);
@@ -1089,32 +1159,15 @@
     return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  // Money Flow specifically: with 6 agencies now tracked, DOD and DOE each
-  // report through a long tail of small sub-offices (Defense Logistics
-  // Agency, Missile Defense Agency, Assistant Secretary for Fossil Energy,
-  // ...) that together add up to well under 1% of tracked funding but each
-  // still claimed their own Sankey node, cluttering the diagram with tiny
-  // overlapping labels. Consolidated into a single "Other agencies" node
-  // for Money Flow's node grouping only - the full per-sub-agency detail is
-  // still available via the Agency filter dropdown and the Rankings tab.
-  const SANKEY_VISIBLE_AGENCIES = new Set([
-    "National Institutes of Health",
-    "National Science Foundation",
-    "Department of Energy",
-    "Environmental Protection Agency",
-    "National Aeronautics and Space Administration",
-    "Department of Defense",
-    "Department of the Army",
-    "Department of the Navy",
-    "Department of the Air Force",
-    "Defense Health Agency",
-    "Defense Advanced Research Projects Agency",
-    "Uniformed Services University of the Health Sciences",
-  ]);
+  // Money Flow (and Trends' stacked-area chart) group by the same 6
+  // top-tier entities as the Agency selector, not by raw sub-agency string -
+  // DOD/DOE's ~20 combined sub-offices would otherwise each claim their own
+  // node/series. Full per-sub-office detail is still available by expanding
+  // that agency in the selector and picking specific sub-offices.
   function consolidateAgencyMap(byAgency) {
     const out = new Map();
     for (const [ag, amt] of byAgency) {
-      const label = SANKEY_VISIBLE_AGENCIES.has(ag) ? ag : "Other agencies";
+      const label = parentAgencyOf(ag);
       out.set(label, (out.get(label) || 0) + amt);
     }
     return out;
@@ -1746,19 +1799,24 @@
     const w = 560 - margin.left - margin.right, h = 320 - margin.top - margin.bottom;
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Grouped by the 6 top-tier entities, not the raw per-row agency string
+    // - otherwise DOD/DOE's ~20 combined sub-offices would each get their
+    // own stack layer and legend entry.
+    const parentNames = PARENT_GROUPS.map(g => g.name);
     const byYearAgency = new Map();
     for (const d of rows) {
       if (postal && d.state_code !== postal) continue;
       if (!byYearAgency.has(d.fiscal_year)) byYearAgency.set(d.fiscal_year, {});
       const rec = byYearAgency.get(d.fiscal_year);
-      rec[d.agency] = (rec[d.agency] || 0) + d.total_obligations;
+      const parent = parentAgencyOf(d.agency);
+      rec[parent] = (rec[parent] || 0) + d.total_obligations;
     }
     const data = years.map(y => ({ year: y, ...byYearAgency.get(y) }));
-    const stack = d3.stack().keys(agencies).value((d, key) => d[key] || 0)(data);
+    const stack = d3.stack().keys(parentNames).value((d, key) => d[key] || 0)(data);
 
     const x = d3.scaleLinear().domain(d3.extent(years)).range([0, w]);
     const y = d3.scaleLinear().domain([0, d3.max(stack, s => d3.max(s, d => d[1]))]).nice().range([h, 0]);
-    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(agencies);
+    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(parentNames);
     const area = d3.area().x(d => x(d.data.year)).y0(d => y(d[0])).y1(d => y(d[1]));
 
     g.selectAll("path").data(stack).join("path").attr("d", area).attr("fill", d => color(d.key)).attr("opacity", 0.85)
@@ -1769,7 +1827,7 @@
     g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickFormat(formatCountShort));
 
     const legend = svg.append("g").attr("transform", `translate(${margin.left + 10},${margin.top + 6})`);
-    agencies.forEach((a, i) => {
+    parentNames.forEach((a, i) => {
       legend.append("rect").attr("x", 0).attr("y", i * 14).attr("width", 10).attr("height", 10).attr("fill", color(a));
       legend.append("text").attr("x", 14).attr("y", i * 14 + 9).attr("font-size", 9).attr("fill", "var(--text)").text(a);
     });
