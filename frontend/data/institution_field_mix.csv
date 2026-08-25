@@ -160,17 +160,6 @@ CWKJEXDG79A7,Chemistry,Physical Sciences,0.0027644
 CWKJEXDG79A7,Health Professions,Health Sciences,0.0020877
 CWKJEXDG79A7,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.0019933
 CWKJEXDG79A7,Computer Science,Physical Sciences,0.0019216
-D27FSZD2L2U9,Social Sciences,Social Sciences,0.0036677
-D27FSZD2L2U9,Health Professions,Health Sciences,0.0018288000000000002
-D27FSZD2L2U9,Arts and Humanities,Social Sciences,0.001139
-D27FSZD2L2U9,Psychology,Social Sciences,0.0011137
-D27FSZD2L2U9,Engineering,Physical Sciences,0.0006194
-D27FSZD2L2U9,Computer Science,Physical Sciences,0.0005397
-D27FSZD2L2U9,Agricultural and Biological Sciences,Life Sciences,0.0003682
-D27FSZD2L2U9,Medicine,Health Sciences,0.0003253
-D27FSZD2L2U9,Environmental Science,Physical Sciences,0.000322
-D27FSZD2L2U9,Neuroscience,Life Sciences,0.0003142
-D27FSZD2L2U9,Decision Sciences,Social Sciences,0.0002765
 D33QGS3Q3DJ3,Physics and Astronomy,Physical Sciences,0.0250667
 D33QGS3Q3DJ3,Social Sciences,Social Sciences,0.023034699999999998
 D33QGS3Q3DJ3,Chemistry,Physical Sciences,0.0055919
@@ -1586,6 +1575,13 @@ KMZBB7SJBP72,Chemical Engineering,Physical Sciences,5.85e-05
 KMZBB7SJBP72,Engineering,Physical Sciences,4.51e-05
 KMZBB7SJBP72,Agricultural and Biological Sciences,Life Sciences,4.17e-05
 KMZBB7SJBP72,Health Professions,Health Sciences,3.56e-05
+KQ1KJG78NNS9,Agricultural and Biological Sciences,Life Sciences,0.05367349999999999
+KQ1KJG78NNS9,Earth and Planetary Sciences,Physical Sciences,0.035365
+KQ1KJG78NNS9,"Biochemistry, Genetics and Molecular Biology",Life Sciences,0.030076600000000002
+KQ1KJG78NNS9,Environmental Science,Physical Sciences,0.0298332
+KQ1KJG78NNS9,Social Sciences,Social Sciences,0.0171934
+KQ1KJG78NNS9,Physics and Astronomy,Physical Sciences,0.0064283
+KQ1KJG78NNS9,Arts and Humanities,Social Sciences,0.0056552
 KSJKE3KVNBB4,Physics and Astronomy,Physical Sciences,0.0154665
 KSJKE3KVNBB4,Engineering,Physical Sciences,0.0042134
 KSJKE3KVNBB4,Earth and Planetary Sciences,Physical Sciences,0.0038252

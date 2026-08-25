@@ -437,7 +437,8 @@
 
     <h2 style="font-size: 14px; margin: 0 0 8px;">Agencies tracked, and why each is scoped the way it is</h2>
     <div style="margin-bottom: 16px;">
-      <div style="margin-bottom: 10px;"><strong>NIH, NSF, NASA</strong> - pulled at full agency scope, no additional filtering. Checked NASA's top grant recipients directly before adding it: genuinely research institutions and nonprofits, no filtering needed.</div>
+      <div style="margin-bottom: 10px;"><strong>NIH, NSF</strong> - pulled at full agency scope, no additional filtering.</div>
+      <div style="margin-bottom: 10px;"><strong>NASA</strong> - mostly unrestricted (its recipient base is otherwise genuinely research institutions and nonprofits - Bay Area Environmental Research Institute, SETI Institute, Universities Space Research Association, small SBIR-style research firms), but it also funds large aerospace/defense contractors directly under the same grant-type codes (Boeing, Lockheed Martin, Northrop Grumman, Raytheon, BAE Systems). Excludes recipients tagged "for-profit organization, other than small business" - deliberately narrower than that: small research businesses (the same kind DOD/DOE/EPA keep) are left alone, since those are genuinely small science/research firms, not large contractors.</div>
       <div style="margin-bottom: 10px;"><strong>DOE, EPA</strong> - restricted to recipients tagged as an institution of higher education. Pulled at full scope, both are dominated by non-research grant programs: DOE by state energy-program and weatherization formula grants (plus large industrial clean-energy-deployment grants - e.g. a single $1.7B award to a nuclear fuel company), EPA by multibillion-dollar "green bank" climate-finance grants (Greenhouse Gas Reduction Fund - one recipient alone received $6.97B in FY2024) and state environmental-agency formula grants. Neither agency exposes a clean sub-agency/office split that USAspending's bulk download API can filter on, so the restriction is applied after pulling the data, using each recipient's business type. Verified this produces a clean list of real university grants (e.g. Kansas State, University of Arizona, Fordham) with the non-research programs correctly excluded.</div>
       <div style="margin-bottom: 10px;"><strong>DOD</strong> - same university-only restriction, plus a curated allow-list of legitimate research-performing nonprofits DOD funds directly (military medicine, applied research institutes) that a university-only filter would otherwise wrongly exclude: Henry M. Jackson Foundation, Battelle Memorial Institute, Research Triangle Institute, National Academy of Sciences, Woods Hole Oceanographic Institution, The General Hospital Corporation (Massachusetts General), The Morgridge Institute for Research, Charles Stark Draper Laboratory, Oak Ridge Associated Universities, Georgia Tech Research Corp, Vanderbilt University Medical Center, Denver Research Institute. Built by inspecting DOD's actual top nonprofit grant recipients (FY2016-2024), not guessed - explicitly excludes manufacturing/industrial consortiums (e.g. National Center for Manufacturing Sciences, FlexTech Alliance), non-research service organizations (USO, Red Cross, land-conservation trusts), and other non-research grant programs (Air Force Academy Athletic Corporation, Young Marines).</div>
       <div><strong>Department of Education</strong> - not included. Its grant-type data is dominated by state K-12 formula grants (Title I, IDEA - billions of dollars each, via state education agencies), worse than DOE/EPA's contamination. The same higher-education business-type filter that worked cleanly for DOE/EPA did not cleanly exclude these state agencies when tested - so ED was left out rather than shipped with an unverified filter.</div>
@@ -456,6 +457,11 @@
     <h2 style="font-size: 14px; margin: 0 0 8px;">Field allocation</h2>
     <div style="margin-bottom: 16px;">
       Research-field breakdowns (Money Flow, Research Fields, Rankings) are an estimate, not tagged per award: each institution's funding is split across fields in proportion to that institution's own OpenAlex research-topic mix, renormalized since OpenAlex only tracks roughly the 25 most significant topics per institution. "Other field(s)" and "Untracked institutions" absorb two different things under one label: an institution's own topics outside its tracked top 25, and funding to institutions outside the top-500 cutoff entirely (which can't be allocated to any field since we don't know which institution it went to). State and agency totals shown alongside these breakdowns are the true full totals either way - only the field split itself is an estimate.
+    </div>
+
+    <h2 style="font-size: 14px; margin: 0 0 8px;">Money Flow's agency grouping</h2>
+    <div style="margin-bottom: 16px;">
+      With 6 agencies tracked, DOD and DOE each report through a long tail of small sub-offices (Defense Logistics Agency, Missile Defense Agency, Assistant Secretary for Fossil Energy, and a dozen more) that together total well under 1% of tracked funding but each still claimed their own node, making the diagram's left side unreadable. These are grouped into a single "Other agencies" node in Money Flow specifically - the dollar totals aren't affected, and full detail for every individual sub-agency is still available via the Agency filter dropdown and the Rankings tab.
     </div>
 
     <h2 style="font-size: 14px; margin: 0 0 8px;">Known limitations, not yet resolved</h2>
@@ -929,6 +935,37 @@
     return (s || "").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
+  // Money Flow specifically: with 6 agencies now tracked, DOD and DOE each
+  // report through a long tail of small sub-offices (Defense Logistics
+  // Agency, Missile Defense Agency, Assistant Secretary for Fossil Energy,
+  // ...) that together add up to well under 1% of tracked funding but each
+  // still claimed their own Sankey node, cluttering the diagram with tiny
+  // overlapping labels. Consolidated into a single "Other agencies" node
+  // for Money Flow's node grouping only - the full per-sub-agency detail is
+  // still available via the Agency filter dropdown and the Rankings tab.
+  const SANKEY_VISIBLE_AGENCIES = new Set([
+    "National Institutes of Health",
+    "National Science Foundation",
+    "Department of Energy",
+    "Environmental Protection Agency",
+    "National Aeronautics and Space Administration",
+    "Department of Defense",
+    "Department of the Army",
+    "Department of the Navy",
+    "Department of the Air Force",
+    "Defense Health Agency",
+    "Defense Advanced Research Projects Agency",
+    "Uniformed Services University of the Health Sciences",
+  ]);
+  function consolidateAgencyMap(byAgency) {
+    const out = new Map();
+    for (const [ag, amt] of byAgency) {
+      const label = SANKEY_VISIBLE_AGENCIES.has(ag) ? ag : "Other agencies";
+      out.set(label, (out.get(label) || 0) + amt);
+    }
+    return out;
+  }
+
   function renderScatter() {
     const { start, end } = getYearRange();
     const agency = agencySelect.property("value");
@@ -1036,7 +1073,7 @@
 
       for (const [uei, e] of topInst) {
         const instNodeName = "inst:" + titleCase(e.name);
-        for (const [ag, amt] of e.byAgency) {
+        for (const [ag, amt] of consolidateAgencyMap(e.byAgency)) {
           if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(instNodeName), value: amt });
         }
         const fields = (fieldByUei.get(uei) || []).slice().sort((a, b) => b.share - a.share);
@@ -1087,7 +1124,7 @@
         }
       }
       const otherInstNodeName = "inst:Other institutions";
-      for (const [ag, amt] of otherByAgency) {
+      for (const [ag, amt] of consolidateAgencyMap(otherByAgency)) {
         if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherInstNodeName), value: amt });
       }
       const otherFieldAlloc = fieldBreakdownForFunding(otherFunding);
@@ -1134,7 +1171,7 @@
       for (const fieldName of topFields) {
         const e = byField.get(fieldName);
         const fieldNodeName = "field:" + fieldName;
-        for (const [ag, amt] of e.byAgency) {
+        for (const [ag, amt] of consolidateAgencyMap(e.byAgency)) {
           if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(fieldNodeName), value: amt });
         }
         const statesArr = Array.from(e.byState, ([stCode, amt]) => ({ stCode, amt })).sort((a, b) => b.amt - a.amt);
@@ -1162,7 +1199,7 @@
       for (const [st, amt] of residualByState) otherFieldByState.set(st, (otherFieldByState.get(st) || 0) + amt);
       otherFieldTotal += residualTotal;
       const otherFieldNodeName = "field:Other fields";
-      for (const [ag, amt] of otherFieldByAgency) {
+      for (const [ag, amt] of consolidateAgencyMap(otherFieldByAgency)) {
         if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherFieldNodeName), value: amt });
       }
       const otherStatesArr = Array.from(otherFieldByState, ([stCode, amt]) => ({ stCode, amt })).filter(d => d.amt > 0).sort((a, b) => b.amt - a.amt);
@@ -1202,7 +1239,7 @@
 
       for (const [stCode, e] of topStates) {
         const stateNodeName = "state:" + titleCase(stateNameByPostal.get(stCode) || stCode);
-        for (const [ag, amt] of e.byAgency) {
+        for (const [ag, amt] of consolidateAgencyMap(e.byAgency)) {
           if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(stateNodeName), value: amt });
         }
         const fieldAlloc = computeFieldAllocation(start, end, agency, stCode);
@@ -1225,7 +1262,7 @@
         for (const [ag, amt] of e.byAgency) otherByAgency.set(ag, (otherByAgency.get(ag) || 0) + amt);
       }
       const otherStateNodeName = "state:Other states";
-      for (const [ag, amt] of otherByAgency) {
+      for (const [ag, amt] of consolidateAgencyMap(otherByAgency)) {
         if (amt > 0) links.push({ source: nodeIndex(ag), target: nodeIndex(otherStateNodeName), value: amt });
       }
       const otherFieldAlloc = fieldAllocationForInstitutions(start, end, agency, sc => !topStateCodes.has(sc));

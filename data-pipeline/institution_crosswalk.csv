@@ -22,7 +22,6 @@ CJAJYT2KW771,SOUTH DAKOTA SCHOOL OF MINES & TECHNOLOGY,RAPID CITY,SD,https://ope
 CJDNG9D14MW7,UNIVERSITY OF RHODE ISLAND,KINGSTON,RI,https://openalex.org/I17626003,https://ror.org/013ckk937,University of Rhode Island,1.0
 CL7KJX2VFHS9,MISSOURI STATE UNIVERSITY,SPRINGFIELD,MO,https://openalex.org/I119942284,https://ror.org/01d2sez20,Missouri State University,1.0
 CWKJEXDG79A7,BATTELLE MEMORIAL INSTITUTE,RICHLAND,WA,https://openalex.org/I1325736334,https://ror.org/01h5tnr73,Battelle,1.0
-D27FSZD2L2U9,THE BOEING COMPANY,SAINT LOUIS,MO,https://openalex.org/I890505096,https://ror.org/017qqw141,Singer (United States),0.514
 D33QGS3Q3DJ3,SOUTHERN METHODIST UNIVERSITY,DALLAS,TX,https://openalex.org/I178169726,https://ror.org/042tdr378,Southern Methodist University,1.0
 D3LHU66KBLD5,UNIVERSITY OF NORTH CAROLINA AT CHAPEL HILL,CHAPEL HILL,NC,https://openalex.org/I114027177,https://ror.org/0130frc33,University of North Carolina at Chapel Hill,1.0
 D5S9JZ1KDP49,"NATIONAL COLLEGIATE INVENTORS & INNOVATORS ALLIANCE, INC.",HADLEY,MA,https://openalex.org/I4210093188,https://ror.org/00mgk5c15,VentureWell,0.802
@@ -179,7 +178,7 @@ J3Z5MNJJ3FZ4,MAGEE-WOMENS RESEARCH INSTITUTE AND FOUNDATION,PITTSBURGH,PA,https:
 J4EYPCJDQ1H6,TEXAS BIOMEDICAL RESEARCH INSTITUTE,SAN ANTONIO,TX,https://openalex.org/I1289525096,https://ror.org/00wbskb04,Texas Biomedical Research Institute,1.0
 J6TWTRKC1X14,ROCHESTER INSTITUTE OF TECHNOLOGY,ROCHESTER,NY,https://openalex.org/I155173764,https://ror.org/00v4yb702,Rochester Institute of Technology,1.0
 J7WULLYGFRH1,WESTERN MICHIGAN UNIVERSITY,KALAMAZOO,MI,https://openalex.org/I141649380,https://ror.org/04j198w64,Western Michigan University,1.0
-J9CDGR596MN3,THE CURATORS OF THE UNIVERSITY OF MISSOURI,KANSAS CITY,MO,https://openalex.org/I76835614,https://ror.org/02ymw8z06,University of Missouri,0.723
+J9CDGR596MN3,THE CURATORS OF THE UNIVERSITY OF MISSOURI,COLUMBIA,MO,https://openalex.org/I76835614,https://ror.org/02ymw8z06,University of Missouri,0.723
 JB33DT84JNA5,UNIVERSITY OF NORTH CAROLINA AT CHARLOTTE,CHARLOTTE,NC,https://openalex.org/I102149020,https://ror.org/04dawnj30,University of North Carolina at Charlotte,1.0
 JBQ9M3PLFDP5,UNIVERSITY OF WISCONSIN SYSTEM,MILWAUKEE,WI,https://openalex.org/I1304256225,https://ror.org/03ydkyb10,University of Wisconsin System,1.0
 JDLVAVGYJQ21,PRESIDENT AND FELLOWS OF HARVARD COLLEGE,BOSTON,MA,https://openalex.org/I145311948,https://ror.org/00za53h95,Harvard University,manual
@@ -213,6 +212,7 @@ KG76WYENL5K1,NORTHWESTERN UNIVERSITY,EVANSTON,IL,https://openalex.org/I111979921
 KH6NJ6ND8737,J.DAVID GLADSTONE INSTITUTES,SAN FRANCISCO,CA,https://openalex.org/I1321430492,https://ror.org/038321296,Gladstone Institutes,0.733
 KMH5K9V7S518,"REGENTS OF THE UNIVERSITY OF CALIFORNIA, SAN FRANCISCO, THE",SAN FRANCISCO,CA,https://openalex.org/I180670191,https://ror.org/043mz5j54,"University of California, San Francisco",1.0
 KMZBB7SJBP72,"CONSORTIUM FOR OCEAN LEADERSHIP, INC.",WASHINGTON,DC,https://openalex.org/I4210110682,https://ror.org/01wn80b84,Consortium For Ocean Leadership,0.816
+KQ1KJG78NNS9,SMITHSONIAN INSTITUTION,WASHINGTON,DC,https://openalex.org/I103187081,https://ror.org/01pp8nd67,Smithsonian Institution,1.0
 KSJKE3KVNBB4,HAMPTON UNIVERSITY,HAMPTON,VA,https://openalex.org/I151328261,https://ror.org/05fde5z47,Hampton University,1.0
 KU3DCFJJTVN3,TEXAS A&M AGRILIFE RESEARCH,COLLEGE STATION,TX,https://openalex.org/I91045830,https://ror.org/01f5ytq51,Texas A&M University,0.444
 KUKXRCZ6NZC2,SLOAN-KETTERING INSTITUTE FOR CANCER RESEARCH,NEW YORK,NY,https://openalex.org/I1334819555,,Memorial Sloan Kettering Cancer Center,manual
@@ -326,7 +326,7 @@ NPU8ULVAAS23,"UNIVERSITY OF MARYLAND, COLLEGE PARK",COLLEGE PARK,MD,https://open
 NQMVAAQUFU53,THE RESEARCH FOUNDATION FOR THE STATE UNIVERSITY OF NEW YORK,BINGHAMTON,NY,https://openalex.org/I4210111819,https://ror.org/01sfc5174,Research Foundation for the State University of New York,1.0
 NRJ8QC6LM4T1,THE HEKTOEN INSTITUTE FOR MEDICAL RESEARCH,CHICAGO,IL,https://openalex.org/I4210149207,https://ror.org/05y2m0c09,Institute for Medical Research,0.797
 NSCKLFSSABF2,UNIVERSITY OF HAWAII,HONOLULU,HI,https://openalex.org/I1331384533,https://ror.org/03tzaeb71,University of Hawaii System,1.0
-NTLHJXM55KZ6,ARIZONA STATE UNIVERSITY,TEMPE,AZ,https://openalex.org/I55732556,https://ror.org/03efmqc40,Arizona State University,1.0
+NTLHJXM55KZ6,ARIZONA STATE UNIVERSITY,SCOTTSDALE,AZ,https://openalex.org/I55732556,https://ror.org/03efmqc40,Arizona State University,1.0
 NTXJM52SHKS7,MISSISSIPPI STATE UNIVERSITY,MISSISSIPPI STATE,MS,https://openalex.org/I99041443,https://ror.org/0432jq872,Mississippi State University,1.0
 NUNHAKQ7MS86,"COGNITION THERAPEUTICS, INC.",PURCHASE,NY,https://openalex.org/I4210135492,,Cognition Therapeutics (United States),manual
 NVUWAFWQ57S5,"WESTAT, INC.",BETHESDA,MD,https://openalex.org/I1333523220,,Westat (United States),manual
@@ -395,7 +395,7 @@ SSUJB3GSH8A5,UNIVERSITY OF KANSAS CENTER FOR RESEARCH INC,LAWRENCE,KS,https://op
 SZ32VTCXM799,SEATTLE CHILDREN'S HOSPITAL,SEATTLE,WA,https://openalex.org/I1295499534,https://ror.org/01njes783,Seattle Children's Hospital,1.0
 SZAKFNU35ZX5,LOMA LINDA UNIVERSITY,LOMA LINDA,CA,https://openalex.org/I26347476,https://ror.org/04bj28v14,Loma Linda University,1.0
 SZPJL5ZRCLF4,UNIVERSITY OF MISSOURI SYSTEM,COLUMBIA,MO,https://openalex.org/I76835614,https://ror.org/02ymw8z06,University of Missouri,1.0
-T3NGNR66YK89,"RUTGERS, THE STATE UNIVERSITY",PISCATAWAY,NJ,https://openalex.org/I102322142,https://ror.org/05vt9qd57,"Rutgers, The State University of New Jersey",0.743
+T3NGNR66YK89,"RUTGERS, THE STATE UNIVERSITY",NEWARK,NJ,https://openalex.org/I102322142,https://ror.org/05vt9qd57,"Rutgers, The State University of New Jersey",0.743
 T6J6AF3AM8M8,MIAMI UNIVERSITY,OXFORD,OH,https://openalex.org/I83328450,https://ror.org/05nbqxr67,Miami University,1.0
 T72NHKM259N3,UNIVERSITY OF DELAWARE,NEWARK,DE,https://openalex.org/I86501945,https://ror.org/01sbq1a82,University of Delaware,1.0
 TF2CMKY1HMX9,GEORGETOWN UNIVERSITY,WASHINGTON,DC,https://openalex.org/I184565670,https://ror.org/05vzafd60,Georgetown University,1.0
@@ -418,7 +418,7 @@ U5WBFKEBLMX3,RENSSELAER POLYTECHNIC INSTITUTE,TROY,NY,https://openalex.org/I1657
 U9EDNSCHTBE7,THE UNIVERSITY OF SOUTH DAKOTA,VERMILLION,SD,https://openalex.org/I189957204,https://ror.org/0043h8f16,University of South Dakota,1.0
 U9JCYEXFEEU4,TUSKEGEE UNIVERSITY,TUSKEGEE INSTITUTE,AL,https://openalex.org/I6026837,https://ror.org/0137n4m74,Tuskegee University,1.0
 ULMJJBL7ZXX3,MAYO CLINIC ARIZONA,SCOTTSDALE,AZ,https://openalex.org/I4210125099,,Mayo Clinic in Arizona,manual
-UNVDZNFA8R29,PRESIDENT AND FELLOWS OF HARVARD COLLEGE,BOSTON,MA,https://openalex.org/I145311948,https://ror.org/00za53h95,Harvard University,manual
+UNVDZNFA8R29,PRESIDENT AND FELLOWS OF HARVARD COLLEGE,CAMBRIDGE,MA,https://openalex.org/I145311948,https://ror.org/00za53h95,Harvard University,manual
 UUUMQVGJNNX1,"JOSLIN DIABETES CENTER, INC.",BOSTON,MA,https://openalex.org/I1293231726,https://ror.org/0280a3n32,Joslin Diabetes Center,0.809
 UWNWSADJYYZ3,"EPICYPHER, INC.",DURHAM,NC,https://openalex.org/I4210112451,,EpiCypher (United States),manual
 UYLKBRENAPG5,"THE HENRY M. JACKSON FOUNDATION FOR THE ADVANCEMENT OF MILITARY MEDICINE, INC.",BETHESDA,MD,https://openalex.org/I1280259254,https://ror.org/04q9tew83,Henry M. Jackson Foundation,0.448

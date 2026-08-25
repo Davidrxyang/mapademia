@@ -66,6 +66,21 @@ DOD_RESEARCH_NONPROFIT_NAMES = [
     "DENVER RESEARCH INSTITUTE",
 ]
 
+# NASA's recipient base is otherwise clean (real universities and research
+# nonprofits - Bay Area Environmental Research Institute, SETI Institute,
+# Universities Space Research Association, small SBIR-style research
+# companies like Eureka Scientific and Remote Sensing Systems), so it's left
+# unrestricted rather than limited to an allow-list. But it does also fund
+# large aerospace/defense contractors directly (Boeing, Lockheed Martin,
+# Northrop Grumman, Raytheon, BAE Systems) under the same grant-type codes -
+# these are "for-profit organization, other than small business" (business
+# type Q), a distinct category from small research businesses (R, left
+# alone - confirmed those are genuinely small science/research firms, not
+# large contractors). Excluding Q only, not R, targets the actual problem
+# without also cutting legitimate small-business research funding.
+FOR_PROFIT_EXCLUDED_BUSINESS_TYPE_CODES = ["Q"]
+FOR_PROFIT_EXCLUDED_AGENCIES = ["National Aeronautics and Space Administration"]
+
 
 def main():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
@@ -86,6 +101,12 @@ def main():
     # substring check per code is the correct match, not an exact one.
     higher_ed_clause_sql = " or ".join(f"business_types_code like '%{c}%'" for c in HIGHER_ED_BUSINESS_TYPE_CODES)
     dod_nonprofits_sql = ", ".join("'" + n.replace("'", "''") + "'" for n in DOD_RESEARCH_NONPROFIT_NAMES)
+    for_profit_excluded_agencies_sql = ", ".join(
+        "'" + a.replace("'", "''") + "'" for a in FOR_PROFIT_EXCLUDED_AGENCIES
+    )
+    for_profit_codes_clause_sql = " or ".join(
+        f"business_types_code like '%{c}%'" for c in FOR_PROFIT_EXCLUDED_BUSINESS_TYPE_CODES
+    )
     con.execute(f"""
         create table transactions as
         select
@@ -107,6 +128,10 @@ def main():
               awarding_agency_name not in ({restricted_agencies_sql})
               or ({higher_ed_clause_sql})
               or (awarding_agency_name = 'Department of Defense' and upper(recipient_name) in ({dod_nonprofits_sql}))
+          )
+          and not (
+              awarding_agency_name in ({for_profit_excluded_agencies_sql})
+              and ({for_profit_codes_clause_sql})
           )
     """)
 
