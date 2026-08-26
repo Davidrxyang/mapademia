@@ -926,6 +926,53 @@
     renderInstitutions(start, end, agency);
   }
 
+  // DC is geographically tiny on an Albers USA map (a few px wide), so its
+  // state path alone is hard to see or click. Adds a leader line to an
+  // enlarged, offset circle over open water - same fill/tooltip/click
+  // behavior as the real state path, just a bigger target for it.
+  function renderDcCallout(fillFor, tooltipHtmlFor) {
+    const dcFeature = states.find(s => pad2(s.id) === "11");
+    if (!dcFeature) return;
+    const [cx, cy] = nationalPath.centroid(dcFeature);
+    const calloutX = cx + 50;
+    const calloutY = cy - 42;
+
+    svg.append("line")
+      .attr("x1", cx).attr("y1", cy)
+      .attr("x2", calloutX - 11).attr("y2", calloutY + 9)
+      .attr("stroke", "var(--muted)")
+      .attr("stroke-width", 1);
+
+    const g = svg.append("g")
+      .style("cursor", "pointer")
+      .on("mousemove", (event) => {
+        tooltip
+          .style("opacity", 1)
+          .style("left", event.clientX + 14 + "px")
+          .style("top", event.clientY + 14 + "px")
+          .html(tooltipHtmlFor(dcFeature));
+      })
+      .on("mouseleave", () => tooltip.style("opacity", 0))
+      .on("click", () => {
+        selectedFips = "11";
+        selectedUei = null;
+        render();
+      });
+
+    g.append("circle")
+      .attr("cx", calloutX).attr("cy", calloutY).attr("r", 10)
+      .attr("fill", fillFor(dcFeature))
+      .attr("stroke", "var(--bg)").attr("stroke-width", 1.5);
+
+    g.append("text")
+      .attr("x", calloutX).attr("y", calloutY - 15)
+      .attr("text-anchor", "middle")
+      .attr("font-size", 10.5)
+      .attr("font-weight", 600)
+      .attr("fill", "var(--muted)")
+      .text("D.C.");
+  }
+
   function renderNationalMap(start, end, agency) {
     svg.selectAll("*").remove();
     const formulaNote = document.getElementById("yield-formula-note");
@@ -973,6 +1020,21 @@
           selectedUei = null;
           render();
         });
+
+      renderDcCallout(
+        (d) => {
+          const rec = current.get(pad2(d.id));
+          return rec ? color(rec.total_obligations) : "#e9eaec";
+        },
+        (d) => {
+          const rec = current.get(pad2(d.id));
+          const amount = rec ? rec.total_obligations : 0;
+          const awards = rec ? rec.award_count : 0;
+          return `<strong>${d.properties.name}</strong><br>
+                  <span class="amount">$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</span><br>
+                  ${awards.toLocaleString()} awards`;
+        }
+      );
 
       const agencyLabel = agencyLabelText(agency);
       d3.select("#legend").text(`Darker = more funding (${agencyLabel}) · max $${max.toLocaleString(undefined, { maximumFractionDigits: 0 })} · click a state to zoom in`);
@@ -1031,6 +1093,24 @@
         selectedUei = null;
         render();
       });
+
+    renderDcCallout(
+      (d) => {
+        const rec = stateYield.get(postalByFips.get(pad2(d.id)));
+        const val = rec ? rec[metricKey] : null;
+        return val == null ? YIELD_NO_DATA_COLOR : yieldBucketFor(val).color;
+      },
+      (d) => {
+        const rec = stateYield.get(postalByFips.get(pad2(d.id)));
+        const val = rec ? rec[metricKey] : null;
+        const bucket = val == null ? null : yieldBucketFor(val);
+        return val == null
+          ? `<strong>${d.properties.name}</strong><br>Not enough tracked data`
+          : `<strong>${d.properties.name}</strong><br>
+             <span class="amount">${bucket.label}</span> (${val.toFixed(2)}x)<br>
+             ${Math.round(rec[actualKey]).toLocaleString()} actual vs ${Math.round(rec[expectedKey]).toLocaleString()} expected ${unitName}`;
+      }
+    );
 
     const agencyLabel = agencyLabelText(agency);
     d3.select("#legend").text(`Darker = higher ${metricName.toLowerCase()} (${agencyLabel}) · click a state to zoom in`);
