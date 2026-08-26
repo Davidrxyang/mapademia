@@ -934,12 +934,12 @@
     const dcFeature = states.find(s => pad2(s.id) === "11");
     if (!dcFeature) return;
     const [cx, cy] = nationalPath.centroid(dcFeature);
-    const calloutX = cx + 50;
+    const calloutX = cx + 70;
     const calloutY = cy - 12;
 
     svg.append("line")
       .attr("x1", cx).attr("y1", cy)
-      .attr("x2", calloutX - 11).attr("y2", calloutY + 9)
+      .attr("x2", calloutX - 8).attr("y2", calloutY + 3)
       .attr("stroke", "var(--muted)")
       .attr("stroke-width", 1);
 
