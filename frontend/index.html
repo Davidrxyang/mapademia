@@ -935,7 +935,7 @@
     if (!dcFeature) return;
     const [cx, cy] = nationalPath.centroid(dcFeature);
     const calloutX = cx + 50;
-    const calloutY = cy - 42;
+    const calloutY = cy - 12;
 
     svg.append("line")
       .attr("x1", cx).attr("y1", cy)
