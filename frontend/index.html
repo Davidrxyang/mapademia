@@ -686,17 +686,26 @@
     "Department of Defense Education Activity", "Defense Intelligence Agency", "Assistant Secretary for Defense Programs",
     "Defense Contract Management Agency", "Defense Human Resources Activity", "Defense Microelectronics Activity", "Missile Defense Agency",
   ];
+  const agencyTotals = new Map();
+  for (const d of rows) agencyTotals.set(d.agency, (agencyTotals.get(d.agency) || 0) + d.total_obligations);
+  const agencies = Array.from(agencyTotals.keys());
+
+  // NIH alone dwarfs every other agency's funding (its dollar totals are an
+  // order of magnitude above NSF/NASA/DOE/DOD/EPA combined), so including it
+  // by default flattens every other agency to near-invisible on the map's
+  // color scale and buries them in every other chart. Excluded from the
+  // default view for that reason - still one click away via "All" or the
+  // Life Sciences preset.
+  const DEFAULT_AGENCIES = agencies.filter(a => a !== "National Institutes of Health");
+
   const AGENCY_PRESETS = {
-    all: { label: "All (default)", names: null }, // null = every currently-known agency
+    default: { label: "All except NIH (default)", names: DEFAULT_AGENCIES },
+    all: { label: "All", names: null }, // null = every currently-known agency
     life: { label: "Life Sciences", names: ["National Institutes of Health", "Defense Health Agency", "Uniformed Services University of the Health Sciences"] },
     physical: { label: "Physical Sciences", names: ["National Science Foundation", "Department of Energy", "National Aeronautics and Space Administration", "Defense Advanced Research Projects Agency", "National Geospatial-Intelligence Agency", "Defense Microelectronics Activity", "Missile Defense Agency", "Defense Threat Reduction Agency"] },
     environment: { label: "Environmental & Energy", names: ["Environmental Protection Agency", "Department of Energy", "Assistant Secretary for Fossil Energy", "Assistant Secretary for Conservation and Renewable Energy"] },
     defense: { label: "Defense & Security", names: ["Department of Defense", "Department of the Army", "Department of the Navy", "Department of the Air Force", "Defense Logistics Agency", "Defense Intelligence Agency", "Defense Contract Management Agency", "Defense Human Resources Activity", "Defense Prisoner of War/Missing Personnel Office", "Office of Local Defense Community Cooperation", "Washington Headquarters Services", "Department of Defense Education Activity", "Assistant Secretary for Defense Programs"] },
   };
-
-  const agencyTotals = new Map();
-  for (const d of rows) agencyTotals.set(d.agency, (agencyTotals.get(d.agency) || 0) + d.total_obligations);
-  const agencies = Array.from(agencyTotals.keys());
 
   // Parent-name lookup for any raw agency string - also used by charts
   // (Sankey, Trends) that need to group by the 6 top-tier entities instead
@@ -715,7 +724,7 @@
   for (const g of PARENT_GROUPS) for (const c of g.children) PARENT_OF_AGENCY.set(c, g.name);
   function parentAgencyOf(agency) { return PARENT_OF_AGENCY.get(agency) || agency; }
 
-  let selectedAgencies = new Set(agencies);
+  let selectedAgencies = new Set(DEFAULT_AGENCIES);
   let expandedGroups = new Set();
 
   const agencyBtn = document.getElementById("agency-select-btn");
