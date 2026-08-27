@@ -471,7 +471,6 @@
       </button>
     </div>
     <div id="map-wrap">
-      <div class="chart-note" id="yield-formula-note" style="display: none;"></div>
       <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
     </div>
     <div id="institutions-panel">
@@ -505,7 +504,7 @@
         "Expected output" comes from each institution's own OpenAlex field mix (the same estimate used in Money Flow and Research Fields): split the institution's funding across its fields, then convert each field's dollars to an expected paper/citation count using the <em>national</em> rate for that field (total papers or citations ÷ total funding, across all 500 tracked institutions, in that field). Sum across fields to get one institution's expected total. 1.0 = exactly as expected for its field mix; 1.5 = 50% above; 0.5 = half of expected.
       </div>
       <div class="chart-caveat">
-        This is a rough, field-mix-based estimate, not a precise or complete measure of research quality, timeliness, or impact - it doesn't account for basic vs. applied research, equipment costs, or how new a lab is. Funding follows the current Fiscal Year/Agency filters above and reflects only the federal agencies tracked here; output (papers/citations) is each institution's <em>entire</em> all-time OpenAlex record, from all funders, not just the federal dollars tracked here, and lags funding by years - so an institution with substantial non-federal or private funding will show a higher Yield than its federal funding alone would predict, and this compares institutions to each other under the same rules, not an exact rate. Institutions with too little expected output to give a stable ratio are left out rather than shown with a wild number. A handful of institutions are registered under more than one recipient ID pointing to the same OpenAlex entity (e.g. Rutgers); their output is apportioned by funding share to avoid double-counting, but some residual distortion can remain - see the Notes tab for the full list and detail.
+        This is a rough, field-mix-based estimate, not a precise or complete measure of research quality, timeliness, or impact - it doesn't account for basic vs. applied research, equipment costs, or how new a lab is. Funding always uses each institution's <em>entire</em> tracked funding across all agencies, regardless of the Agency filter above - narrowing to one agency would starve the expected-output side for any institution mostly funded elsewhere, blowing up its ratio for no real reason (only the Fiscal Year range still applies). It also reflects only the federal agencies tracked here; output (papers/citations) is each institution's <em>entire</em> all-time OpenAlex record, from all funders, not just the federal dollars tracked here, and lags funding by years - so an institution with substantial non-federal or private funding will show a higher Yield than its federal funding alone would predict, and this compares institutions to each other under the same rules, not an exact rate. Institutions with too little expected output to give a stable ratio are left out rather than shown with a wild number. A handful of institutions are registered under more than one recipient ID pointing to the same OpenAlex entity (e.g. Rutgers); their output is apportioned by funding share to avoid double-counting, but some residual distortion can remain - see the Notes tab for the full list and detail.
       </div>
     </div>
 
@@ -992,10 +991,8 @@
 
   function renderNationalMap(start, end, agency) {
     svg.selectAll("*").remove();
-    const formulaNote = document.getElementById("yield-formula-note");
 
     if (mapMode === "funding") {
-      formulaNote.style.display = "none";
       const filtered = rows.filter(d => d.fiscal_year >= start && d.fiscal_year <= end && agency.has(d.agency));
       current = new Map();
       for (const d of filtered) {
@@ -1075,9 +1072,6 @@
       const perInst = computeRawOutputData(start, end, agency);
       const stateRaw = computeStateRawOutput(perInst);
 
-      formulaNote.style.display = "";
-      formulaNote.innerHTML = `Raw, unadjusted ${unitName} - not normalized by field or institution size, so a state with many large research universities will simply rank higher regardless of funding efficiency. Counts are each tracked institution's entire all-time OpenAlex total - see the Impact tab or the Yield map modes for the field-adjusted view.`;
-
       const max = d3.max(Array.from(stateRaw.values(), d => d[metricKey])) || 1;
       color.domain([0, max]);
 
@@ -1144,9 +1138,6 @@
     const perInst = computeYieldData(start, end, agency);
     const stateYield = computeStateYield(perInst);
 
-    formulaNote.style.display = "";
-    formulaNote.innerHTML = `<span class="yield-formula" style="font-size:11px;">${metricName} = actual ${unitName} ÷ expected ${unitName}</span> - expected comes from this state's tracked institutions' own field mix and the national $-per-${isCitation ? "citation" : "paper"} rate per field. Rough estimate, not a precision instrument - see the Impact tab for the full explanation.`;
-
     svg.selectAll("path.state")
       .data(states)
       .join("path")
@@ -1196,8 +1187,7 @@
       }
     );
 
-    const agencyLabel = agencyLabelText(agency);
-    d3.select("#legend").text(`Darker = higher ${metricName.toLowerCase()} (${agencyLabel}) · click a state to zoom in`);
+    d3.select("#legend").text(`${metricName} = actual ÷ expected ${unitName}, field-adjusted - uses each institution's entire tracked funding regardless of the Agency filter above. Darker = higher, rough estimate not a precision instrument - see the Impact tab · click a state to zoom in`);
 
     document.getElementById("map-bar-title").textContent = `Top states by ${metricName}`;
     const barData = states
@@ -1344,10 +1334,10 @@
 
       if (stateLabel) {
         subtitle.html("");
-        subtitle.append("span").text(`${stateLabel} · ${agencyLabel}`);
+        subtitle.append("span").text(`${stateLabel} · all tracked funding, ${yearLabel(start, end)}`);
         subtitle.append("button").text("clear").on("click", () => { selectedFips = null; render(); });
       } else {
-        subtitle.text(`Nationwide · ${agencyLabel} · top 50 of ${perInst.size} with enough data`);
+        subtitle.text(`Nationwide · all tracked funding, ${yearLabel(start, end)} · top 50 of ${perInst.size} with enough data`);
       }
 
       if (ranked.length === 0) {
@@ -2116,11 +2106,19 @@
     if (!instMetaByUei.has(d.uei)) instMetaByUei.set(d.uei, { name: d.name, city: d.city, state_code: d.state_code });
   }
 
+  // Ignores the Agency filter entirely (unlike every other computation in
+  // this file) - Yield measures whether an institution's output matches its
+  // OVERALL funding, so narrowing to one agency would starve the "expected"
+  // side for any institution mostly funded elsewhere while "actual" output
+  // (always all-time, all-funder) stays full-size, blowing up the ratio.
+  // Confirmed: with NIH excluded from the default Agency selection, NIH-
+  // heavy institutions (Mayo Clinic, children's hospitals) spiked to
+  // 1000x+ Citation Yield before this fix. Only the Fiscal Year range still
+  // applies to the funding side.
   function computeYieldData(start, end, agency) {
     const fundingByUei = new Map();
     for (const d of institutionRows) {
       if (d.fiscal_year < start || d.fiscal_year > end) continue;
-      if (!agency.has(d.agency)) continue;
       fundingByUei.set(d.uei, (fundingByUei.get(d.uei) || 0) + d.total_obligations);
     }
 
