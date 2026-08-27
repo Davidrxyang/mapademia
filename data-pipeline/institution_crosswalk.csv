@@ -21,7 +21,7 @@ CGCDJ24JJLZ1,UNIVERSITY OF MASS AT BOSTON,DORCHESTER,MA,https://openalex.org/I33
 CJAJYT2KW771,SOUTH DAKOTA SCHOOL OF MINES & TECHNOLOGY,RAPID CITY,SD,https://openalex.org/I184647316,https://ror.org/00ch7yk27,South Dakota School of Mines and Technology,0.889
 CJDNG9D14MW7,UNIVERSITY OF RHODE ISLAND,KINGSTON,RI,https://openalex.org/I17626003,https://ror.org/013ckk937,University of Rhode Island,1.0
 CL7KJX2VFHS9,MISSOURI STATE UNIVERSITY,SPRINGFIELD,MO,https://openalex.org/I119942284,https://ror.org/01d2sez20,Missouri State University,1.0
-CWKJEXDG79A7,BATTELLE MEMORIAL INSTITUTE,RICHLAND,WA,https://openalex.org/I1325736334,https://ror.org/01h5tnr73,Battelle,1.0
+CWKJEXDG79A7,BATTELLE MEMORIAL INSTITUTE,RICHLAND,WA,https://openalex.org/I142606810,https://ror.org/05h992307,Pacific Northwest National Laboratory,manual-fix
 D33QGS3Q3DJ3,SOUTHERN METHODIST UNIVERSITY,DALLAS,TX,https://openalex.org/I178169726,https://ror.org/042tdr378,Southern Methodist University,1.0
 D3LHU66KBLD5,UNIVERSITY OF NORTH CAROLINA AT CHAPEL HILL,CHAPEL HILL,NC,https://openalex.org/I114027177,https://ror.org/0130frc33,University of North Carolina at Chapel Hill,1.0
 D5S9JZ1KDP49,"NATIONAL COLLEGIATE INVENTORS & INNOVATORS ALLIANCE, INC.",HADLEY,MA,https://openalex.org/I4210093188,https://ror.org/00mgk5c15,VentureWell,0.802
@@ -58,7 +58,7 @@ E4Z2NUYUMHF9,TEXAS TECH UNIVERSITY HEALTH SCIENCES CENTER,LUBBOCK,TX,https://ope
 E6KZG3MNE1D5,SANFORD RESEARCH,FARGO,ND,https://openalex.org/I4210095855,https://ror.org/00sfn8y78,Sanford Research,1.0
 E8VWJXMMUQ67,"THE MEDICAL COLLEGE OF WISCONSIN, INC.",MILWAUKEE,WI,https://openalex.org/I204308271,https://ror.org/00qqv6244,Medical College of Wisconsin,0.814
 EADLFP7Z72E5,GEORGE MASON UNIVERSITY,FAIRFAX,VA,https://openalex.org/I162714631,https://ror.org/02jqj7156,George Mason University,1.0
-EAL3QNJK3CB9,"RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.",ORANGEBURG,NY,https://openalex.org/I4210147620,https://ror.org/042ckra75,Research Foundation For Mental Hygiene,0.811
+EAL3QNJK3CB9,"RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.",ORANGEBURG,NY,https://openalex.org/I125043107,https://ror.org/01s434164,Nathan Kline Institute for Psychiatric Research,manual-fix
 EB8ASJBCFER9,TRUSTEES OF DARTMOUTH COLLEGE,HANOVER,NH,https://openalex.org/I107672454,https://ror.org/049s0rh22,Dartmouth College,1.0
 ECESTN2SSVH1,FORDHAM UNIVERSITY,BRONX,NY,https://openalex.org/I164389053,https://ror.org/03qnxaf80,Fordham University,1.0
 ECQEYCHRNKJ4,LOUISIANA STATE UNIVERSITY,BATON ROUGE,LA,https://openalex.org/I121820613,https://ror.org/05ect4e57,Louisiana State University,1.0
@@ -95,7 +95,7 @@ F4SLJ5WF59F6,SAN FRANCISCO STATE UNIVERSITY,SAN FRANCISCO,CA,https://openalex.or
 F6G9C4HMNHW4,AMERICAN SOCIETY FOR ENGINEERING EDUCATION,WASHINGTON,DC,https://openalex.org/I110383171,https://ror.org/03ac64295,American Society For Engineering Education,1.0
 F6XLTRUQJEN4,UNIVERSITY OF NEW MEXICO,ALBUQUERQUE,NM,https://openalex.org/I169521973,https://ror.org/05fs6jp91,University of New Mexico,1.0
 F8THLJQSAF93,UNIVERSITY OF MIAMI,MIAMI,FL,https://openalex.org/I145608581,https://ror.org/02dgjyy92,University of Miami,1.0
-FA4VKPTJRLY8,LOUISIANA STATE UNIVERSITY,SHREVEPORT,LA,https://openalex.org/I121820613,https://ror.org/05ect4e57,Louisiana State University,1.0
+FA4VKPTJRLY8,LOUISIANA STATE UNIVERSITY,SHREVEPORT,LA,https://openalex.org/I81020160,https://ror.org/03151rh82,Louisiana State University Health Sciences Center Shreveport,manual-fix
 FBYMGMHW4X95,TRUSTEES OF BOSTON UNIVERSITY,BOSTON,MA,https://openalex.org/I111088046,https://ror.org/05qwgg493,Boston University,1.0
 FDLEQSJ8FF63,UNIVERSITY OF ALASKA FAIRBANKS,FAIRBANKS,AK,https://openalex.org/I141472210,https://ror.org/01j7nq853,University of Alaska Fairbanks,1.0
 FDR5YF2K32X5,UNIVERSITY OF WYOMING,LARAMIE,WY,https://openalex.org/I12834331,https://ror.org/01485tq96,University of Wyoming,1.0
@@ -138,7 +138,7 @@ GSLCJ3M62XX1,"TERC, INC.",CAMBRIDGE,MA,,,,manual-unmatched
 GT28BRBA2Q49,NATIONAL BUREAU OF ECONOMIC RESEARCH INC,CAMBRIDGE,MA,https://openalex.org/I1321305853,https://ror.org/04grmx538,National Bureau of Economic Research,1.0
 GTNBNWXJ12D5,VANDERBILT UNIVERSITY,NASHVILLE,TN,https://openalex.org/I200719446,https://ror.org/02vm5rt34,Vanderbilt University,1.0
 GV31TMFLPY88,COLD SPRING HARBOR LABORATORY,COLD SPRING HARBOR,NY,https://openalex.org/I2750212522,https://ror.org/02qz8b764,Cold Spring Harbor Laboratory,1.0
-GY8NMUZQXVS7,UNIVERSITY OF OKLAHOMA,OKLAHOMA CITY,OK,https://openalex.org/I8692664,https://ror.org/02aqsxs83,University of Oklahoma,1.0
+GY8NMUZQXVS7,UNIVERSITY OF OKLAHOMA,OKLAHOMA CITY,OK,https://openalex.org/I49332381,https://ror.org/0457zbj98,University of Oklahoma Health Sciences Center,manual-fix
 GYLUH9UXHDX5,VANDERBILT UNIVERSITY MEDICAL CENTER,NASHVILLE,TN,https://openalex.org/I901861585,https://ror.org/05dq2gs74,Vanderbilt University Medical Center,1.0
 GZRNJ1GZDBM1,UNIVERSITY OF PUERTO RICO,MAYAGUEZ,PR,https://openalex.org/I60388903,https://ror.org/00wek6x04,University of Puerto Rico-Mayaguez,manual-fix
 H1HYA8Z1NTM5,"UNIVERSITY OF KENTUCKY RESEARCH FOUNDATION, THE",LEXINGTON,KY,https://openalex.org/I143302722,https://ror.org/02k3smh20,University of Kentucky,0.723
@@ -380,7 +380,7 @@ S3GMKS8ELA16,THE UNIVERISTY OF TEXAS M.D. ANDERSON CANCER CENTER,HOUSTON,TX,http
 S9GFNEC7QLZ7,RESEARCH FOUNDATION OF THE CITY UNIVERSITY OF NEW YORK,NEW YORK,NY,https://openalex.org/I4210103622,https://ror.org/01d03cj21,Research Foundation of The City University of New York,1.0
 SB35ENJFKK14,BANNER HEALTH,PHOENIX,AZ,https://openalex.org/I2802412784,,Banner Health,manual
 SGBMHQ7VXNH5,NEW JERSEY INSTITUTE OF TECHNOLOGY,NEWARK,NJ,https://openalex.org/I118118575,https://ror.org/05e74xb87,New Jersey Institute of Technology,1.0
-SHHBRBAPSM35,TRUSTEES OF INDIANA UNIVERSITY,INDIANAPOLIS,IN,https://openalex.org/I592451,https://ror.org/01kg8sb98,Indiana University,1.0
+SHHBRBAPSM35,TRUSTEES OF INDIANA UNIVERSITY,INDIANAPOLIS,IN,https://openalex.org/I55769427,https://ror.org/05gxnyn08,Indiana University – Purdue University Indianapolis,manual-fix
 SKG7TLUN8JH6,"ECOG-ACRIN MEDICAL RESEARCH FOUNDATION, INC.",PHILADELPHIA,PA,https://openalex.org/I4210097235,,ECOG-ACRIN Cancer Research Group,manual
 SKH5GMBR9GL3,NORTH CAROLINA AGRICULTURAL AND TECHNICAL STATE UNIVERSITY,GREENSBORO,NC,https://openalex.org/I35777872,https://ror.org/02aze4h65,North Carolina Agricultural and Technical State University,1.0
 SKX6AXF9ZTM3,DIGNITY HEALTH,SAN FRANCISCO,CA,https://openalex.org/I2802827176,https://ror.org/05c9r4685,Dignity Health,1.0
@@ -401,12 +401,12 @@ T72NHKM259N3,UNIVERSITY OF DELAWARE,NEWARK,DE,https://openalex.org/I86501945,htt
 TF2CMKY1HMX9,GEORGETOWN UNIVERSITY,WASHINGTON,DC,https://openalex.org/I184565670,https://ror.org/05vzafd60,Georgetown University,1.0
 THL6A6JLE1S7,TRUSTEES OF BOSTON UNIVERSITY,BOSTON,MA,https://openalex.org/I111088046,https://ror.org/05qwgg493,Boston University,1.0
 TJFZLPP6NYL6,FRED HUTCHINSON CANCER CENTER,SEATTLE,WA,https://openalex.org/I4210089486,https://ror.org/007ps6h72,Fred Hutch Cancer Center,1.0
-TNKGNDAWB445,PENNSYLVANIA STATE UNIVERSITY,HERSHEY,PA,https://openalex.org/I130769515,https://ror.org/04p491231,Pennsylvania State University,1.0
+TNKGNDAWB445,PENNSYLVANIA STATE UNIVERSITY,HERSHEY,PA,https://openalex.org/I82783531,https://ror.org/01h22ap11,Penn State Milton S. Hershey Medical Center,manual-fix
 TP7EK8DZV6N5,DUKE UNIVERSITY,DURHAM,NC,https://openalex.org/I170897317,https://ror.org/00py81415,Duke University,1.0
 TPALZA9N4M11,SAGE BIONETWORKS,SEATTLE,WA,https://openalex.org/I1323236076,https://ror.org/049ncjx51,Sage Bionetworks,1.0
 TUS8D6ZGL9R3,NRG ONCOLOGY FOUNDATION INC,PHILADELPHIA,PA,https://openalex.org/I4210162619,https://ror.org/050draa26,NRG Oncology,1.0
 TX2DAGQPENZ5,"UNIVERSITY OF CALIFORNIA, DAVIS",DAVIS,CA,https://openalex.org/I84218800,https://ror.org/05rrcem69,"University of California, Davis",1.0
-TYVNMW8FNQQ3,"RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.",NEW YORK,NY,https://openalex.org/I4210147620,https://ror.org/042ckra75,Research Foundation For Mental Hygiene,0.811
+TYVNMW8FNQQ3,"RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.",NEW YORK,NY,https://openalex.org/I4388891851,https://ror.org/04aqjf708,New York State Psychiatric Institute,manual-fix
 U2JMKHNS5TG4,CALIFORNIA INSTITUTE OF TECHNOLOGY,PASADENA,CA,https://openalex.org/I122411786,https://ror.org/05dxps055,California Institute of Technology,1.0
 U3NKNFLNQ613,CARNEGIE-MELLON UNIVERSITY,PITTSBURGH,PA,https://openalex.org/I74973139,https://ror.org/05x2bcf33,Carnegie Mellon University,1.0
 U3NVH931QJJ3,NORTH CAROLINA STATE UNIVERSITY,RALEIGH,NC,https://openalex.org/I137902535,https://ror.org/04tj63d06,North Carolina State University,1.0
@@ -436,10 +436,10 @@ VQ5WK498QDC6,CSU FULLERTON AUXILIARY SERVICES CORPORATION,FULLERTON,CA,https://o
 VRAASTY11EA3,FAMILY HEALTH INTERNATIONAL,DURHAM,NC,https://openalex.org/I1290866511,https://ror.org/007kp6q87,Family Health International 360,0.822
 VUYJL5Q7YCZ3,WOMEN & INFANTS HOSPITAL OF RHODE ISLAND,PROVIDENCE,RI,https://openalex.org/I4210133025,https://ror.org/03z8sn326,Women & Infants Hospital of Rhode Island,1.0
 VXUFPE4MCZH5,UNIVERSITY OF CALIFORNIA SANTA CRUZ,SANTA CRUZ,CA,https://openalex.org/I185103710,https://ror.org/03s65by71,"University of California, Santa Cruz",1.0
-W1NBN156CYF9,"ASSOCIATION OF UNIVERSITIES FOR RESEARCH IN ASTRONOMY, INC.",BALTIMORE,MD,https://openalex.org/I1313867356,https://ror.org/02y5f7c97,Association of Universities for Research in Astronomy,0.858
+W1NBN156CYF9,"ASSOCIATION OF UNIVERSITIES FOR RESEARCH IN ASTRONOMY, INC.",BALTIMORE,MD,https://openalex.org/I1297127228,https://ror.org/036f5mx38,Space Telescope Science Institute,manual-fix
 W6Q8XJV41Z98,"THE MORGRIDGE INSTITUTE FOR RESEARCH, INC.",MADISON,WI,https://openalex.org/I29680605,https://ror.org/05cb4rb43,Morgridge Institute for Research,0.817
 W8LKB16HV1K5,FLORIDA A & M UNIVERSITY,TALLAHASSEE,FL,https://openalex.org/I8248082,,Florida Agricultural and Mechanical University,manual
-W8XEAJDKMXH3,UNIVERSITY OF ILLINOIS,CHICAGO,IL,https://openalex.org/I157725225,https://ror.org/047426m28,University of Illinois Urbana-Champaign,1.0
+W8XEAJDKMXH3,UNIVERSITY OF ILLINOIS,CHICAGO,IL,https://openalex.org/I39422238,https://ror.org/02mpq6x41,University of Illinois Chicago,manual-fix
 WCUGNQQ8DZU1,UNIVERSITY OF DENVER,DENVER,CO,https://openalex.org/I131651094,https://ror.org/04w7skc03,University of Denver,1.0
 WFVHMSF6BU45,JACKSON STATE UNIVERSITY,JACKSON,MS,https://openalex.org/I61937129,https://ror.org/01ecnnp60,Jackson State University,1.0
 WK63UJ11C2H7,NEW YORK MEDICAL COLLEGE,VALHALLA,NY,https://openalex.org/I181190671,https://ror.org/03dkvy735,New York Medical College,1.0
@@ -454,7 +454,7 @@ WQNERYY3BK94,LIEBER INSTITUTE INC,BALTIMORE,MD,https://openalex.org/I4210151493,
 WS29EMGEVEJ4,HEBREW REHABILITATION CENTER,ROSLINDALE,MA,https://openalex.org/I4210122688,https://ror.org/02nmc8040,Rochester Rehabilitation Center,0.639
 WUWGNMBAHKG2,VIGNET INC.,FAIRFAX,VA,https://openalex.org/I4210151810,,Vignet (United States),manual
 WWH4L4GKKW58,"EDUCATION DEVELOPMENT CENTER, INC.",WALTHAM,MA,https://openalex.org/I4210152198,https://ror.org/04wnwd012,Education Development Center,0.751
-X1M1PN3KG3E7,UNIVERSITY OF TENNESSEE,MEMPHIS,TN,https://openalex.org/I75027704,https://ror.org/020f3ap87,University of Tennessee at Knoxville,1.0
+X1M1PN3KG3E7,UNIVERSITY OF TENNESSEE,MEMPHIS,TN,https://openalex.org/I160606119,https://ror.org/0011qv509,University of Tennessee Health Science Center,manual-fix
 X59NJBFL8BJ3,UNIVERSITY OF MISSISSIPPI MEDICAL CENTER,JACKSON,MS,https://openalex.org/I29606459,https://ror.org/044pcn091,University of Mississippi Medical Center,1.0
 X5S7PNXMJMC7,"THE MOREHOUSE SCHOOL OF MEDICINE, INC.",ATLANTA,GA,https://openalex.org/I6332465,https://ror.org/01pbhra64,Morehouse School of Medicine,0.814
 XA77NAJYELF1,UNIVERSITY OF TOLEDO,TOLEDO,OH,https://openalex.org/I90871651,https://ror.org/01pbdzh19,University of Toledo,1.0
@@ -471,7 +471,7 @@ XRJSGX384TD6,WASHINGTON STATE UNIVERSITY,PULLMAN,WA,https://openalex.org/I729518
 Y28BEBJ4MNU7,BOARD OF TRUSTEES OF SOUTHERN ILLINOIS UNIVERSITY,CARBONDALE,IL,https://openalex.org/I110378019,https://ror.org/049kefs16,Southern Illinois University Carbondale,manual-fix
 Y2K4F9RPRRG7,MAYO CLINIC,ROCHESTER,MN,https://openalex.org/I1330342723,https://ror.org/02qp3tb03,Mayo Clinic,1.0
 Y3RET2XN41S5,TEXAS A&M UNIVERSITY-CORPUS CHRISTI,CORPUS CHRISTI,TX,https://openalex.org/I96749437,https://ror.org/01mrfdz82,Texas A&M University – Corpus Christi,0.889
-Y6MGH342N169,UNIVERSITY OF MISSOURI SYSTEM,ROLLA,MO,https://openalex.org/I76835614,https://ror.org/02ymw8z06,University of Missouri,1.0
+Y6MGH342N169,UNIVERSITY OF MISSOURI SYSTEM,ROLLA,MO,https://openalex.org/I20382870,https://ror.org/00scwqd12,Missouri University of Science and Technology,manual-fix
 Y8CWNJRCNN91,UNIVERSITY OF ILLINOIS,URBANA,IL,https://openalex.org/I157725225,https://ror.org/047426m28,University of Illinois Urbana-Champaign,1.0
 YDQLHSMTBZ24,"CENTER FOR THE ADVANCEMENT OF SCIENCE IN SPACE, INC.",MERRITT ISLAND,FL,https://openalex.org/I2800419965,https://ror.org/02zvw6748,Center for the Advancement of Science in Space,0.851
 YDWAYVVQHNK5,"HEALTH RESEARCH, INC.",BUFFALO,NY,,,,manual-unmatched
