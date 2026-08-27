@@ -55,7 +55,13 @@
     padding: 5px 8px;
     font-size: 13px;
   }
-  #agency-control { position: relative; }
+  /* flex-wrap so the panel (flex-basis: 100% below) can drop onto its own
+     line under the label+button instead of floating over page content -
+     an absolutely-positioned dropdown here was overlapping the map tab's
+     mode buttons and its "Darker = ..." legend note whenever open, since
+     both sit just below this same control bar. Growing this row in place
+     instead means opening it can never cover anything else on the page. */
+  #agency-control { flex-wrap: wrap; }
   #agency-select-btn {
     background: var(--bg);
     color: var(--text);
@@ -70,17 +76,14 @@
   #agency-select-btn:hover { border-color: var(--muted); }
   #agency-panel {
     display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    z-index: 20;
+    flex-basis: 100%;
+    margin-top: 10px;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px;
     width: 320px;
     max-width: 90vw;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   }
   #agency-panel.open { display: block; }
   #agency-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
