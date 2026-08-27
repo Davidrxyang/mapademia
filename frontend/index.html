@@ -777,6 +777,12 @@
       }
       refreshAgencyUI();
       renderActiveTab();
+      // Unlike a checkbox toggle (where staying open lets someone keep
+      // refining a multi-select), a preset click is a single complete
+      // choice - closing here avoids the open panel sitting over the map
+      // mode buttons/legend underneath it, which otherwise looks like they
+      // vanished until the panel is dismissed some other way.
+      agencyPanel.classList.remove("open");
     });
 
   function renderAgencyChecklist() {
