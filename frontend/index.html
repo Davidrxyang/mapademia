@@ -453,6 +453,14 @@
         <span class="map-mode-name">Funding</span>
         <span class="map-mode-desc">Total dollars tracked</span>
       </button>
+      <button type="button" class="map-mode-btn" data-mode="citationCount">
+        <span class="map-mode-name">Citations</span>
+        <span class="map-mode-desc">Total citations tracked</span>
+      </button>
+      <button type="button" class="map-mode-btn" data-mode="paperCount">
+        <span class="map-mode-name">Papers</span>
+        <span class="map-mode-desc">Total papers tracked</span>
+      </button>
       <button type="button" class="map-mode-btn" data-mode="citation">
         <span class="map-mode-name">Citation Yield</span>
         <span class="map-mode-desc">Citations vs. field-adjusted expectation</span>
@@ -463,8 +471,8 @@
       </button>
     </div>
     <div id="map-wrap">
-      <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
       <div class="chart-note" id="yield-formula-note" style="display: none;"></div>
+      <svg id="map" viewBox="0 0 960 600" style="width: 100%; height: auto;"></svg>
     </div>
     <div id="institutions-panel">
       <h2 id="institutions-panel-title">Top Institutions</h2>
@@ -1058,6 +1066,73 @@
       return;
     }
 
+    if (mapMode === "citationCount" || mapMode === "paperCount") {
+      const isCitations = mapMode === "citationCount";
+      const metricKey = isCitations ? "citations" : "papers";
+      const metricName = isCitations ? "Citations" : "Papers";
+      const unitName = isCitations ? "citations" : "papers";
+
+      const perInst = computeRawOutputData(start, end, agency);
+      const stateRaw = computeStateRawOutput(perInst);
+
+      formulaNote.style.display = "";
+      formulaNote.innerHTML = `Raw, unadjusted ${unitName} - not normalized by field or institution size, so a state with many large research universities will simply rank higher regardless of funding efficiency. Counts are each tracked institution's entire all-time OpenAlex total - see the Impact tab or the Yield map modes for the field-adjusted view.`;
+
+      const max = d3.max(Array.from(stateRaw.values(), d => d[metricKey])) || 1;
+      color.domain([0, max]);
+
+      svg.selectAll("path.state")
+        .data(states)
+        .join("path")
+        .attr("class", "state")
+        .attr("d", nationalPath)
+        .attr("fill", d => {
+          const rec = stateRaw.get(postalByFips.get(pad2(d.id)));
+          return rec ? color(rec[metricKey]) : "#e9eaec";
+        })
+        .on("mousemove", (event, d) => {
+          const rec = stateRaw.get(postalByFips.get(pad2(d.id)));
+          const val = rec ? rec[metricKey] : 0;
+          tooltip
+            .style("opacity", 1)
+            .style("left", event.clientX + 14 + "px")
+            .style("top", event.clientY + 14 + "px")
+            .html(`<strong>${d.properties.name}</strong><br>
+                   <span class="amount">${Math.round(val).toLocaleString()}</span> ${unitName}`);
+        })
+        .on("mouseleave", () => tooltip.style("opacity", 0))
+        .on("click", (event, d) => {
+          selectedFips = pad2(d.id);
+          selectedUei = null;
+          render();
+        });
+
+      renderDcCallout(
+        (d) => {
+          const rec = stateRaw.get(postalByFips.get(pad2(d.id)));
+          return rec ? color(rec[metricKey]) : "#e9eaec";
+        },
+        (d) => {
+          const rec = stateRaw.get(postalByFips.get(pad2(d.id)));
+          const val = rec ? rec[metricKey] : 0;
+          return `<strong>${d.properties.name}</strong><br>
+                  <span class="amount">${Math.round(val).toLocaleString()}</span> ${unitName}`;
+        }
+      );
+
+      const agencyLabel = agencyLabelText(agency);
+      d3.select("#legend").text(`Darker = more ${unitName} tracked (${agencyLabel}) · max ${formatCountShort(max)} · click a state to zoom in`);
+
+      document.getElementById("map-bar-title").textContent = `Top states by ${metricName}`;
+      const barData = states
+        .map(s => ({ label: titleCase(s.properties.name), value: stateRaw.get(postalByFips.get(pad2(s.id)))?.[metricKey] || 0 }))
+        .filter(d => d.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 15);
+      renderBarList("#map-bar-svg", barData, formatCountShort);
+      return;
+    }
+
     // Citation Yield / Paper Yield map modes.
     const isCitation = mapMode === "citation";
     const metricKey = isCitation ? "citationYield" : "paperYield";
@@ -1214,7 +1289,46 @@
     const list = d3.select("#institutions-list");
     list.html("");
 
-    if (mapMode !== "funding") {
+    if (mapMode === "citationCount" || mapMode === "paperCount") {
+      const isCitations = mapMode === "citationCount";
+      const metricKey = isCitations ? "citations" : "papers";
+      const otherKey = isCitations ? "papers" : "citations";
+      const metricName = isCitations ? "Citations" : "Papers";
+      const otherName = isCitations ? "papers" : "citations";
+
+      document.getElementById("institutions-panel-title").textContent = `Top ${metricName}`;
+      const perInst = computeRawOutputData(start, end, agency);
+      const ranked = Array.from(perInst.entries())
+        .filter(([uei, d]) => !selectedPostal || d.state_code === selectedPostal)
+        .sort((a, b) => b[1][metricKey] - a[1][metricKey])
+        .slice(0, 50);
+
+      if (stateLabel) {
+        subtitle.html("");
+        subtitle.append("span").text(`${stateLabel} · ${agencyLabel}`);
+        subtitle.append("button").text("clear").on("click", () => { selectedFips = null; render(); });
+      } else {
+        subtitle.text(`Nationwide · ${agencyLabel} · top 50 of ${perInst.size} tracked`);
+      }
+
+      if (ranked.length === 0) {
+        list.append("div").attr("class", "inst-loc").text("No tracked institutions for this selection.");
+        return;
+      }
+
+      const row = list.selectAll(".inst-row").data(ranked, d => d[0]).join("div").attr("class", "inst-row")
+        .on("click", (event, d) => { selectedUei = d[0]; render(); });
+      row.append("div").attr("class", "inst-rank").text((d, i) => i + 1);
+      const nameWrap = row.append("div").attr("class", "inst-name-wrap");
+      nameWrap.append("div").attr("class", "inst-name").attr("title", d => d[1].name).text(d => titleCase(d[1].name));
+      nameWrap.append("div").attr("class", "inst-loc").text(d => `${titleCase(d[1].city)}, ${d[1].state_code}`);
+      const amountWrap = row.append("div");
+      amountWrap.append("div").attr("class", "inst-amount").text(d => Math.round(d[1][metricKey]).toLocaleString());
+      amountWrap.append("div").attr("class", "inst-awards").text(d => `${Math.round(d[1][otherKey]).toLocaleString()} ${otherName}`);
+      return;
+    }
+
+    if (mapMode === "citation" || mapMode === "paper") {
       const isCitation = mapMode === "citation";
       const metricKey = isCitation ? "citationYield" : "paperYield";
       const actualKey = isCitation ? "actualCitations" : "actualPapers";
@@ -2102,6 +2216,54 @@
     for (const e of byState.values()) {
       e.paperYield = e.expectedPapers >= MIN_EXPECTED_PAPERS ? e.actualPapers / e.expectedPapers : null;
       e.citationYield = e.expectedCitations >= MIN_EXPECTED_CITATIONS ? e.actualCitations / e.expectedCitations : null;
+    }
+    return byState;
+  }
+
+  // Raw (non-field-adjusted) citation/paper totals, for institutions with
+  // tracked funding in the current Fiscal Year/Agency selection - same
+  // institution set as Citation/Paper Yield, just showing the underlying
+  // all-time OpenAlex output directly instead of a ratio to expectation.
+  function computeRawOutputData(start, end, agency) {
+    const activeUeis = new Set();
+    for (const d of institutionRows) {
+      if (d.fiscal_year < start || d.fiscal_year > end) continue;
+      if (!agency.has(d.agency)) continue;
+      activeUeis.add(d.uei);
+    }
+
+    const outputByUei = new Map();
+    for (const d of outputRows) {
+      let e = outputByUei.get(d.uei);
+      if (!e) { e = { papers: 0, citations: 0 }; outputByUei.set(d.uei, e); }
+      e.papers += d.works_count;
+      e.citations += d.cited_by_count;
+    }
+
+    const result = new Map();
+    for (const uei of activeUeis) {
+      const output = outputByUei.get(uei);
+      if (!output) continue;
+      const meta = instMetaByUei.get(uei);
+      result.set(uei, {
+        name: meta ? meta.name : uei,
+        city: meta ? meta.city : "",
+        state_code: meta ? meta.state_code : "",
+        papers: output.papers,
+        citations: output.citations,
+      });
+    }
+    return result;
+  }
+
+  function computeStateRawOutput(perInst) {
+    const byState = new Map();
+    for (const [uei, d] of perInst) {
+      if (!d.state_code) continue;
+      let e = byState.get(d.state_code);
+      if (!e) { e = { papers: 0, citations: 0 }; byState.set(d.state_code, e); }
+      e.papers += d.papers;
+      e.citations += d.citations;
     }
     return byState;
   }
