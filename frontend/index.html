@@ -382,6 +382,18 @@
   .yield-table td.num, .yield-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .yield-table tr:hover td { background: rgba(0,0,0,0.04); }
   .yield-table-wrap { max-height: 500px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
+  .yield-bucket-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .yield-bucket-filter button {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 4px 11px;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+  .yield-bucket-filter button:hover { border-color: var(--muted); }
+  .yield-bucket-filter button.active { border-color: var(--text); border-width: 1.5px; font-weight: 600; }
   .yield-bucket {
     display: inline-block;
     padding: 2px 8px;
@@ -515,17 +527,21 @@
     </div>
 
     <h2 style="font-size: 14px; margin: 20px 0 8px;">Citation Yield</h2>
+    <div class="yield-bucket-filter" id="citation-bucket-filter"></div>
+    <div class="chart-note" id="citation-yield-count" style="margin-bottom: 8px;"></div>
     <div id="citation-yield-wrap" class="yield-table-wrap">
       <table id="citation-yield-table" class="yield-table">
-        <thead><tr><th>#</th><th>Institution</th><th class="num">Actual citations</th><th class="num">Expected</th><th class="num">Index</th><th>Bucket</th></tr></thead>
+        <thead><tr><th>#</th><th>Institution</th><th class="num">Actual citations</th><th class="num">Expected</th><th class="num">Index</th><th>Label</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
 
     <h2 style="font-size: 14px; margin: 20px 0 8px;">Paper Yield</h2>
+    <div class="yield-bucket-filter" id="paper-bucket-filter"></div>
+    <div class="chart-note" id="paper-yield-count" style="margin-bottom: 8px;"></div>
     <div id="paper-yield-wrap" class="yield-table-wrap">
       <table id="paper-yield-table" class="yield-table">
-        <thead><tr><th>#</th><th>Institution</th><th class="num">Actual papers</th><th class="num">Expected</th><th class="num">Index</th><th>Bucket</th></tr></thead>
+        <thead><tr><th>#</th><th>Institution</th><th class="num">Actual papers</th><th class="num">Expected</th><th class="num">Index</th><th>Label</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -2112,6 +2128,23 @@
     for (const b of YIELD_BUCKETS) if (ratio <= b.max) return b;
     return YIELD_BUCKETS[YIELD_BUCKETS.length - 1];
   }
+  function yieldBucketIndexFor(ratio) { return YIELD_BUCKETS.indexOf(yieldBucketFor(ratio)); }
+
+  // Sorted descending by default, the Impact tab's yield tables would
+  // otherwise only ever show "Well above expected" institutions within a
+  // fixed top-N cut - not useful for seeing where most institutions
+  // actually land. Showing every institution with enough data by default,
+  // plus a bucket filter, so "About as expected" (where most institutions
+  // are) is just as reachable as the extremes.
+  let citationBucketFilter = "all";
+  let paperBucketFilter = "all";
+  function renderBucketFilter(containerId, current, onSelect) {
+    const options = [{ key: "all", label: "All" }, ...YIELD_BUCKETS.map((b, i) => ({ key: String(i), label: b.label }))];
+    d3.select(`#${containerId}`).selectAll("button").data(options).join("button")
+      .attr("class", d => d.key === current ? "active" : null)
+      .text(d => d.label)
+      .on("click", (event, d) => onSelect(d.key));
+  }
 
   const instMetaByUei = new Map();
   for (const d of institutionRows) {
@@ -2295,10 +2328,26 @@
 
   function renderYieldTables(start, end, agency) {
     const perInst = computeYieldData(start, end, agency);
-    const citationRanked = Array.from(perInst.entries()).filter(([, y]) => y.citationYield != null).sort((a, b) => b[1].citationYield - a[1].citationYield);
-    const paperRanked = Array.from(perInst.entries()).filter(([, y]) => y.paperYield != null).sort((a, b) => b[1].paperYield - a[1].paperYield);
-    renderYieldTable("citation-yield-table", citationRanked.slice(0, 100), "citationYield", "actualCitations", "expectedCitations");
-    renderYieldTable("paper-yield-table", paperRanked.slice(0, 100), "paperYield", "actualPapers", "expectedPapers");
+    const citationAll = Array.from(perInst.entries()).filter(([, y]) => y.citationYield != null).sort((a, b) => b[1].citationYield - a[1].citationYield);
+    const paperAll = Array.from(perInst.entries()).filter(([, y]) => y.paperYield != null).sort((a, b) => b[1].paperYield - a[1].paperYield);
+
+    renderBucketFilter("citation-bucket-filter", citationBucketFilter, (key) => {
+      citationBucketFilter = key;
+      renderYieldTables(start, end, agency);
+    });
+    renderBucketFilter("paper-bucket-filter", paperBucketFilter, (key) => {
+      paperBucketFilter = key;
+      renderYieldTables(start, end, agency);
+    });
+
+    const citationRanked = citationBucketFilter === "all" ? citationAll : citationAll.filter(([, y]) => yieldBucketIndexFor(y.citationYield) === +citationBucketFilter);
+    const paperRanked = paperBucketFilter === "all" ? paperAll : paperAll.filter(([, y]) => yieldBucketIndexFor(y.paperYield) === +paperBucketFilter);
+
+    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data`);
+    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data`);
+
+    renderYieldTable("citation-yield-table", citationRanked, "citationYield", "actualCitations", "expectedCitations");
+    renderYieldTable("paper-yield-table", paperRanked, "paperYield", "actualPapers", "expectedPapers");
   }
 
   function renderTreemap() {
