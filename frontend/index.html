@@ -312,7 +312,13 @@
   .state { stroke: var(--bg); stroke-width: 0.75px; cursor: pointer; }
   .state:hover { stroke: var(--text); stroke-width: 1.5px; }
   .state.selected { stroke: var(--accent); stroke-width: 2px; }
-  #legend { font-size: 12px; color: var(--muted); }
+  /* flex-basis: 100% forces this onto its own line within .controls
+     (flex-wrap) every time, instead of sometimes cramming onto the same
+     line as Agency/State/Fiscal Year when a shorter Agency label (e.g.
+     "All" vs "All except NIH") happens to leave just enough room - that
+     inline case had no room left to actually show the text, so it read
+     as the note vanishing whenever "All" was selected. */
+  #legend { font-size: 12px; color: var(--muted); flex-basis: 100%; }
   #rankings-table {
     width: 100%;
     border-collapse: separate;
