@@ -113,12 +113,27 @@ def main():
         ) to '{PROCESSED_DIR / "institution_geo.csv"}' (header, delimiter ',')
     """)
 
+    # Lets the frontend know which recipient UEIs are confirmed (not merely
+    # name-similar) to be the exact same real institution under separate
+    # USAspending registrations - e.g. Rutgers' 8 IDs, all genuinely one
+    # OpenAlex entity, not a crosswalk mismatch. Used only to combine rows
+    # in the Impact tab's Yield tables, where 8 near-identical "Rutgers"
+    # rows read as clutter/duplication; funding-flow views (Rankings, Map,
+    # Money Flow) keep every recipient ID separate since those are about
+    # distinct legal registrations, not deduplicated research identity.
+    con.execute(f"""
+        copy (
+            select uei, openalex_id from crosswalk where openalex_id is not null and openalex_id != ''
+        ) to '{PROCESSED_DIR / "institution_openalex_id.csv"}' (header, delimiter ',')
+    """)
+
     n_years = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_output_by_year.csv'}')").fetchone()[0]
     n_fields = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_field_mix.csv'}')").fetchone()[0]
     n_geo = con.execute(f"select count(*) from read_csv_auto('{PROCESSED_DIR / 'institution_geo.csv'}')").fetchone()[0]
     print(f"Wrote institution_output_by_year.csv ({n_years} rows)")
     print(f"Wrote institution_field_mix.csv ({n_fields} rows)")
     print(f"Wrote institution_geo.csv ({n_geo} of 500 institutions have coordinates)")
+    print(f"Wrote institution_openalex_id.csv")
 
 
 if __name__ == "__main__":

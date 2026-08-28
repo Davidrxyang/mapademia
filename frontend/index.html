@@ -677,7 +677,7 @@
 <script src="https://unpkg.com/d3-sankey@0"></script>
 <script>
 (async function () {
-  const [us, rows, institutionRows, outputRows, fieldMixRows, nihLinkedRows, institutionGeoRows] = await Promise.all([
+  const [us, rows, institutionRows, outputRows, fieldMixRows, nihLinkedRows, institutionGeoRows, openalexIdRows] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
     d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
@@ -685,7 +685,15 @@
     d3.csv("data/institution_field_mix.csv", d3.autoType),
     d3.csv("data/nih_linked_publications_by_institution_year.csv", d3.autoType),
     d3.csv("data/institution_geo.csv", d3.autoType),
+    d3.csv("data/institution_openalex_id.csv", d3.autoType),
   ]);
+
+  // Confirmed (not merely name-similar) same real institution under
+  // separate USAspending recipient IDs - e.g. Rutgers' 8 IDs. Used to
+  // combine rows in the Impact tab's Yield tables only; every other view
+  // keeps each recipient ID as its own row since those are about distinct
+  // funding registrations, not deduplicated research identity.
+  const openalexIdByUei = new Map(openalexIdRows.map(d => [d.uei, d.openalex_id]));
 
   const states = topojson.feature(us, us.objects.states).features;
   const pad2 = (id) => String(id).padStart(2, "0");
@@ -2263,6 +2271,44 @@
     return byState;
   }
 
+  // Combines recipient IDs confirmed (via openalexIdByUei) to be the same
+  // real institution - e.g. Rutgers' 8 USAspending registrations, which
+  // otherwise read as 8 near-duplicate rows in the Impact tab's Yield
+  // tables. Sums actual/expected (ratio-of-sums, same convention as state
+  // aggregation) rather than averaging each ID's own ratio. Institutions
+  // without a confirmed group (openalexIdByUei has no entry, or the
+  // group has only one member) pass through unchanged. Scoped to the
+  // Impact tab only - Rankings/Map/Money Flow keep every recipient ID
+  // separate since those are about distinct funding registrations.
+  function mergeByOpenalexId(perInstitutionYield) {
+    const byGroup = new Map();
+    for (const [uei, y] of perInstitutionYield) {
+      const groupKey = openalexIdByUei.get(uei) || uei;
+      let e = byGroup.get(groupKey);
+      if (!e) {
+        e = { name: y.name, city: y.city, state_code: y.state_code, actualPapers: 0, expectedPapers: 0, actualCitations: 0, expectedCitations: 0, _bestScore: -1 };
+        byGroup.set(groupKey, e);
+      }
+      e.actualPapers += y.actualPapers;
+      e.expectedPapers += y.expectedPapers;
+      e.actualCitations += y.actualCitations;
+      e.expectedCitations += y.expectedCitations;
+      // Use the name/city of whichever member has the largest funding
+      // footprint (approximated by expected output) as the representative
+      // label for the merged row.
+      const score = y.expectedPapers + y.expectedCitations;
+      if (score > e._bestScore) { e._bestScore = score; e.name = y.name; e.city = y.city; e.state_code = y.state_code; }
+    }
+    const result = new Map();
+    for (const [groupKey, e] of byGroup) {
+      e.paperYield = e.expectedPapers >= MIN_EXPECTED_PAPERS ? e.actualPapers / e.expectedPapers : null;
+      e.citationYield = e.expectedCitations >= MIN_EXPECTED_CITATIONS ? e.actualCitations / e.expectedCitations : null;
+      delete e._bestScore;
+      result.set(groupKey, e);
+    }
+    return result;
+  }
+
   // Raw (non-field-adjusted) citation/paper totals, for institutions with
   // tracked funding in the current Fiscal Year/Agency selection - same
   // institution set as Citation/Paper Yield, just showing the underlying
@@ -2327,7 +2373,7 @@
   }
 
   function renderYieldTables(start, end, agency) {
-    const perInst = computeYieldData(start, end, agency);
+    const perInst = mergeByOpenalexId(computeYieldData(start, end, agency));
     const citationAll = Array.from(perInst.entries()).filter(([, y]) => y.citationYield != null).sort((a, b) => b[1].citationYield - a[1].citationYield);
     const paperAll = Array.from(perInst.entries()).filter(([, y]) => y.paperYield != null).sort((a, b) => b[1].paperYield - a[1].paperYield);
 
