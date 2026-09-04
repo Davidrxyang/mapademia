@@ -1,15 +1,15 @@
   <div class="chart-wrap" style="max-width: 900px; font-size: 13px; line-height: 1.6;">
     <div class="chart-note" style="margin-bottom: 18px;">Presenting data properly is messy business - here are some notes behind my methodology for maximum transparency - David (Author)</div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Data sources</h2>
+    <h2 id="notes-data-sources" style="font-size: 14px; margin: 0 0 8px;">Data sources</h2>
     <div style="margin-bottom: 16px;">
       1. Funding: USAspending.gov Award Data Archive, grant-type prime awards only (Block Grant, Formula Grant, Project Grant, Cooperative Agreement - codes 02/03/04/05). <br>
       - This excludes loans, insurance, and direct payments, and excludes procurement contracts entirely. <br>
-      2. Publications/citations: OpenAlex (bulk snapshot). NIH-specific award <br>
-      3. Publication Linkage: NIH ExPORTER's own link tables. <br>
+      2. Publications/citations: OpenAlex (bulk snapshot) - matched at the institution level, not the award level. <br>
+      3. NIH is the one exception: NIH ExPORTER's own link tables connect a specific award number directly to the papers it produced. <br>
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Agencies tracked</h2>
+    <h2 id="notes-agencies-tracked" style="font-size: 14px; margin: 0 0 8px;">Agencies tracked</h2>
     <div style="margin-bottom: 16px;">
       <div style="margin-bottom: 10px;"><strong>NIH, NSF</strong> - pulled at full agency scope, no additional filtering.</div>
       <div style="margin-bottom: 10px;"><strong>NASA</strong> - Mostly unrestricted. Excludes recipients tagged "for-profit organization, other than small business". Small research businesses are left alone, since those are small science/research firms within our scope, not large contractors.</div>
@@ -18,27 +18,27 @@
       <div><strong>Department of Education</strong> - not included. </div>
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Institution tracking</h2>
+    <h2 id="notes-institution-tracking" style="font-size: 14px; margin: 0 0 8px;">Institution tracking</h2>
     <div style="margin-bottom: 16px;">
       Institution-level views are capped to the top 500 recipients by all-time funding (the top 500 cover roughly 93% of total tracked obligations nationally, though far less for some states with many small recipients). Matched to OpenAlex institution records by name-similarity, with manual corrections applied wherever a mismatch was found.
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Funding and award-count methodology</h2>
+    <h2 id="notes-funding-methodology" style="font-size: 14px; margin: 0 0 8px;">Funding and award-count methodology</h2>
     <div style="margin-bottom: 16px;">
       Funding sums each transaction's incremental obligation (not the cumulative award total), attributed to the recipient's registered state/institution - i.e. funding is tied to where the recipient is, not where the work is physically performed. Award counts count each distinct award only in the first fiscal year it appears for that specific state/institution, so a multi-year grant is counted once, not once per year it's active.
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Field allocation</h2>
+    <h2 id="notes-field-allocation" style="font-size: 14px; margin: 0 0 8px;">Field allocation</h2>
     <div style="margin-bottom: 16px;">
       Research-field breakdowns (Money Flow, Research Fields, Rankings) are an estimate, not tagged per award. Each institution's funding is split across fields in proportion to that institution's own OpenAlex research-topic mix, renormalized since OpenAlex only tracks roughly the 25 most significant topics per institution. "Other field(s)" and "Untracked institutions" absorb two different things under one label: an institution's own topics outside its tracked top 25, and funding to institutions outside the top-500 cutoff entirely (which can't be allocated to any field since we don't know which institution it went to). State and agency totals shown alongside these breakdowns are the true full totals either way - only the field split itself is an estimate.
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Money Flow's agency grouping</h2>
+    <h2 id="notes-money-flow-grouping" style="font-size: 14px; margin: 0 0 8px;">Money Flow's agency grouping</h2>
     <div style="margin-bottom: 16px;">
       With 6 agencies tracked, DOD and DOE each report through a long tail of small sub-offices (Defense Logistics Agency, Missile Defense Agency, Assistant Secretary for Fossil Energy, and a dozen more) that together total well under 1% of tracked funding but each still claimed their own node - these are grouped into a single "Other agencies" node in Money Flow for readability - the dollar totals aren't affected, and full detail for every individual sub-agency is still available via the Agency filter dropdown and the Rankings tab.
     </div>
 
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Known limitations, not yet resolved</h2>
+    <h2 id="notes-known-limitations" style="font-size: 14px; margin: 0 0 8px;">Known limitations, not yet resolved</h2>
     <div style="margin-bottom: 16px;">
       Some institutions are registered under more than one USAspending recipient ID (re-registrations over time, or genuinely separate campuses/systems) - these show up as separate entries rather than being merged, since an automated merge risks conflating unrelated institutions. A few large university systems (e.g. Rutgers, spanning 8 recipient IDs; Texas A&M; Harvard) map to a single OpenAlex entity across multiple recipient IDs, because OpenAlex itself doesn't split them by campus. Left as raw duplicates, each ID would be credited with that entity's entire works/citations count, inflating Citation Yield and Paper Yield - so output figures (papers, citations) are apportioned across an entity's recipient IDs by each ID's share of that group's tracked funding, rather than counted in full for every one of them. This corrects the magnitude of double-counting but the underlying identities are still separate rows everywhere else (Rankings, Money Flow, field mix) - a true merge isn't attempted for the reason above. Four recipient IDs couldn't be confidently split by campus this way and still share a system-wide entity: two Research Foundation of CUNY registrations whose only address on file is a CUNY central-office building rather than a specific college, and two University of Puerto Rico registrations both listed simply as San Juan. NIH-linked publication counts can double-count a paper when its award number was shared or transferred across institutions. Citations for recent publication years are naturally lower than older years (they haven't had time to accumulate yet).
     </div>

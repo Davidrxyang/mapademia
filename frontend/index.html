@@ -291,6 +291,7 @@
     margin: 14px 0 6px;
   }
   .chart-caveat { font-size: 10.5px; color: var(--muted); font-style: italic; margin-top: 4px; }
+  .notes-jump-link { color: var(--accent); text-decoration: underline; cursor: pointer; }
   .field-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; margin: 3px 0; }
   .field-name { flex: 0 0 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .field-bar-track { flex: 1; background: var(--border); border-radius: 3px; height: 8px; overflow: hidden; }
@@ -505,7 +506,7 @@
 
 <div class="tab-panel" data-tab="scatter">
   <div class="chart-wrap">
-    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions. Funding reflects the agencies tracked here (see the Notes tab); output/citations are each institution's entire OpenAlex record (all funders, all fields) - this shows correlation, not money-to-paper causation.</div>
+    <div class="chart-note">Each dot is one institution (of the top 500 tracked). Log scales - both funding and output/citations span several orders of magnitude across institutions. Funding reflects the agencies tracked here (see <a class="notes-jump-link" data-anchor="notes-agencies-tracked" href="#">the Notes tab</a>); output/citations are each institution's entire OpenAlex record (all funders, all fields) - this shows correlation, not money-to-paper causation.</div>
     <div class="control-group" style="margin-bottom: 10px;">
       <label for="scatter-y-select">Y axis</label>
       <select id="scatter-y-select">
@@ -519,10 +520,10 @@
       <h2 style="font-size: 14px; margin: 0 0 8px;">How Citation Yield and Paper Yield are calculated</h2>
       <div class="yield-formula">Yield = actual output ÷ expected output</div>
       <div style="font-size: 12.5px; margin: 8px 0;">
-        "Expected output" comes from each institution's own OpenAlex field mix (the same estimate used in Money Flow and Research Fields): split the institution's funding across its fields, then convert each field's dollars to an expected paper/citation count using the <em>national</em> rate for that field (total papers or citations ÷ total funding, across all 500 tracked institutions, in that field). Sum across fields to get one institution's expected total. 1.0 = exactly as expected for its field mix; 1.5 = 50% above; 0.5 = half of expected.
+        "Expected output" comes from each institution's own OpenAlex field mix (the same estimate used in Money Flow and Research Fields): split the institution's funding across its fields, then convert each field's dollars to an expected paper/citation count using the national rate for that field (total papers or citations ÷ total funding, across all 500 tracked institutions, in that field). Sum across fields to get one institution's expected total. 1.0 = exactly as expected for its field mix; 1.5 = 50% above; 0.5 = half of expected.
       </div>
       <div class="chart-caveat">
-        This is a rough, field-mix-based estimate, not a precise or complete measure of research quality, timeliness, or impact - it doesn't account for basic vs. applied research, equipment costs, or how new a lab is. Funding always uses each institution's <em>entire</em> tracked funding across all agencies, regardless of the Agency filter above - narrowing to one agency would starve the expected-output side for any institution mostly funded elsewhere, blowing up its ratio for no real reason (only the Fiscal Year range still applies). It also reflects only the federal agencies tracked here; output (papers/citations) is each institution's <em>entire</em> all-time OpenAlex record, from all funders, not just the federal dollars tracked here, and lags funding by years - so an institution with substantial non-federal or private funding will show a higher Yield than its federal funding alone would predict, and this compares institutions to each other under the same rules, not an exact rate. Institutions with too little expected output to give a stable ratio are left out rather than shown with a wild number. A handful of institutions are registered under more than one recipient ID pointing to the same OpenAlex entity (e.g. Rutgers); their output is apportioned by funding share to avoid double-counting, but some residual distortion can remain - see the Notes tab for the full list and detail.
+        This is a rough, field-mix-based estimate, not a precise or complete measure of research quality, timeliness, or impact - it doesn't account for basic vs. applied research, equipment costs, or how new a lab is. Funding always uses each institution's entire tracked funding across all agencies, regardless of the Agency filter above - narrowing to one agency would starve the expected-output side for any institution mostly funded elsewhere, blowing up its ratio (only the Fiscal Year range still applies). It also reflects only the federal agencies tracked here; output (papers/citations) is each institution's entire all-time OpenAlex record, from all funders, not just the federal dollars tracked here, and lags funding by years - so an institution with substantial non-federal or private funding will show a higher Yield than its federal funding alone would predict, and this compares institutions to each other under the same rules, not an exact rate. Institutions with too little expected output to give a stable ratio are left out rather than shown with a wild number. A handful of institutions are registered under more than one recipient ID pointing to the same OpenAlex entity (e.g. Rutgers); their output is apportioned by funding share to avoid double-counting, but some residual distortion can remain - see <a class="notes-jump-link" data-anchor="notes-known-limitations" href="#">the Notes tab</a> for the full list and detail.
       </div>
     </div>
 
@@ -2373,10 +2374,10 @@
       const parts = [];
       if (ranked.some(([, y]) => y.uncertain)) parts.push("* = which registration this output belongs to isn't confidently known");
       if (ranked.some(([, y]) => y.manuallyAudited)) parts.push("** = OpenAlex match set or corrected by hand");
-      return parts.length ? ` · ${parts.join(" · ")} (see Notes tab)` : "";
+      return parts.length ? ` · ${parts.join(" · ")} (see <a class="notes-jump-link" data-anchor="notes-known-limitations" href="#">Notes tab</a>)` : "";
     }
-    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data${markerNote(citationRanked)}`);
-    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data${markerNote(paperRanked)}`);
+    d3.select("#citation-yield-count").html(`${citationRanked.length} of ${citationAll.length} institutions with enough data${markerNote(citationRanked)}`);
+    d3.select("#paper-yield-count").html(`${paperRanked.length} of ${paperAll.length} institutions with enough data${markerNote(paperRanked)}`);
 
     renderYieldTable("citation-yield-table", citationRanked, "citationYield", "actualCitations", "expectedCitations");
     renderYieldTable("paper-yield-table", paperRanked, "paperYield", "actualPapers", "expectedPapers");
@@ -2761,6 +2762,25 @@
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.tab === activeTab));
       renderActiveTab();
     });
+  });
+
+  // Switches to the Notes tab and scrolls straight to one section, for
+  // every "see the Notes tab" reference elsewhere in the app. A single
+  // delegated listener (rather than binding each link individually) so it
+  // still works on links inside content that gets re-rendered, like the
+  // Impact tab's Yield table note.
+  function jumpToNotes(anchorId) {
+    activeTab = "notes";
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "notes"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.tab === "notes"));
+    renderActiveTab();
+    document.getElementById(anchorId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest(".notes-jump-link");
+    if (!link) return;
+    event.preventDefault();
+    jumpToNotes(link.dataset.anchor);
   });
 
   document.querySelectorAll(".map-mode-btn").forEach(btn => {
