@@ -29,7 +29,7 @@ def main():
 
     con.execute(f"""
         create table crosswalk as
-        select uei, openalex_id from read_csv_auto('{CROSSWALK_PATH}')
+        select uei, openalex_id, similarity from read_csv_auto('{CROSSWALK_PATH}')
     """)
     con.execute(f"""
         create table insts as
@@ -121,9 +121,16 @@ def main():
     # rows read as clutter/duplication; funding-flow views (Rankings, Map,
     # Money Flow) keep every recipient ID separate since those are about
     # distinct legal registrations, not deduplicated research identity.
+    # manually_audited flags recipient IDs whose crosswalk match was set or
+    # corrected by hand (similarity is "manual"/"manual-fix"/"manual-unmatched"
+    # rather than a bare automated name-similarity score) - shown in the
+    # Impact tab as a mark of higher confidence than the ~400 unaudited
+    # automated matches, most of which are fine but were never individually
+    # checked one by one.
     con.execute(f"""
         copy (
-            select uei, openalex_id from crosswalk where openalex_id is not null and openalex_id != ''
+            select uei, openalex_id, similarity not similar to '[0-9.]+' as manually_audited
+            from crosswalk where openalex_id is not null and openalex_id != ''
         ) to '{PROCESSED_DIR / "institution_openalex_id.csv"}' (header, delimiter ',')
     """)
 

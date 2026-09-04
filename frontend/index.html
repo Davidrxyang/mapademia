@@ -649,6 +649,10 @@
   // keeps each recipient ID as its own row since those are about distinct
   // funding registrations, not deduplicated research identity.
   const openalexIdByUei = new Map(openalexIdRows.map(d => [d.uei, d.openalex_id]));
+  // True where the crosswalk match was set or corrected by hand, rather
+  // than left as an unaudited automated name-similarity match - shown in
+  // the Impact tab as a mark of higher confidence.
+  const manuallyAuditedByUei = new Map(openalexIdRows.map(d => [d.uei, d.manually_audited === true || d.manually_audited === "true"]));
 
   const states = topojson.feature(us, us.objects.states).features;
   const pad2 = (id) => String(id).padStart(2, "0");
@@ -2251,13 +2255,17 @@
       const groupKey = openalexIdByUei.get(uei) || uei;
       let e = byGroup.get(groupKey);
       if (!e) {
-        e = { name: y.name, city: y.city, state_code: y.state_code, actualPapers: 0, expectedPapers: 0, actualCitations: 0, expectedCitations: 0, uncertain: UNCERTAIN_OPENALEX_IDS.has(groupKey), _bestScore: -1 };
+        e = { name: y.name, city: y.city, state_code: y.state_code, actualPapers: 0, expectedPapers: 0, actualCitations: 0, expectedCitations: 0, uncertain: UNCERTAIN_OPENALEX_IDS.has(groupKey), manuallyAudited: false, _bestScore: -1 };
         byGroup.set(groupKey, e);
       }
       e.actualPapers += y.actualPapers;
       e.expectedPapers += y.expectedPapers;
       e.actualCitations += y.actualCitations;
       e.expectedCitations += y.expectedCitations;
+      // A group counts as manually audited if any of its recipient IDs was
+      // individually set/corrected by hand - a partial audit is still more
+      // trustworthy than a group made entirely of unaudited auto-matches.
+      e.manuallyAudited = e.manuallyAudited || manuallyAuditedByUei.get(uei) || false;
       // Use the name/city of whichever member has the largest funding
       // footprint (approximated by expected output) as the representative
       // label for the merged row.
@@ -2328,10 +2336,13 @@
     const tr = tbody.selectAll("tr").data(ranked).join("tr");
     tr.append("td").text((d, i) => i + 1);
     tr.append("td").attr("class", "rank-name")
-      .attr("title", d => d[1].uncertain
-        ? `${titleCase(d[1].name)} - which specific registration this output actually belongs to isn't confidently known; see the Notes tab.`
-        : titleCase(d[1].name))
-      .text(d => titleCase(d[1].name) + (d[1].uncertain ? " *" : ""));
+      .attr("title", d => {
+        const notes = [];
+        if (d[1].uncertain) notes.push("which specific registration this output actually belongs to isn't confidently known");
+        if (d[1].manuallyAudited) notes.push("this institution's OpenAlex match was individually set or corrected by hand, not left as an automated guess");
+        return notes.length ? `${titleCase(d[1].name)} - ${notes.join("; ")}; see the Notes tab.` : titleCase(d[1].name);
+      })
+      .text(d => titleCase(d[1].name) + (d[1].uncertain ? " *" : "") + (d[1].manuallyAudited ? " **" : ""));
     tr.append("td").attr("class", "num").text(d => Math.round(d[1][actualKey]).toLocaleString());
     tr.append("td").attr("class", "num").text(d => Math.round(d[1][expectedKey]).toLocaleString());
     tr.append("td").attr("class", "num").text(d => `${d[1][metricKey].toFixed(2)}x`);
@@ -2358,10 +2369,14 @@
     const citationRanked = citationBucketFilter === "all" ? citationAll : citationAll.filter(([, y]) => yieldBucketIndexFor(y.citationYield) === +citationBucketFilter);
     const paperRanked = paperBucketFilter === "all" ? paperAll : paperAll.filter(([, y]) => yieldBucketIndexFor(y.paperYield) === +paperBucketFilter);
 
-    const citationNote = citationRanked.some(([, y]) => y.uncertain) ? " · * = which registration this output belongs to isn't confidently known (see Notes tab)" : "";
-    const paperNote = paperRanked.some(([, y]) => y.uncertain) ? " · * = which registration this output belongs to isn't confidently known (see Notes tab)" : "";
-    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data${citationNote}`);
-    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data${paperNote}`);
+    function markerNote(ranked) {
+      const parts = [];
+      if (ranked.some(([, y]) => y.uncertain)) parts.push("* = which registration this output belongs to isn't confidently known");
+      if (ranked.some(([, y]) => y.manuallyAudited)) parts.push("** = OpenAlex match set or corrected by hand");
+      return parts.length ? ` · ${parts.join(" · ")} (see Notes tab)` : "";
+    }
+    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data${markerNote(citationRanked)}`);
+    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data${markerNote(paperRanked)}`);
 
     renderYieldTable("citation-yield-table", citationRanked, "citationYield", "actualCitations", "expectedCitations");
     renderYieldTable("paper-yield-table", paperRanked, "paperYield", "actualPapers", "expectedPapers");
