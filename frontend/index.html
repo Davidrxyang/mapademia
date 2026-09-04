@@ -882,6 +882,13 @@
   const nationalProjection = d3.geoAlbersUsa().fitSize([960, 600], { type: "FeatureCollection", features: states });
   const nationalPath = d3.geoPath(nationalProjection);
   const tooltip = d3.select("#tooltip");
+  // Touch devices have no real "hover" - tapping a state/institution fires
+  // the same mousemove handler that shows the tooltip on desktop, but
+  // there's no mouseleave afterward to hide it again, so it stays stuck on
+  // screen after the tap navigates elsewhere. Hiding on every click (which
+  // a tap also fires) covers both cases: real clicks that trigger
+  // navigation, and taps anywhere else that should just dismiss it.
+  document.addEventListener("click", () => tooltip.style("opacity", 0));
 
   // Funding is heavily concentrated in a handful of states, so a linear
   // scale leaves most of the map with barely-distinguishable low values.
