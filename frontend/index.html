@@ -2075,6 +2075,16 @@
   // estimate, not a precision instrument.
   const MIN_EXPECTED_PAPERS = 5;
   const MIN_EXPECTED_CITATIONS = 20;
+  // OpenAlex entities shared by recipient IDs we could not confidently
+  // split by campus (see Notes tab, "Known limitations") - the output
+  // shown for these is real, but which specific registration it actually
+  // belongs to within the group is not known, unlike every other shared
+  // entity in the crosswalk (which was resolved to a real, distinct
+  // campus/facility during the correctness audit).
+  const UNCERTAIN_OPENALEX_IDS = new Set([
+    "https://openalex.org/I4210103622", // Research Foundation of CUNY - 2 registrations, only a central-office address on file
+    "https://openalex.org/I200399037",  // University of Puerto Rico System - 2 registrations both listed as San Juan
+  ]);
   // Grayscale, not red/green - darker = higher yield, matching the map's
   // "darker = more funding" convention. Deliberately not color-coded
   // good/bad: this is a relative, field-mix-based estimate, not a merit
@@ -2241,7 +2251,7 @@
       const groupKey = openalexIdByUei.get(uei) || uei;
       let e = byGroup.get(groupKey);
       if (!e) {
-        e = { name: y.name, city: y.city, state_code: y.state_code, actualPapers: 0, expectedPapers: 0, actualCitations: 0, expectedCitations: 0, _bestScore: -1 };
+        e = { name: y.name, city: y.city, state_code: y.state_code, actualPapers: 0, expectedPapers: 0, actualCitations: 0, expectedCitations: 0, uncertain: UNCERTAIN_OPENALEX_IDS.has(groupKey), _bestScore: -1 };
         byGroup.set(groupKey, e);
       }
       e.actualPapers += y.actualPapers;
@@ -2317,7 +2327,11 @@
     tbody.html("");
     const tr = tbody.selectAll("tr").data(ranked).join("tr");
     tr.append("td").text((d, i) => i + 1);
-    tr.append("td").attr("class", "rank-name").attr("title", d => titleCase(d[1].name)).text(d => titleCase(d[1].name));
+    tr.append("td").attr("class", "rank-name")
+      .attr("title", d => d[1].uncertain
+        ? `${titleCase(d[1].name)} - which specific registration this output actually belongs to isn't confidently known; see the Notes tab.`
+        : titleCase(d[1].name))
+      .text(d => titleCase(d[1].name) + (d[1].uncertain ? " *" : ""));
     tr.append("td").attr("class", "num").text(d => Math.round(d[1][actualKey]).toLocaleString());
     tr.append("td").attr("class", "num").text(d => Math.round(d[1][expectedKey]).toLocaleString());
     tr.append("td").attr("class", "num").text(d => `${d[1][metricKey].toFixed(2)}x`);
@@ -2344,8 +2358,10 @@
     const citationRanked = citationBucketFilter === "all" ? citationAll : citationAll.filter(([, y]) => yieldBucketIndexFor(y.citationYield) === +citationBucketFilter);
     const paperRanked = paperBucketFilter === "all" ? paperAll : paperAll.filter(([, y]) => yieldBucketIndexFor(y.paperYield) === +paperBucketFilter);
 
-    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data`);
-    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data`);
+    const citationNote = citationRanked.some(([, y]) => y.uncertain) ? " · * = which registration this output belongs to isn't confidently known (see Notes tab)" : "";
+    const paperNote = paperRanked.some(([, y]) => y.uncertain) ? " · * = which registration this output belongs to isn't confidently known (see Notes tab)" : "";
+    d3.select("#citation-yield-count").text(`${citationRanked.length} of ${citationAll.length} institutions with enough data${citationNote}`);
+    d3.select("#paper-yield-count").text(`${paperRanked.length} of ${paperAll.length} institutions with enough data${paperNote}`);
 
     renderYieldTable("citation-yield-table", citationRanked, "citationYield", "actualCitations", "expectedCitations");
     renderYieldTable("paper-yield-table", paperRanked, "paperYield", "actualPapers", "expectedPapers");
