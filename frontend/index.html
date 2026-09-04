@@ -617,56 +617,7 @@
   </div>
 </div>
 
-<div class="tab-panel" data-tab="notes">
-  <div class="chart-wrap" style="max-width: 900px; font-size: 13px; line-height: 1.6;">
-    <div class="chart-note" style="margin-bottom: 18px;">Every scope, filter, and methodology decision behind this data, in one place - so nothing here is a black box.</div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Data sources</h2>
-    <div style="margin-bottom: 16px;">
-      Funding: USAspending.gov Award Data Archive, grant-type prime awards only (Block Grant, Formula Grant, Project Grant, Cooperative Agreement - codes 02/03/04/05). This excludes loans, insurance, and direct payments, and excludes procurement contracts entirely.
-      Publications/citations: OpenAlex (bulk snapshot). NIH-specific award&#8594;publication linkage: NIH ExPORTER's own link tables.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Agencies tracked, and why each is scoped the way it is</h2>
-    <div style="margin-bottom: 16px;">
-      <div style="margin-bottom: 10px;"><strong>NIH, NSF</strong> - pulled at full agency scope, no additional filtering.</div>
-      <div style="margin-bottom: 10px;"><strong>NASA</strong> - mostly unrestricted (its recipient base is otherwise genuinely research institutions and nonprofits - Bay Area Environmental Research Institute, SETI Institute, Universities Space Research Association, small SBIR-style research firms), but it also funds large aerospace/defense contractors directly under the same grant-type codes (Boeing, Lockheed Martin, Northrop Grumman, Raytheon, BAE Systems). Excludes recipients tagged "for-profit organization, other than small business" - deliberately narrower than that: small research businesses (the same kind DOD/DOE/EPA keep) are left alone, since those are genuinely small science/research firms, not large contractors.</div>
-      <div style="margin-bottom: 10px;"><strong>DOE, EPA</strong> - restricted to recipients tagged as an institution of higher education. Pulled at full scope, both are dominated by non-research grant programs: DOE by state energy-program and weatherization formula grants (plus large industrial clean-energy-deployment grants - e.g. a single $1.7B award to a nuclear fuel company), EPA by multibillion-dollar "green bank" climate-finance grants (Greenhouse Gas Reduction Fund - one recipient alone received $6.97B in FY2024) and state environmental-agency formula grants. Neither agency exposes a clean sub-agency/office split that USAspending's bulk download API can filter on, so the restriction is applied after pulling the data, using each recipient's business type. Verified this produces a clean list of real university grants (e.g. Kansas State, University of Arizona, Fordham) with the non-research programs correctly excluded.</div>
-      <div style="margin-bottom: 10px;"><strong>DOD</strong> - same university-only restriction, plus a curated allow-list of legitimate research-performing nonprofits DOD funds directly (military medicine, applied research institutes) that a university-only filter would otherwise wrongly exclude: Henry M. Jackson Foundation, Battelle Memorial Institute, Research Triangle Institute, National Academy of Sciences, Woods Hole Oceanographic Institution, The General Hospital Corporation (Massachusetts General), The Morgridge Institute for Research, Charles Stark Draper Laboratory, Oak Ridge Associated Universities, Georgia Tech Research Corp, Vanderbilt University Medical Center, Denver Research Institute. Built by inspecting DOD's actual top nonprofit grant recipients (FY2016-2024), not guessed - explicitly excludes manufacturing/industrial consortiums (e.g. National Center for Manufacturing Sciences, FlexTech Alliance), non-research service organizations (USO, Red Cross, land-conservation trusts), and other non-research grant programs (Air Force Academy Athletic Corporation, Young Marines).</div>
-      <div><strong>Department of Education</strong> - not included. Its grant-type data is dominated by state K-12 formula grants (Title I, IDEA - billions of dollars each, via state education agencies), worse than DOE/EPA's contamination. The same higher-education business-type filter that worked cleanly for DOE/EPA did not cleanly exclude these state agencies when tested - so ED was left out rather than shipped with an unverified filter.</div>
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Institution tracking</h2>
-    <div style="margin-bottom: 16px;">
-      Institution-level views are capped to the top 500 recipients by all-time funding (a Pareto cut - the top 500 cover roughly 93% of total tracked obligations nationally, though far less for some states with many small recipients). Matched to OpenAlex institution records by name-similarity (not any authoritative ID crosswalk - none exists between USAspending's recipient UEI and OpenAlex's ROR-based IDs), with manual corrections applied wherever a mismatch was found - a full re-audit (triggered by spotting suspiciously low output for well-funded institutions) corrected 46 more, including two severe ones where a real university's funding was silently attributed to a completely different real university's publication record: "President and Fellows of Harvard College" was matched to Johns Hopkins University's OpenAlex entity, and "Washington University, The" (St. Louis) was matched to the University of Washington's - both by coincidental name/ROR similarity in the original automated match, confirmed and fixed against the raw OpenAlex snapshot. The rest of the corrections were state-university systems whose funding recipient is a system-wide legal entity (e.g. "Board of Regents of the University of Nebraska," "University of Wisconsin System") that OpenAlex tracks as its own separate, near-empty administrative record, distinct from each actual campus's own large, real one - Wisconsin-Madison, UC Berkeley, University of Georgia, University of Houston, and SUNY's and CUNY's individual campuses were the largest of these. A small number of institutions still have a low-confidence or unresolved match (or no match at all, where the only automated candidate was clearly unrelated, e.g. TERC, Health Research Inc., Embry-Riddle); the underlying dollar figures for those are still shown, just without a reliable research-output correlation. A follow-up pass checked every remaining institution that shares an OpenAlex entity with another recipient, the same way: 12 more turned out to be the same system-shell pattern under a facility a state university runs at a second address rather than a second campus with its own name - Battelle's Richland, WA registration (Pacific Northwest National Laboratory, not generic "Battelle"), the Association of Universities for Research in Astronomy's Baltimore registration (Space Telescope Science Institute, not its Tucson facility-operations entity), New York's Research Foundation for Mental Hygiene's two psychiatric institutes (Nathan Kline Institute; NYS Psychiatric Institute), and six health-science or satellite campuses (LSU Shreveport, University of Oklahoma HSC, University of Tennessee HSC Memphis, Missouri University of Science and Technology, Penn State Hershey, IU Indianapolis, University of Illinois Chicago) that each had their own large, real OpenAlex entity sitting unused in favor of the flagship's. Checked and found already correct, not a bug: Rutgers' 8 recipient IDs, and Texas A&M's 5, each already point to one real, appropriately large combined OpenAlex entity (not a shell) since that's genuinely how OpenAlex tracks them; and recipients that are legally the university itself (not a merged-in independent hospital corporation, like Tufts Medical Center, Vanderbilt University Medical Center, or NYU Langone Health) correctly stay matched to the university's own record even when the hospital's output happens to be larger, since the funding was awarded to and administered by the university, not the separately-incorporated hospital.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Funding and award-count methodology</h2>
-    <div style="margin-bottom: 16px;">
-      Funding sums each transaction's incremental obligation (not the cumulative award total), attributed to the recipient's registered state/institution - i.e. funding is tied to where the recipient is, not where the work is physically performed. Award counts count each distinct award only in the first fiscal year it appears for that specific state/institution, so a multi-year grant is counted once, not once per year it's active.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Field allocation</h2>
-    <div style="margin-bottom: 16px;">
-      Research-field breakdowns (Money Flow, Research Fields, Rankings) are an estimate, not tagged per award: each institution's funding is split across fields in proportion to that institution's own OpenAlex research-topic mix, renormalized since OpenAlex only tracks roughly the 25 most significant topics per institution. "Other field(s)" and "Untracked institutions" absorb two different things under one label: an institution's own topics outside its tracked top 25, and funding to institutions outside the top-500 cutoff entirely (which can't be allocated to any field since we don't know which institution it went to). State and agency totals shown alongside these breakdowns are the true full totals either way - only the field split itself is an estimate.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Money Flow's agency grouping</h2>
-    <div style="margin-bottom: 16px;">
-      With 6 agencies tracked, DOD and DOE each report through a long tail of small sub-offices (Defense Logistics Agency, Missile Defense Agency, Assistant Secretary for Fossil Energy, and a dozen more) that together total well under 1% of tracked funding but each still claimed their own node, making the diagram's left side unreadable. These are grouped into a single "Other agencies" node in Money Flow specifically - the dollar totals aren't affected, and full detail for every individual sub-agency is still available via the Agency filter dropdown and the Rankings tab.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Known limitations, not yet resolved</h2>
-    <div style="margin-bottom: 16px;">
-      Some institutions are registered under more than one USAspending recipient ID (re-registrations over time, or genuinely separate campuses/systems) - these show up as separate entries rather than being merged, since an automated merge risks conflating unrelated institutions. A few large university systems (e.g. Rutgers, spanning 8 recipient IDs; Texas A&M; Harvard) map to a single OpenAlex entity across multiple recipient IDs, because OpenAlex itself doesn't split them by campus. Left as raw duplicates, each ID would be credited with that entity's <em>entire</em> works/citations count, wildly inflating Citation Yield and Paper Yield for exactly these institutions - so output figures (papers, citations) are apportioned across an entity's recipient IDs by each ID's share of that group's tracked funding, rather than counted in full for every one of them. This corrects the magnitude of double-counting but the underlying identities are still separate rows everywhere else (Rankings, Money Flow, field mix) - a true merge isn't attempted for the reason above. Four recipient IDs couldn't be confidently split by campus this way and still share a system-wide entity: two Research Foundation of CUNY registrations whose only address on file is a CUNY central-office building rather than a specific college, and two University of Puerto Rico registrations both listed simply as San Juan. NIH-linked publication counts can double-count a paper when its award number was shared or transferred across institutions. Citations for recent publication years are naturally lower than older years (they haven't had time to accumulate yet) - not a decline in impact.
-    </div>
-
-    <h2 style="font-size: 14px; margin: 0 0 8px;">Not in scope</h2>
-    <div>
-      No researcher/PI-level view: NIH ExPORTER has a stable per-person ID that would make tracking a researcher's own funding straightforward, but linking that reliably to a specific OpenAlex author is a much harder, much larger-scale version of the institution-matching problem above (OpenAlex's own ORCID coverage is only around 56% of authors), so it was scoped out rather than shipped as a low-confidence feature.
-    </div>
-  </div>
-</div>
+<div class="tab-panel" data-tab="notes" id="notes-panel"></div>
 
 <div id="tooltip"></div>
 
@@ -677,7 +628,7 @@
 <script src="https://unpkg.com/d3-sankey@0"></script>
 <script>
 (async function () {
-  const [us, rows, institutionRows, outputRows, fieldMixRows, nihLinkedRows, institutionGeoRows, openalexIdRows] = await Promise.all([
+  const [us, rows, institutionRows, outputRows, fieldMixRows, nihLinkedRows, institutionGeoRows, openalexIdRows, notesHtml] = await Promise.all([
     d3.json("data/us-states-10m.json"),
     d3.csv("data/funding_by_state_year_agency.csv", d3.autoType),
     d3.csv("data/funding_by_institution_year_agency.csv", d3.autoType),
@@ -686,7 +637,11 @@
     d3.csv("data/nih_linked_publications_by_institution_year.csv", d3.autoType),
     d3.csv("data/institution_geo.csv", d3.autoType),
     d3.csv("data/institution_openalex_id.csv", d3.autoType),
+    fetch("notes.html").then(r => r.text()),
   ]);
+  // Notes tab content lives in its own file (notes.html) so it's easy to
+  // find and edit without digging through this script.
+  document.getElementById("notes-panel").innerHTML = notesHtml;
 
   // Confirmed (not merely name-similar) same real institution under
   // separate USAspending recipient IDs - e.g. Rutgers' 8 IDs. Used to
